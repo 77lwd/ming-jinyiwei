@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="北镇抚司案桌与绣春刀">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172321"/><stop offset="1" stop-color="#33413a"/></linearGradient>
+    <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#765132"/><stop offset="1" stop-color="#3b271c"/></linearGradient>
+    <filter id="shadow"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#wall)"/>
+  <rect x="980" y="80" width="390" height="530" fill="#d8c79c" opacity=".08"/>
+  <g opacity=".18" stroke="#d2bd87" stroke-width="8"><path d="M1010 130h330M1010 200h330M1010 270h260M1010 340h320M1010 410h190"/></g>
+  <ellipse cx="1130" cy="690" rx="430" ry="110" fill="#000" opacity=".45" filter="url(#shadow)"/>
+  <path d="M560 630h880l150 370H350z" fill="url(#desk)"/>
+  <g transform="translate(920 525) rotate(-10)">
+    <rect width="330" height="220" rx="6" fill="#d7c8a6"/>
+    <path d="M32 48h250M32 86h210M32 124h260M32 162h150" stroke="#806d4b" stroke-width="8" opacity=".65"/>
+    <rect x="250" y="138" width="56" height="56" fill="#9e362a" opacity=".82"/>
+  </g>
+  <g transform="translate(650 720) rotate(-16)">
+    <path d="M0 0h560l72 18-72 18H0z" fill="#aeb7b2"/>
+    <path d="M30 7h500" stroke="#e2ddd0" stroke-width="4" opacity=".7"/>
+    <rect x="-85" y="-18" width="105" height="72" rx="6" fill="#251c18"/>
+    <path d="M-54 -10v56M-26 -10v56" stroke="#b8894b" stroke-width="7"/>
+    <path d="M-112 18h170" stroke="#b8894b" stroke-width="13"/>
+  </g>
+  <circle cx="1320" cy="210" r="84" fill="#bd9656" opacity=".16"/>
+  <path d="M1320 132v156M1242 210h156" stroke="#d8b977" stroke-width="5" opacity=".26"/>
+</svg>

@@ -1,0 +1,10 @@
+node_modules/
+.impeccable/
+dist/
+.env
+.env.local
+*.tsbuildinfo
+devserver*.log
+artifacts-*.png
+playwright-report/
+test-results/
