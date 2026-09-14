@@ -338,6 +338,95 @@
   .case-facts { grid-row: auto; }
 }
 
+@layer components {
+  /* Targeted polish: preserve the existing desk layout while making the case hierarchy clearer. */
+  .scene-visual figcaption {
+    max-width: min(42rem, 64%);
+    padding: .7rem .85rem .75rem;
+    background: linear-gradient(90deg, rgba(10, 12, 11, .62), rgba(10, 12, 11, 0));
+    border-bottom: 1px solid rgba(216, 181, 118, .72);
+  }
+
+  .scene-visual figcaption span { letter-spacing: .06em; }
+  .scene-visual figcaption strong { text-shadow: 0 2px 10px rgba(0, 0, 0, .72); }
+
+  .investigation-card,
+  .verification-question,
+  .petition-options button,
+  .event-choices button {
+    transition: color .16s ease-out, background-color .16s ease-out, border-color .16s ease-out, transform .16s ease-out;
+  }
+
+  .investigation-card:focus-visible,
+  .verification-question:focus-visible,
+  .petition-options button:focus-visible,
+  .event-choices button:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .investigation-card:active,
+  .verification-question:active,
+  .petition-options button:active,
+  .event-choices button:active { transform: translateY(1px); }
+
+  .investigation-card-copy strong { text-wrap: balance; }
+  .investigation-card-copy small:last-child { color: #8f5a45; font-weight: 650; }
+
+  .result-view {
+    position: relative;
+    background: var(--dossier-paper);
+    box-shadow: 0 22px 42px rgba(0, 0, 0, .3);
+  }
+
+  .result-view::before {
+    content: '案卷回执';
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    color: rgba(132, 54, 46, .55);
+    font: 700 .62rem/1 system-ui, sans-serif;
+    letter-spacing: .12em;
+    writing-mode: vertical-rl;
+  }
+
+  .result-pause { padding: 1.25rem 1.5rem 1.5rem; }
+  .result-document-meta { padding-right: 2rem; }
+  .result-authority em { transform: rotate(-1deg); }
+
+  .closure-result .closure-stamp {
+    position: relative;
+    padding: 1.25rem 1.25rem 1.15rem;
+    background: rgba(132, 54, 46, .08);
+    border-color: rgba(132, 54, 46, .68);
+  }
+
+  .closure-result .closure-stamp::after {
+    content: '封结';
+    position: absolute;
+    top: .8rem;
+    right: 1rem;
+    width: 3.1rem;
+    height: 3.1rem;
+    display: grid;
+    place-items: center;
+    color: rgba(132, 54, 46, .72);
+    border: 2px solid rgba(132, 54, 46, .62);
+    border-radius: 50%;
+    font: 800 1rem/1 "Noto Serif SC", "Source Han Serif SC", serif;
+    transform: rotate(-12deg);
+  }
+
+  .materials-filed li { border-left: 0; border-top: 1px solid rgba(70, 96, 84, .35); }
+  .materials-filed li:first-child { border-top: 0; }
+
+  @media (max-width: 760px) {
+    .scene-visual figcaption { max-width: 84%; }
+    .result-view::before { display: none; }
+    .result-pause { padding-inline: 1rem; }
+  }
+}
+
 @media (max-width: 1100px) {
   body { min-width: 0; }
   .play-column { width: min(100% - 2rem, 900px); }
