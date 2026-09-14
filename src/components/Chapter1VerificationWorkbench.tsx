@@ -31,7 +31,7 @@ export function Chapter1VerificationWorkbench({ investigation, supplementalChoic
   return <section className="verification-workbench" aria-labelledby="verification-heading">
     <header className="verification-heading">
       <span><FileSearch size={18} aria-hidden="true" /></span>
-      <div><h3 id="verification-heading">证据命题核验</h3><p>先选一条待证问题，再从已经取得的材料中选出至少两项互相印证。</p></div>
+      <div><h3 id="verification-heading">证据命题核验</h3><p>先选一条待证问题，再从已经取得的材料中选出一组能够互相印证的材料。</p></div>
       <strong>{investigation.fixedFactIds.length} 项已固定</strong>
     </header>
 
@@ -50,7 +50,7 @@ export function Chapter1VerificationWorkbench({ investigation, supplementalChoic
 
       <fieldset className="verification-materials" disabled={!currentQuestionId}>
         <legend>二、选取案卷材料</legend>
-        <p>只列出你已经查到的材料。选中并不代表它一定能证明当前命题。</p>
+        <p>只列出你已经查到的材料。多选无关材料不能加强命题，反而会使证据链失焦。</p>
         <div className="material-checklist">{investigation.materialIds.map((materialId) => {
           const checked = selectedMaterialIds.includes(materialId)
           return <label key={materialId} className={checked ? 'is-selected' : ''}>
@@ -64,7 +64,7 @@ export function Chapter1VerificationWorkbench({ investigation, supplementalChoic
     </div>
 
     <footer className="verification-submit">
-      <p aria-live="polite">已选择 <strong>{selectedMaterialIds.length}</strong> 项材料{selectedMaterialIds.length < 2 ? '，至少还需一项' : '，可以呈交核验'}</p>
+      <p aria-live="polite">已选择 <strong>{selectedMaterialIds.length}</strong> 项材料{selectedMaterialIds.length < 2 ? '，至少还需一项' : '，请确认每项都直接支撑命题'}</p>
       <button type="button" className="button button-primary" disabled={!currentQuestionId || selectedMaterialIds.length < 2} onClick={() => currentQuestionId && onVerify(currentQuestionId, selectedMaterialIds)}><ScrollText size={17} aria-hidden="true" />呈交这组核验</button>
     </footer>
 

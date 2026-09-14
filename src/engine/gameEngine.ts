@@ -232,7 +232,9 @@ export function submitChapter1Verification(state: GameState, questionId: Chapter
   const selected = [...new Set(selectedMaterialIds)]
   if (selected.length < 2 || selected.some((id) => !state.chapter1Investigation.materialIds.includes(id))) return withFailure(state, 'invalid_choice')
 
-  const supported = question.requiredMaterialSets.some((required) => required.every((id) => selected.includes(id)))
+  const supported = question.requiredMaterialSets.some((required) => (
+    required.length === selected.length && required.every((id) => selected.includes(id))
+  ))
   const narrative = supported ? question.supportedNarrative : {
     title: '材料相关，但还不足',
     tone: 'tense' as const,

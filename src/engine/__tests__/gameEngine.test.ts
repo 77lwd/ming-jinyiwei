@@ -253,6 +253,18 @@ describe('desktop-first game engine', () => {
     expect(supported.state.chapter1Investigation.fixedFactIds).toContain('fire-target')
     expect(supported.state.chapter1Investigation.openQuestionIds).not.toContain('fire-target')
     expect(supported.state.pendingResult).toEqual({ kind: 'mainline_choice', nextNode: 'chapter1.authorization-review' })
+
+    const overselected = submitChapter1Verification(state, 'fire-target', [
+      'fire-origin',
+      'dragged-pages',
+      'sample-slip',
+      'neighbor-testimony',
+    ])
+    expect(overselected.ok).toBe(true)
+    if (!overselected.ok) return
+    expect(overselected.state.chapter1Investigation.fixedFactIds).not.toContain('fire-target')
+    expect(overselected.state.currentNarrative.title).toBe('材料相关，但还不足')
+    expect(overselected.state.pendingResult).toEqual({ kind: 'mainline_choice', nextNode: 'chapter1.day2-verify' })
   })
 
   it('makes Qian Baokun return an overreaching detention request until two core facts are fixed', () => {
