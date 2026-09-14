@@ -27,43 +27,43 @@ export const chapter1InvestigationBlueprint: Chapter1InvestigationBlueprint = {
       prompt: '吴生为什么拿着装有散银的工作包从后门出来？',
       shortLabel: '吴生离铺是否另有原因',
       requiredMaterialSets: [['sample-slip', 'porter-testimony'], ['sample-slip', 'neighbor-testimony']],
-      supportedNarrative: { title: '吴生是被支去后巷的', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '你把送样凭条压在桌角，又把脚夫和邻铺的说法逐句对过。凭条写的是正门，脚夫记得的却是后巷；邻铺听见有人催吴生改路，时间也能接上。' }, { kind: 'prose', text: '这些材料合在一起，只能先钉住一件事：吴生不是无缘无故从后门离开，包里的散银也不能单独把纵火罪扣在他身上。' }, { kind: 'dialogue', text: '覃保坤翻过凭条背面：“先把他为什么离铺写实。至于是谁动的手脚，还得找经手这张凭条的人。”' }] },
+      supportedNarrative: { title: '吴生是被支去后巷的', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '你把凭条、脚夫的口供和邻铺的说法摊在一起。凭条写的是正门，脚夫记得的却是后巷；邻铺听见有人催吴生改路，时间也接得上。' }, { kind: 'prose', text: '吴生确实不是平白从后门出来的。至于包里的散银，单凭这一点还不能拿来定他的罪。' }, { kind: 'dialogue', text: '覃保坤把凭条翻到背面：“先把他为什么离铺写清。写这张凭条的人，还得另找。”' }] },
     },
     {
       id: 'fire-target',
       prompt: '火为什么先烧向内部记录和印纸存放处？',
       shortLabel: '起火位置是否指向毁证',
       requiredMaterialSets: [['fire-origin', 'dragged-pages'], ['fire-origin', 'package-remains']],
-      supportedNarrative: { title: '火是从账架旁起的', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把火场方位记录和纸页落灰的位置并排摊开。登记架靠后墙，最先卷曲的纸边朝向一致；几页本该留在架下的烧账，却在火起来前被拖到了门槛。' }, { kind: 'prose', text: '若只是门边杂物走火，火势不会先咬住登记架，纸页也不会先离开原处。两份记录对上了：火首先冲着登记架和印纸包去，纸页在起火前已经被人动过。' }, { kind: 'dialogue', text: '覃保坤把两页记录调了个方向：“这就能写进案卷了。先把毁证的手段钉牢，至于是谁动的，还要拿经手记录和口供来接。”' }] },
+      supportedNarrative: { title: '火是从账架旁起的', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把火场方位图和纸页上的落灰一一对过。登记架靠着后墙，纸边卷曲的方向都朝向同一处；几页烧账却不在架下，而是落在门槛边。' }, { kind: 'prose', text: '门边的杂物若是先着火，灰不会这样落，纸页也不会自己换地方。登记架和印纸包先烧，纸页在起火前被人动过。' }, { kind: 'dialogue', text: '覃保坤把两张记录并到一起：“这就能写进案卷了。动手的人，还要顺着经手的记录找。”' }] },
     },
     {
       id: 'paper-fate',
       prompt: '失窃印纸是否真的全部毁于火中？',
       shortLabel: '印纸是否在火前被转移',
       requiredMaterialSets: [['client-counterfoil', 'quantity-gap'], ['client-counterfoil', 'package-remains']],
-      supportedNarrative: { title: '有一批印纸没有留在火里', tone: 'tense', paragraphs: [{ kind: 'prose', text: '客户副联上的数量和入库记录先对上了，随后又在差牌与残存登记里少出一截。纸铺说“全数烧毁”，可账上的数字和带编号的残片都不肯替这句话作证。' }, { kind: 'prose', text: '现在能写进案卷的，是这批印纸确实进过后库，却没有全部留到火后；少掉的那一截，必须沿着经手次序继续查。' }, { kind: 'dialogue', text: '覃保坤点了点副联：“数量先钉住。别急着把缺口写成谁拿走的，下一笔要找的是经手，不是猜人。”' }] },
+      supportedNarrative: { title: '有一批印纸没有留在火里', tone: 'tense', paragraphs: [{ kind: 'prose', text: '客户副联上的数量和入库记录对上了。再往下查，差牌和残存登记却少了一截。纸铺说印纸全烧了，可账上的数字和带编号的残片都不答应。' }, { kind: 'prose', text: '这批印纸进过后库，却没有全留到火后。少掉的那一截，得从经手的人和次序往回查。' }, { kind: 'dialogue', text: '覃保坤按住副联：“先把数记准。缺口是谁留下的，等找到经手的人再说。”' }] },
     },
   ],
   routes: [
     {
       id: 'sample-route', label: '核验送样路线', materialIds: ['sample-slip', 'neighbor-testimony', 'porter-testimony'],
       actions: [
-        { id: 'sample-read-slip', label: '先看送样凭条的地址和时刻', materialIds: ['sample-slip'], narrative: { title: '凭条上的空白', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把凭条压在案板上，先不问吴生有没有偷银，只看地址、时刻和经手人的笔迹。地址写得很满，落款却像是临时补上的。' }, { kind: 'dialogue', text: '覃保坤道：“先记它写了什么，再记它没写什么。空白也能留证。”' }] } },
-        { id: 'sample-question-porter', label: '找脚夫核对这张凭条是否送过', materialIds: ['neighbor-testimony', 'porter-testimony'], narrative: { title: '脚夫记得另一条路', tone: 'tense', paragraphs: [{ kind: 'prose', text: '脚夫先说自己只认地址，等你把纸翻到背面，他才想起那天送的不是铺外正门，而是后巷的偏门。邻铺也听见有人催吴生往那边走。' }, { kind: 'system', text: '这只能证明吴生被一张有问题的凭条支开，尚不能证明是谁写下它。' }] } },
+        { id: 'sample-read-slip', label: '先看送样凭条的地址和时刻', materialIds: ['sample-slip'], narrative: { title: '凭条上的空白', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把凭条摊平。地址写得很满，落款却挤在最下面，墨色也比前面的字新。' }, { kind: 'dialogue', text: '覃保坤接过去看了一眼：“这里，谁补的？”' }] } },
+        { id: 'sample-question-porter', label: '找脚夫核对这张凭条是否送过', materialIds: ['neighbor-testimony', 'porter-testimony'], narrative: { title: '脚夫记得另一条路', tone: 'tense', paragraphs: [{ kind: 'prose', text: '脚夫起初只说认得凭条上的地址。你把纸翻到背面，他才想起那天走的不是正门，而是后巷的偏门。邻铺的人也听见有人催吴生往那边去。' }, { kind: 'system', text: '凭条确实把吴生支去了后巷，但写下它的人还没有露面。' }] } },
       ],
     },
     {
       id: 'fire-scene', label: '勘验火场与后库', materialIds: ['fire-origin', 'dragged-pages', 'package-remains'],
       actions: [
-        { id: 'fire-map-origin', label: '沿灰线确认最先起火的位置', materialIds: ['fire-origin'], narrative: { title: '火先咬住后库', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你蹲在湿灰里，用刀鞘拨开一层黑纸。最先卷曲的不是堆在门边的库料，而是靠墙的登记架和印纸包。' }, { kind: 'dialogue', text: '覃保坤道：“火会走，人不会。先记它走过哪里。”' }] } },
-        { id: 'fire-check-remains', label: '检查被拖拢的纸页和包装残片', materialIds: ['dragged-pages', 'package-remains'], narrative: { title: '灰里有被动过的痕迹', tone: 'tense', paragraphs: [{ kind: 'prose', text: '几页烧账被拖到门槛边，断绳的纤维却留在后库深处。有人在火势起来前先动过纸包。' }, { kind: 'system', text: '起火位置和残片能说明毁证手段，仍不能单独锁定经手人。' }] } },
+        { id: 'fire-map-origin', label: '沿灰线确认最先起火的位置', materialIds: ['fire-origin'], narrative: { title: '火先咬住后库', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你蹲在湿灰里，用刀鞘拨开一层黑纸。门边的库料还压着原来的样子，靠墙的登记架已经卷黑，印纸包也烧穿了。' }, { kind: 'dialogue', text: '覃保坤看着那两处：“别记门口。这里先起的。”' }] } },
+        { id: 'fire-check-remains', label: '检查被拖拢的纸页和包装残片', materialIds: ['dragged-pages', 'package-remains'], narrative: { title: '灰里有被动过的痕迹', tone: 'tense', paragraphs: [{ kind: 'prose', text: '几页烧账堆在门槛边，断绳的纤维却留在后库深处。你捻起一小段焦黑的绳头，手上立刻沾了灰。纸包是在火起来前被动过的。' }, { kind: 'system', text: '这些痕迹能说明纸包曾被挪动，至于是谁动的，还得继续查。' }] } },
       ],
     },
     {
       id: 'client-counterfoil', label: '核对客户副联与数量', materialIds: ['client-counterfoil', 'duty-card', 'quantity-gap'],
       actions: [
-        { id: 'client-find-counterfoil', label: '向客户索取留存副联', materialIds: ['client-counterfoil'], narrative: { title: '副联上的预付款', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '客户留存的副联还在，预付款和印纸数量都写得清楚。纸铺说“全烧没了”，副联却证明货确实已经进过后库。' }] } },
-        { id: 'client-reconcile-quantity', label: '拿副联对照差牌和内部数量', materialIds: ['duty-card', 'quantity-gap'], narrative: { title: '少掉的不是灰', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把副联、差牌和纸铺残存的登记页排成一行，少掉的数量正好落在贺兴经手的那一批。' }, { kind: 'dialogue', text: '覃保坤没有替你下结论，只说：“数量能咬住手段，不能越过手段直接咬住人。”' }] } },
+        { id: 'client-find-counterfoil', label: '向客户索取留存副联', materialIds: ['client-counterfoil'], narrative: { title: '副联上的预付款', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '客户把留存的副联从柜底取出来，纸角还压着一块砚台印。预付款和印纸数量写得清楚，纸铺那句“全烧没了”因此先停在了半路。' }] } },
+        { id: 'client-reconcile-quantity', label: '拿副联对照差牌和内部数量', materialIds: ['duty-card', 'quantity-gap'], narrative: { title: '少掉的不是灰', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把副联、差牌和残存登记页排在案桌上。三张纸的数字一路对下来，缺口正落在贺兴经手的那一批。' }, { kind: 'dialogue', text: '覃保坤看了很久：“数对上了。先别急着写人名。”' }] } },
       ],
     },
   ],
@@ -199,7 +199,7 @@ export const chapter1MainlineSteps: Record<string, Chapter1MainlineStep> = {
       tone: 'tense',
       paragraphs: [
         { kind: 'prose', text: '你没有把“查送样”“看火场”当成一句结论，而是把要问的人、要看的痕迹和要留下的记录分开。' },
-        { kind: 'dialogue', text: '覃保坤道：“查案不是把地点走一遍。你得知道这一趟回来，要多一条什么能复核的东西。”' },
+        { kind: 'dialogue', text: '覃保坤翻了翻你的笔录：“后库看过了？”你说看过。他用指节敲了敲纸面：“那你带回来的东西呢？别只写看过。”' },
       ],
     },
   },
@@ -215,8 +215,8 @@ export const chapter1MainlineSteps: Record<string, Chapter1MainlineStep> = {
       tone: 'tense',
       paragraphs: [
         { kind: 'prose', text: '日落前，你只来得及把两处调查做实。已经取得的材料分别进入案情记录，未查的一处仍然是第二日必须补核的缺口。' },
-        { kind: 'dialogue', text: '覃保坤把纸页分成两叠：“能对上的写在前头，对不上的另起一行。别为了让案子好看，就把缺的那块假装补上。”' },
-        { kind: 'monologue', text: '眼下只能确认原有指控存在解释不通的地方。谁在说谎、谎话遮住了什么，还需要证据互相咬合。' },
+        { kind: 'dialogue', text: '覃保坤把纸页分成两叠，一叠放在左手边，另一叠压在砚台旁：“这些能对上。剩下的，另列。”他看了你一眼，“缺的就是缺的。”' },
+        { kind: 'monologue', text: '吴生的口供和铺里的账对不上。至于哪一句是后来改的，眼下还看不出来。' },
       ],
     },
   },

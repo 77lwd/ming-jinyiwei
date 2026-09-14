@@ -85,11 +85,11 @@ export function InvestigationChoices({ choices, onChoose }: { choices: Array<{ i
   const subheading = isFirstDay ? '第一日只能优先调查两处' : isFieldAction ? '每完成一步，才会有新的材料进入案卷' : '当前材料将决定下一步核验'
   return <section className="investigation-board" aria-labelledby="investigation-heading">
     <div className="workbench-heading" id="investigation-heading"><Search size={16} aria-hidden="true" /><span>{heading}</span><small>{subheading}</small></div>
-    <div className="investigation-list">{choices.map((choice) => {
+    <div className="investigation-list">{choices.map((choice, index) => {
       const meta = investigationMeta[choice.id]
       const material = materialKinds[choice.id] ?? { label: '待办材料', icon: MapPin }
       const MaterialIcon = material.icon
-      return <button key={choice.id} className="investigation-card" data-audio-sfx="choice" onClick={() => onChoose(choice.id)}>
+      return <button key={choice.id} className="investigation-card" data-index={String(index + 1).padStart(2, '0')} data-audio-sfx="choice" onClick={() => onChoose(choice.id)}>
         <span className="investigation-card-icon"><MaterialIcon size={17} aria-hidden="true" /></span>
         <span className="investigation-card-copy"><small className="investigation-card-kind">{material.label}</small><strong>{choice.label}</strong><small>{meta?.place ?? '当前办案地点'} · {meta?.object ?? '相关材料'}</small><em>{meta?.purpose ?? '把事实核清，再决定下一步'}</em>{(investigationWealthCosts[choice.id] || investigationHealthCosts[choice.id]) && <small>预计消耗{investigationWealthCosts[choice.id] ? `银两 ${investigationWealthCosts[choice.id]}` : ''}{investigationWealthCosts[choice.id] && investigationHealthCosts[choice.id] ? '、' : ''}{investigationHealthCosts[choice.id] ? `健康 ${investigationHealthCosts[choice.id]}` : ''}</small>}</span>
         <span className="investigation-card-arrow" aria-hidden="true">›</span>

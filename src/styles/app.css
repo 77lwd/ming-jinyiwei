@@ -484,6 +484,48 @@
   .fire-desk-sample .desk-tools, .fire-desk-sample .desk-network { top: 82px; transform: none; box-shadow: none; }
 }
 
+@layer polish {
+  /* Second-pass dossier polish: stronger hierarchy without changing the page structure. */
+  .narrative-panel {
+    position: relative;
+    padding: 1.7rem 0 1.9rem;
+    border-bottom: 1px solid rgba(139, 74, 61, .52);
+  }
+  .narrative-panel::before {
+    content: '案情叙录';
+    position: absolute;
+    top: .35rem;
+    right: 0;
+    color: var(--seal, #7c4036);
+    font: 700 .65rem/1 system-ui, sans-serif;
+    letter-spacing: .14em;
+  }
+  .narrative-panel h2 { max-width: 22ch; color: #2d2923; font-size: clamp(2rem, 3vw, 2.8rem); line-height: 1.18; }
+  .narrative-panel p { max-width: 39rem; color: #514a40; line-height: 2.05; }
+  .narrative-dialogue { padding: .9rem 1rem; background: rgba(125, 68, 55, .065); border-left: 3px solid #8b4a3d; }
+  .case-context { position: relative; gap: 1.5rem 2.2rem; padding: 1.05rem 0 1.25rem; }
+  .case-task { padding: .8rem 1rem; background: rgba(124, 64, 54, .075); border: 1px solid rgba(139, 74, 61, .3); }
+  .case-task strong { color: #302b24; font-size: 1.04rem; }
+  .case-facts { padding-top: .8rem; }
+  .authority-note { padding: .8rem 1rem; background: rgba(96, 105, 91, .08); border-left: 2px solid #8c8170; }
+  .investigation-card { grid-template-columns: 36px minmax(0, 1fr) 18px; min-height: 94px; padding: .9rem 1rem; box-shadow: 2px 3px 0 rgba(74, 58, 37, .13); }
+  .investigation-card::before { content: attr(data-index); align-self: start; color: #8b4a3d; font: 700 .68rem/1 system-ui, sans-serif; }
+  .investigation-card-icon { grid-column: 1; grid-row: 1; }
+  .investigation-card-copy { grid-column: 2; grid-row: 1; }
+  .investigation-card-arrow { grid-column: 3; grid-row: 1; }
+  .investigation-card:hover { transform: translateY(-1px); box-shadow: 3px 5px 0 rgba(74, 58, 37, .16); }
+  .verification-workbench { margin-top: 1.6rem; padding-top: .15rem; border-top: 2px solid rgba(139, 74, 61, .34); }
+  .verification-heading { padding: .95rem 0 1rem; }
+  .verification-heading > span { box-shadow: 3px 3px 0 rgba(74, 58, 37, .14); }
+  .verification-question.is-selected { box-shadow: inset 4px 0 0 #8b4a3d; }
+  .material-checklist label { position: relative; }
+  .material-checklist label.is-selected { box-shadow: inset 3px 0 0 #8b4a3d; }
+  .verification-submit { margin-top: .3rem; padding-top: 1.1rem; }
+  .verification-submit .button-primary { min-width: 190px; box-shadow: 3px 3px 0 rgba(74, 58, 37, .18); }
+  .result-pause { border-top: 2px solid rgba(139, 74, 61, .38); }
+  .closure-stamp { box-shadow: 4px 4px 0 rgba(74, 58, 37, .13); }
+}
+
 @layer sample {
   /* The approved fire-scene composition behaves like one physical desk, not a stacked webpage. */
   .fire-desk-sample .game-workspace {
