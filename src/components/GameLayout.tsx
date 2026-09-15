@@ -9,6 +9,7 @@ import { CaseProgress, InvestigationChoices } from './CaseWorkbench'
 import { Chapter1VerificationWorkbench } from './Chapter1VerificationWorkbench'
 import { Chapter1PetitionWorkbench } from './Chapter1PetitionWorkbench'
 import { Chapter2RegisterWorkbench } from './Chapter2RegisterWorkbench'
+import { Chapter2CaseContext, Chapter2CaseProgress, Chapter2CaseRecord, Chapter2InvestigationChoices } from './Chapter2CaseWorkbench'
 import { NarrativePanel } from './NarrativePanel'
 import { NetworkDrawer } from './NetworkDrawer'
 import type { NetworkId } from '../data/network'
@@ -69,9 +70,11 @@ export function GameLayout() {
           {state.phase === 'mainline' ? (
             <section className="case-desk">
               {state.chapter === 'chapter1' && <CaseProgress node={state.mainlineNode} />}
+              {state.chapter === 'chapter2' && <Chapter2CaseProgress node={state.mainlineNode} investigation={state.chapter2Investigation} />}
               <NarrativePanel narrative={state.currentNarrative}>
                 {state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.feng-reunion' && state.flags.tianshun_reconnected && <section className="relationship-update" aria-label="人脉更新"><img src="/assets/chapter1/characters/feng-tianshun-portrait-v1.png" alt="冯天顺肖像" /><div><strong>人脉更新</strong><span>冯天顺已加入你的人脉</span><small>关系阶段：熟悉 · 他仍把你当作儿时兄弟，愿意与你恢复往来。</small></div><button type="button" className="button button-secondary" onClick={() => openNetwork('feng_tianshun')}>查看人脉</button></section>}
                 {state.chapter === 'chapter1' && <CaseContext node={state.mainlineNode} />}
+                {state.chapter === 'chapter2' && <Chapter2CaseContext node={state.mainlineNode} />}
                 {state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.register-review' ? (
                   <Chapter2RegisterWorkbench investigation={state.chapter2Investigation} onVerify={state.submitChapter2RegisterVerification} />
                 ) : state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify' ? (
@@ -79,7 +82,7 @@ export function GameLayout() {
                 ) : state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.authorization-review' ? (
                   <Chapter1PetitionWorkbench fixedFactIds={state.chapter1Investigation.fixedFactIds} choices={mainlineChoices} onChoose={state.chooseMainline} />
                 ) : mainlineChoices.length ? (
-                  state.chapter === 'chapter1' ? <InvestigationChoices choices={mainlineChoices} onChoose={state.chooseMainline} /> : <div className="event-choices">{mainlineChoices.map((choice) => <button key={choice.id} data-audio-sfx="choice" onClick={() => state.chooseMainline(choice.id)}><span><strong>{choice.label}</strong></span><ChevronRight size={18} /></button>)}</div>
+                  state.chapter === 'chapter1' ? <InvestigationChoices choices={mainlineChoices} onChoose={state.chooseMainline} /> : state.chapter === 'chapter2' ? <Chapter2InvestigationChoices choices={mainlineChoices} onChoose={state.chooseMainline} /> : <div className="event-choices">{mainlineChoices.map((choice) => <button key={choice.id} data-audio-sfx="choice" onClick={() => state.chooseMainline(choice.id)}><span><strong>{choice.label}</strong></span><ChevronRight size={18} /></button>)}</div>
                 ) : (
                   <div className="dossier-continue"><button className="button button-primary" data-audio-sfx="confirm" onClick={state.advanceMainline}>{continueLabels[state.mainlineNode] ?? '继续办差'} <ChevronRight size={18} /></button></div>
                 )}
@@ -91,7 +94,7 @@ export function GameLayout() {
         </section>
 
       </div>
-      {drawer && <div className="drawer-backdrop" role="presentation" onClick={() => setDrawer(null)}><aside className="dossier-drawer" role="dialog" aria-modal="true" aria-label={drawer === 'dossier' ? '个人档案' : drawer === 'network' ? '人脉' : '案情记录'} onClick={(event) => event.stopPropagation()}><button ref={closeDrawerRef} className="drawer-close" aria-label="关闭" onClick={() => setDrawer(null)}><X size={18} /></button>{drawer === 'dossier' ? <StatusRail /> : drawer === 'network' ? <NetworkDrawer initialSelectedId={networkInitialSelection} onClose={() => setDrawer(null)} /> : state.chapter === 'chapter1' ? <CaseRecord node={state.mainlineNode} events={state.recentEvents} investigation={state.chapter1Investigation} /> : <RecentEvents />}</aside></div>}
+      {drawer && <div className="drawer-backdrop" role="presentation" onClick={() => setDrawer(null)}><aside className="dossier-drawer" role="dialog" aria-modal="true" aria-label={drawer === 'dossier' ? '个人档案' : drawer === 'network' ? '人脉' : '案情记录'} onClick={(event) => event.stopPropagation()}><button ref={closeDrawerRef} className="drawer-close" aria-label="关闭" onClick={() => setDrawer(null)}><X size={18} /></button>{drawer === 'dossier' ? <StatusRail /> : drawer === 'network' ? <NetworkDrawer initialSelectedId={networkInitialSelection} onClose={() => setDrawer(null)} /> : state.chapter === 'chapter1' ? <CaseRecord node={state.mainlineNode} events={state.recentEvents} investigation={state.chapter1Investigation} /> : state.chapter === 'chapter2' ? <Chapter2CaseRecord investigation={state.chapter2Investigation} /> : <RecentEvents />}</aside></div>}
     </main>
   )
 }
