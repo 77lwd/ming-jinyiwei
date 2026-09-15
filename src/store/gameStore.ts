@@ -17,7 +17,7 @@ interface GameCommands {
   chooseMainline: (choiceId: string) => void
   submitChapter1Verification: (questionId: Chapter1QuestionId, materialIds: string[]) => void
   submitChapter2RegisterVerification: (materialIds: string[]) => void
-  submitChapter2Case1Verification: (materialIds: string[]) => void
+  submitChapter2Case1Verification: (questionId: string, materialIds: string[]) => void
   confirmResult: () => void
 }
 
@@ -96,8 +96,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (result.ok) persistAndSet(set, result.state)
     else set({ lastCommandError: result.reason })
   },
-  submitChapter2Case1Verification: (materialIds) => {
-    const result = submitChapter2Case1Verification(toGameState(get()), materialIds)
+  submitChapter2Case1Verification: (questionId, materialIds) => {
+    const result = submitChapter2Case1Verification(toGameState(get()), questionId, materialIds)
     if (result.ok) persistAndSet(set, result.state)
     else set({ lastCommandError: result.reason })
   },

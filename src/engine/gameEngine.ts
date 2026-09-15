@@ -562,14 +562,12 @@ export function submitChapter2RegisterVerification(state: GameState, selectedMat
   }
 }
 
-export function submitChapter2Case1Verification(state: GameState, selectedMaterialIds: string[]): CommandResult {
+export function submitChapter2Case1Verification(state: GameState, questionId: string, selectedMaterialIds: string[]): CommandResult {
   if (state.screen !== 'game' || state.phase !== 'mainline' || state.chapter !== 'chapter2' || state.mainlineNode !== 'chapter2.case1-close-review') return withFailure(state, 'invalid_phase')
   const selected = [...new Set(selectedMaterialIds)]
   const held = state.chapter2Investigation.caseMaterialIds ?? []
-  const valid = selected.length === 3 && selected.every((id) => held.includes(id)) && (
-    ['unforced-lock', 'wet-transfer-stub', 'separate-guard-statements'].every((id) => selected.includes(id)) ||
-    ['unforced-lock', 'wet-transfer-stub', 'river-route-testimony'].every((id) => selected.includes(id))
-  )
+  const expected = questionId === 'guard-duty' ? ['unforced-lock', 'wet-transfer-stub', 'separate-guard-statements'] : questionId === 'illegal-transfer' ? ['unforced-lock', 'wet-transfer-stub', 'river-route-testimony'] : []
+  const valid = expected.length === 3 && selected.length === 3 && selected.every((id) => held.includes(id)) && expected.every((id) => selected.includes(id))
   if (!valid) return withFailure(state, 'invalid_choice')
   const narrative: NarrativeBlock = { title: '第一案结案判断成立', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '锁扣、换押存根和所选口供互相咬合。覃保坤准许把押役失职与马骁去向分开记录，第一案依法封卷。' }] }
   return { ok: true, state: { ...state, phase: 'result', currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: 'chapter2.case1-closed' }, recentEvents: [{ id: `chapter2-case1-closed-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: ['第一案封卷'], acquiredMaterialIds: selected }, ...state.recentEvents].slice(0, 20), lastCommandError: null } }
