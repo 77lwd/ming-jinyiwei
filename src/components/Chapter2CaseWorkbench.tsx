@@ -16,7 +16,7 @@ const branchLabels: Record<string, string> = {
 
 export function Chapter2CaseProgress({ node, investigation }: { node: string; investigation: Chapter2InvestigationState }) {
   const current = cases.findIndex(([id]) => node.includes(id))
-  return <section className="case-progress" aria-label="第二章案件进度"><div className="workbench-heading"><ClipboardList size={16} /><span>失号凭照工作板</span><small>第 {Math.max(1, current + 1)} 案</small></div><ol>{cases.map(([id, label], i) => <li key={id} className={investigation.completedCaseIds.includes(id) ? 'is-complete' : i === current ? 'is-current' : ''}><span>{investigation.completedCaseIds.includes(id) ? <Check size={13} /> : i + 1}</span><b>{label}</b></li>)}</ol></section>
+  return <section className="case-progress" aria-label="第二章案件进度"><div className="workbench-heading"><ClipboardList size={16} /><span>失号凭照工作板</span><small>第 {Math.max(1, current + 1)} 案</small></div><ol>{cases.map(([id, label], i) => { const complete = investigation.completedCaseIds.includes(id); const active = i === current; return <li key={id} className={complete ? 'is-complete' : active ? 'is-current' : ''} aria-current={active ? 'step' : undefined}><span>{complete ? <Check size={13} /> : i + 1}</span><b>{label}</b></li> })}</ol></section>
 }
 
 export function Chapter2CaseContext({ node }: { node: string }) {
@@ -27,7 +27,8 @@ export function Chapter2CaseContext({ node }: { node: string }) {
 }
 
 export function Chapter2InvestigationChoices({ choices, onChoose }: { choices: Array<{ id: string; label: string }>; onChoose: (id: string) => void }) {
-  return <section className="investigation-board" aria-label="第二章调查选择"><div className="workbench-heading"><Search size={16} /><span>选择查案重点</span><small>每案只能保住一条主证据链</small></div><div className="investigation-list">{choices.map((choice, i) => <button key={choice.id} className="investigation-card" data-index={String(i + 1).padStart(2, '0')} onClick={() => onChoose(choice.id)}><span className="investigation-card-icon"><FileText size={17} /></span><span className="investigation-card-copy"><small className="investigation-card-kind">办案动作</small><strong>{choice.label}</strong><small>现场查访 · 形成一组可核验材料</small><em>先保住证据，再追问责任</em></span><span className="investigation-card-arrow">›</span></button>)}</div></section>
+  const targets: Record<string, string> = { 'preserve-guard-responsibility': '押役口供与换押存根', 'follow-river-transfer': '河埠篷车与交接痕迹', 'protect-witness-and-deed': '卢小绫与继承副契', 'trace-credential-handover': '封验凭照交割次序', 'preserve-death-timeline': '尸体、门闩与更鼓时序', 'preserve-altered-record-chain': '值夜簿与货封放行记录' }
+  return <section className="investigation-board" aria-label="第二章调查选择"><div className="workbench-heading"><Search size={16} /><span>选择查案重点</span><small>每案只能保住一条主证据链</small></div><div className="investigation-list">{choices.map((choice, i) => <button key={choice.id} className="investigation-card" data-index={String(i + 1).padStart(2, '0')} onClick={() => onChoose(choice.id)}><span className="investigation-card-icon"><FileText size={17} /></span><span className="investigation-card-copy"><small className="investigation-card-kind">办案动作</small><strong>{choice.label}</strong><small>{targets[choice.id] ?? '当前案卷材料'}</small><em>先保住证据，再追问责任</em></span><span className="investigation-card-arrow">›</span></button>)}</div></section>
 }
 
 export function Chapter2CaseRecord({ investigation }: { investigation: Chapter2InvestigationState }) {

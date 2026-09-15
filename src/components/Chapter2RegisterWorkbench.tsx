@@ -15,7 +15,7 @@ export function Chapter2RegisterWorkbench({ investigation, onVerify }: { investi
     </header>
     <fieldset className="verification-materials">
       <legend>选取三案凭照材料</legend>
-      <p>全选或混入无关责任材料不能通过核验。</p>
+      <p>必须恰好选择 3 件：全选或混入无关责任材料不能通过核验。</p>
       <div className="material-checklist">{investigation.materialIds.map((materialId) => {
         const checked = selectedMaterialIds.includes(materialId)
         return <label key={materialId} className={checked ? 'is-selected' : ''}>
@@ -27,7 +27,7 @@ export function Chapter2RegisterWorkbench({ investigation, onVerify }: { investi
       })}</div>
     </fieldset>
     <footer className="verification-submit">
-      <p aria-live="polite">已选择 <strong>{selectedMaterialIds.length}</strong> 项材料</p>
+      <p aria-live="polite">已选择 <strong>{selectedMaterialIds.length}</strong> / 3 项材料</p>
       <button type="button" className="button button-primary" disabled={selectedMaterialIds.length < 3} onClick={() => onVerify(selectedMaterialIds)}><ScrollText size={17} aria-hidden="true" />呈交总簿核验</button>
     </footer>
   </section>
