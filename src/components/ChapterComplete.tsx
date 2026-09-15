@@ -1,4 +1,4 @@
-import { RotateCcw, ScrollText } from 'lucide-react'
+import { ArrowRight, RotateCcw, ScrollText } from 'lucide-react'
 import { useGameStore } from '../store/gameStore'
 import { AudioSettingsPanel } from './AudioSettingsPanel'
 
@@ -20,6 +20,7 @@ export function ChapterComplete() {
         <div className="complete-clues"><ScrollText size={18} />{state.clues.length ? state.clues.map((clue) => <span key={clue.id}>{clue.label} · {clue.clarity}</span>) : <span>尚无线索</span>}</div>
         <div className="complete-actions">
           <button className="button button-secondary" onClick={state.returnToTitle}>返回标题</button>
+          {isChapterOneSlice && <button className="button button-primary" onClick={state.enterChapterTwo}>进入第二章 <ArrowRight size={18} /></button>}
           <button className="button button-primary" onClick={() => { if (window.confirm('确定覆盖当前进度并重新开始吗？')) state.newGame() }}><RotateCcw size={18} /> 重新开始</button>
         </div>
       </section>

@@ -7,17 +7,30 @@ describe('versioned desktop save repository', () => {
 
   it('round-trips the chapter state with the new schema version', () => {
     const state = createInitialState()
-    state.chapter = 'chapter1'
+    state.chapter = 'chapter2'
+    state.chapter2Investigation.completedCaseIds = ['rain-night-transfer']
+    state.chapter2Investigation.branchIds = ['c2_01_responsibility_chain']
+    state.chapter2Investigation.materialIds = ['wet-transfer-stub']
     saveGame(state)
     const raw = localStorage.getItem(SAVE_KEY)
     if (!raw) throw new Error('Expected save envelope to exist')
     expect(JSON.parse(raw).version).toBe(SAVE_VERSION)
-    expect(loadSave()).toMatchObject({ status: 'ok', state: { chapter: 'chapter1' } })
+    expect(loadSave()).toMatchObject({
+      status: 'ok',
+      state: {
+        chapter: 'chapter2',
+        chapter2Investigation: {
+          completedCaseIds: ['rain-night-transfer'],
+          branchIds: ['c2_01_responsibility_chain'],
+          materialIds: ['wet-transfer-stub'],
+        },
+      },
+    })
   })
 
   it('restores a current save made before chapter-one investigation state existed', () => {
     const state = createInitialState()
-    const { chapter1Investigation: _chapter1Investigation, ...olderState } = state
+    const { chapter1Investigation: _chapter1Investigation, chapter2Investigation: _chapter2Investigation, ...olderState } = state
     localStorage.setItem(SAVE_KEY, JSON.stringify({ version: SAVE_VERSION, savedAt: new Date().toISOString(), state: olderState }))
 
     const loaded = loadSave()
@@ -26,6 +39,13 @@ describe('versioned desktop save repository', () => {
     expect(loaded.state.chapter1Investigation.completedRouteIds).toEqual([])
     expect(loaded.state.chapter1Investigation.openQuestionIds).toEqual(['wusheng-bag', 'fire-target', 'paper-fate'])
     expect(loaded.state.chapter1Investigation.petitionResultIds).toEqual([])
+    expect(loaded.state.chapter2Investigation).toEqual({
+      completedCaseIds: [],
+      branchIds: [],
+      materialIds: [],
+      fixedFactIds: [],
+      registerVerified: false,
+    })
   })
 
   it('rejects a malformed new save without overwriting the raw value', () => {

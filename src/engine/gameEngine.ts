@@ -1,5 +1,6 @@
 import { applyEffects } from './effects'
 import { chapter1InvestigationBlueprint, chapter1MainlineSteps, createChapter1InvestigationState } from '../data/chapter1'
+import { chapter2ChoiceOutcomes, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
 import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Effect, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
 
 const initialNarrative: NarrativeBlock = {
@@ -38,10 +39,20 @@ interface MainlineStep {
 
 const mainlineSteps: Record<string, MainlineStep> = {
   ...chapter1MainlineSteps,
-  'chapter2.case1': { chapter: 'chapter2', title: '第二章 · 第一案间隙', text: '第一案已告一段落，下一张差牌尚未送到。', nextNode: 'chapter2.case2' },
-  'chapter2.case2': { chapter: 'chapter2', title: '第二章 · 第二案间隙', text: '第二案已告一段落，卷宗正在交接。', nextNode: 'chapter2.case3' },
-  'chapter2.case3': { chapter: 'chapter2', title: '第二章 · 第三案之后', text: '三案材料已齐，等待程序上的下一步。', nextNode: 'chapter2.paper-note-review' },
-  'chapter2.paper-note-review': { chapter: 'chapter2', title: '阶段转折 · 纸条线索纳入复核', text: '这项材料被依法纳入复核，主线继续推进。', nextNode: 'chapter3.entry', stageEvent: true },
+  'chapter2.entry': {
+    chapter: 'chapter2',
+    narrative: {
+      title: '第二章 · 失号凭照',
+      tone: 'quiet',
+      paragraphs: [
+        { kind: 'prose', text: '第一案结案后，署里发下五两办案补贴。银子入袋，旧案也随卷封存。' },
+        { kind: 'dialogue', text: '覃保坤把三张差牌推到案前：“河埠失押，城南空屋，城门命案。先分开查。”' },
+        { kind: 'system', text: '第一案结案补贴：银两 +5。' },
+      ],
+    },
+    nextNode: 'chapter2.rain-night-transfer',
+  },
+  ...chapter2MainlineSteps,
   'chapter3.entry': { chapter: 'chapter3', title: '第三章 · 调查前夕', text: '第三章主线即将展开。', nextNode: 'chapter3.investigation' },
   'chapter3.investigation': { chapter: 'chapter3', title: '第三章 · 调查推进', text: '已有材料正在按程序核验。', nextNode: 'chapter3.case-file-sealed' },
   'chapter3.case-file-sealed': { chapter: 'chapter3', title: '阶段转折 · 案包暂封', text: '案包先行暂封，等待后续程序接续。', nextNode: 'chapter4.entry', stageEvent: true },
@@ -317,6 +328,7 @@ export function createInitialState(): GameState {
     currentNarrative: initialNarrative,
     recentEvents: [],
     chapter1Investigation: createChapter1InvestigationState(),
+    chapter2Investigation: createChapter2InvestigationState(),
     lastCommandError: null,
   }
 }
@@ -327,6 +339,31 @@ export function startGame(state: GameState): GameState {
 
 export function startMainline(state: GameState): GameState {
   return enterMainlineNode(applyEffects({ ...state, screen: 'game' }, [{ type: 'set_flag', flag: 'prologue_survivor', value: true }]), 'chapter1.entry')
+}
+
+export function enterChapterTwo(state: GameState): CommandResult {
+  if (state.chapter !== 'chapter1' || state.screen !== 'complete' || state.phase !== 'complete' || state.mainlineNode !== 'chapter1.feng-reunion' || state.flags.first_case_closed !== true) {
+    return withFailure(state, 'invalid_phase')
+  }
+
+  const rewarded = applyEffects(state, [{ type: 'wealth_change', delta: 5 }])
+  const entered = enterMainlineNode(rewarded, 'chapter2.entry')
+  return {
+    ok: true,
+    state: {
+      ...entered,
+      recentEvents: [
+        {
+          id: 'chapter2-first-case-closure-payment',
+          chapter: 'chapter2' as const,
+          title: '第一案结案补贴',
+          summary: '第一案依法封结后，署里发下五两办案补贴。',
+          effects: ['银两 +5'],
+        },
+        ...state.recentEvents,
+      ].slice(0, 20),
+    },
+  }
 }
 
 export function advanceMainline(state: GameState): CommandResult {
@@ -395,6 +432,7 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
   const choice = getMainlineChoices(state).find((item) => item.id === choiceId)
   if (!choice) return withFailure(state, 'invalid_choice')
 
+  const chapter2Outcome = state.chapter === 'chapter2' ? chapter2ChoiceOutcomes[choiceId] : undefined
   const firstDayRouteId = state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.paper-shop-fire' ? chapter1RouteIdFromChoice(choiceId) : null
   const routeActionId = state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.route-investigation' ? choiceId : null
   const supplementRouteId = state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify' ? chapter1SupplementRouteId(choiceId) : null
@@ -421,7 +459,19 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
       ? -3
       : 0
   const baseEffects = nightChoice === 'guard-remains' ? [{ type: 'wealth_change' as const, delta: -5 }, ...(choice.effects ?? [])] : choice.effects ?? []
-  const next = applyEffects(nightState, healthCost ? [{ type: 'health_change', delta: healthCost }, ...baseEffects] : baseEffects)
+  const chapter2Effects: Effect[] = chapter2Outcome ? [
+    { type: 'set_flag', flag: chapter2Outcome.completionFlag, value: true },
+    { type: 'set_flag', flag: chapter2Outcome.branchId, value: true },
+  ] : []
+  const next = applyEffects(nightState, healthCost ? [{ type: 'health_change', delta: healthCost }, ...baseEffects, ...chapter2Effects] : [...baseEffects, ...chapter2Effects])
+  if (chapter2Outcome) {
+    next.chapter2Investigation = {
+      ...next.chapter2Investigation,
+      completedCaseIds: [...new Set([...next.chapter2Investigation.completedCaseIds, chapter2Outcome.caseId])],
+      branchIds: [...new Set([...next.chapter2Investigation.branchIds, chapter2Outcome.branchId])],
+      materialIds: [...new Set([...next.chapter2Investigation.materialIds, ...chapter2Outcome.materialIds])],
+    }
+  }
   if (routeId) {
     const route = chapter1InvestigationBlueprint.routes.find((item) => item.id === routeId)
     next.currentNarrative = route?.actions[0]?.narrative ?? choice.outcomeNarrative
@@ -443,10 +493,55 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
   if (!routeId) next.currentNarrative = choice.outcomeNarrative
   next.lastCommandError = null
   next.recentEvents = [
-    { id: `${state.mainlineNode}-${choice.id}`, chapter: state.chapter, title: choice.label, summary: choice.outcomeNarrative.paragraphs.map((paragraph) => paragraph.text).join(' '), effects: [...(healthCost ? [`健康 ${healthCost}`] : []), ...(choice.effects ?? []).map(formatEffect)], acquiredMaterialIds: routeActionId ? chapter1InvestigationBlueprint.routes.find((route) => route.actions.some((action) => action.id === routeActionId))?.actions.find((action) => action.id === routeActionId)?.materialIds : firstDayRouteId ? chapter1InvestigationBlueprint.routes.find((route) => route.id === firstDayRouteId)?.actions[0]?.materialIds : undefined },
+    { id: `${state.mainlineNode}-${choice.id}`, chapter: state.chapter, title: choice.label, summary: choice.outcomeNarrative.paragraphs.map((paragraph) => paragraph.text).join(' '), effects: [...(healthCost ? [`健康 ${healthCost}`] : []), ...(choice.effects ?? []).map(formatEffect)], acquiredMaterialIds: chapter2Outcome?.materialIds ?? (routeActionId ? chapter1InvestigationBlueprint.routes.find((route) => route.actions.some((action) => action.id === routeActionId))?.actions.find((action) => action.id === routeActionId)?.materialIds : firstDayRouteId ? chapter1InvestigationBlueprint.routes.find((route) => route.id === firstDayRouteId)?.actions[0]?.materialIds : undefined) },
     ...state.recentEvents,
   ].slice(0, 20)
   return { ok: true, state: next }
+}
+
+export function submitChapter2RegisterVerification(state: GameState, selectedMaterialIds: string[]): CommandResult {
+  if (state.screen !== 'game' || state.phase !== 'mainline' || state.chapter !== 'chapter2' || state.mainlineNode !== 'chapter2.register-review') return withFailure(state, 'invalid_phase')
+  if (state.chapter2Investigation.completedCaseIds.length !== 3 || !['slip_chain_1', 'slip_chain_2', 'slip_chain_3'].every((flag) => state.flags[flag] === true)) return withFailure(state, 'invalid_choice')
+
+  const selected = [...new Set(selectedMaterialIds)]
+  if (selected.some((id) => !state.chapter2Investigation.materialIds.includes(id))) return withFailure(state, 'invalid_choice')
+  const supported = selected.length === chapter2RegisterMaterialIds.length && chapter2RegisterMaterialIds.every((id) => selected.includes(id))
+  const narrative: NarrativeBlock = supported ? {
+    title: '三张凭照落在同一栏',
+    tone: 'tense',
+    paragraphs: [
+      { kind: 'prose', text: '湿换押存根、封验凭照和夜放牌副券分别对上发放总簿。三种纸、三段日期，却都被写作“误印、待回收”，且都没有剪角。' },
+      { kind: 'prose', text: '库吏循编号向后追，三张凭照最终都落在同一间内部转收房；对应收件簿已有缺页，封蜡也被后来破开。' },
+    ],
+  } : {
+    title: '材料混入，暂不能封存',
+    tone: 'quiet',
+    paragraphs: [{ kind: 'prose', text: '各案责任材料能够证明失职、胁迫或致伤，却不能直接证明凭照经过哪一间房。覃保坤让你把它们放回原卷，只留下三份凭照原件重新核对。' }],
+  }
+  const flags: Record<string, boolean> = supported ? { c2_transfer_room_identified: true, c2_register_copy_preserved: true, c2_register_tampered: true } : {}
+  return {
+    ok: true,
+    state: {
+      ...state,
+      phase: 'result',
+      flags: { ...state.flags, ...flags },
+      chapter2Investigation: supported ? {
+        ...state.chapter2Investigation,
+        registerVerified: true,
+        fixedFactIds: ['c2_transfer_room_identified', 'c2_register_copy_preserved', 'c2_register_tampered'],
+      } : state.chapter2Investigation,
+      currentNarrative: narrative,
+      pendingResult: { kind: 'mainline_choice', nextNode: supported ? 'chapter2.register-sealed' : 'chapter2.register-review' },
+      recentEvents: [{
+        id: `chapter2-register-review-${state.recentEvents.length}`,
+        chapter: 'chapter2' as const,
+        title: narrative.title,
+        summary: narrative.paragraphs.map((paragraph) => paragraph.text).join(' '),
+        effects: supported ? ['确认同一转收房', '保留盖印副本', '确认总簿被改动'] : [],
+      }, ...state.recentEvents].slice(0, 20),
+      lastCommandError: null,
+    },
+  }
 }
 
 function withFailure(state: GameState, reason: NonNullable<GameState['lastCommandError']>): CommandResult {

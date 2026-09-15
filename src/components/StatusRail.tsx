@@ -19,7 +19,7 @@ const statDescriptions = {
 }
 
 function chapterLabel(chapter: GameState['chapter']): string {
-  return { prologue: '序章', chapter1: '第一章 · 纸灰里的银子', chapter2: '第二章', chapter3: '第三章', chapter4: '第四章', chapter5: '第五章' }[chapter]
+  return { prologue: '序章', chapter1: '第一章 · 纸灰里的银子', chapter2: '第二章 · 失号凭照', chapter3: '第三章', chapter4: '第四章', chapter5: '第五章' }[chapter]
 }
 
 export function StatusRail() {

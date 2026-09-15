@@ -8,6 +8,7 @@ import { CaseRecord } from './CaseRecord'
 import { CaseProgress, InvestigationChoices } from './CaseWorkbench'
 import { Chapter1VerificationWorkbench } from './Chapter1VerificationWorkbench'
 import { Chapter1PetitionWorkbench } from './Chapter1PetitionWorkbench'
+import { Chapter2RegisterWorkbench } from './Chapter2RegisterWorkbench'
 import { NarrativePanel } from './NarrativePanel'
 import { NetworkDrawer } from './NetworkDrawer'
 import type { NetworkId } from '../data/network'
@@ -48,7 +49,7 @@ export function GameLayout() {
     <main className={`game-shell${state.phase === 'mainline' && state.mainlineNode === 'chapter1.paper-shop-fire' ? ' fire-desk-sample' : ''}`}>
       <header className="game-header">
         <div className="game-wordmark"><span>锦衣卫</span><strong>北镇抚司案牍</strong></div>
-        <div className="chapter-mark"><span>当前章节</span><strong>{state.chapter === 'chapter1' ? '第一章 · 纸灰里的银子' : state.chapter}</strong></div>
+        <div className="chapter-mark"><span>当前章节</span><strong>{state.chapter === 'chapter1' ? '第一章 · 纸灰里的银子' : state.chapter === 'chapter2' ? '第二章 · 失号凭照' : state.chapter}</strong></div>
         <div className="header-actions">
           <AudioSettingsPanel />
           <button className="icon-button" aria-label="重新开始" title="重新开始" onClick={() => { if (window.confirm('确定清除当前进度并返回标题吗？')) state.restart() }}><RotateCcw size={18} /></button>
@@ -71,7 +72,9 @@ export function GameLayout() {
               <NarrativePanel narrative={state.currentNarrative}>
                 {state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.feng-reunion' && state.flags.tianshun_reconnected && <section className="relationship-update" aria-label="人脉更新"><img src="/assets/chapter1/characters/feng-tianshun-portrait-v1.png" alt="冯天顺肖像" /><div><strong>人脉更新</strong><span>冯天顺已加入你的人脉</span><small>关系阶段：熟悉 · 他仍把你当作儿时兄弟，愿意与你恢复往来。</small></div><button type="button" className="button button-secondary" onClick={() => openNetwork('feng_tianshun')}>查看人脉</button></section>}
                 {state.chapter === 'chapter1' && <CaseContext node={state.mainlineNode} />}
-                {state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify' ? (
+                {state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.register-review' ? (
+                  <Chapter2RegisterWorkbench investigation={state.chapter2Investigation} onVerify={state.submitChapter2RegisterVerification} />
+                ) : state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify' ? (
                   <Chapter1VerificationWorkbench investigation={state.chapter1Investigation} supplementalChoices={mainlineChoices} onSupplement={state.chooseMainline} onVerify={state.submitChapter1Verification} />
                 ) : state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.authorization-review' ? (
                   <Chapter1PetitionWorkbench fixedFactIds={state.chapter1Investigation.fixedFactIds} choices={mainlineChoices} onChoose={state.chooseMainline} />
@@ -83,7 +86,7 @@ export function GameLayout() {
               </NarrativePanel>
             </section>
           ) : state.phase === 'result' ? (
-            <ResultPanel node={state.mainlineNode} narrative={state.currentNarrative} event={state.recentEvents[0]} onConfirm={state.confirmResult} onOpenCaseRecord={() => setDrawer('record')} />
+              <ResultPanel chapter={state.chapter} node={state.mainlineNode} narrative={state.currentNarrative} event={state.recentEvents[0]} onConfirm={state.confirmResult} onOpenCaseRecord={() => setDrawer('record')} />
           ) : null}
         </section>
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { advanceMainline, chooseMainline, confirmResult, createInitialState, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification } from '../gameEngine'
+import { advanceMainline, chooseMainline, confirmResult, createInitialState, enterChapterTwo, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2RegisterVerification } from '../gameEngine'
 import type { GameState } from '../../types'
 
 function completeRoute(state: GameState, routeChoice: string, actionIds: string[]): GameState {
@@ -57,19 +57,79 @@ function completeFirstChapter(): GameState {
 }
 
 describe('desktop-first game engine', () => {
-  it('keeps placeholder chapters on the mainline without retired free-action state', () => {
+  it('starts chapter two with the first independent case and no retired free-action state', () => {
     const chapterTwo: GameState = {
       ...createInitialState(),
       screen: 'game',
       chapter: 'chapter2',
       phase: 'mainline',
-      mainlineNode: 'chapter2.case1',
+      mainlineNode: 'chapter2.entry',
     }
 
     const advanced = advanceMainline(chapterTwo)
 
-    expect(advanced).toMatchObject({ ok: true, state: { phase: 'mainline', mainlineNode: 'chapter2.case2' } })
+    expect(advanced).toMatchObject({ ok: true, state: { phase: 'mainline', mainlineNode: 'chapter2.rain-night-transfer' } })
     if (advanced.ok) expect('freeActionWindowIndex' in advanced.state).toBe(false)
+  })
+
+  it('records exactly one evidence emphasis for each chapter-two case', () => {
+    let state: GameState = {
+      ...createInitialState(),
+      screen: 'game',
+      chapter: 'chapter2',
+      phase: 'mainline',
+      mainlineNode: 'chapter2.rain-night-transfer',
+    }
+
+    state = confirmMainlineChoice(state, 'preserve-guard-responsibility')
+    expect(state.flags).toMatchObject({ slip_chain_1: true, c2_01_responsibility_chain: true })
+    expect(state.flags.c2_01_route_chain).not.toBe(true)
+    expect(state.chapter2Investigation.materialIds).toEqual(expect.arrayContaining(['unforced-lock', 'separate-guard-statements']))
+
+    state = (advanceMainline(state) as { ok: true; state: GameState }).state
+    state = confirmMainlineChoice(state, 'protect-witness-and-deed')
+    expect(state.flags).toMatchObject({ slip_chain_2: true, c2_02_witness_deed: true })
+    expect(state.flags.c2_02_receipt_chain).not.toBe(true)
+
+    state = (advanceMainline(state) as { ok: true; state: GameState }).state
+    state = confirmMainlineChoice(state, 'preserve-altered-record-chain')
+    expect(state.flags).toMatchObject({ slip_chain_3: true, c2_03_record_chain: true })
+    expect(state.flags.c2_03_death_chain).not.toBe(true)
+    expect(state.mainlineNode).toBe('chapter2.case3-closed')
+  })
+
+  it('requires the exact three register materials for chapter-two verification', () => {
+    const state: GameState = {
+      ...createInitialState(),
+      screen: 'game',
+      chapter: 'chapter2',
+      phase: 'mainline',
+      mainlineNode: 'chapter2.register-review',
+      flags: { slip_chain_1: true, slip_chain_2: true, slip_chain_3: true },
+      chapter2Investigation: {
+        materialIds: ['wet-transfer-stub', 'inspection-credential', 'night-pass-counterfoil', 'unforced-lock'],
+        completedCaseIds: ['rain-night-transfer', 'empty-dowry-house', 'before-the-watch-drum'],
+        branchIds: ['c2_01_route_chain', 'c2_02_receipt_chain', 'c2_03_record_chain'],
+        fixedFactIds: [],
+        registerVerified: false,
+      },
+    }
+
+    const overselected = submitChapter2RegisterVerification(state, ['wet-transfer-stub', 'inspection-credential', 'night-pass-counterfoil', 'unforced-lock'])
+    expect(overselected.ok).toBe(true)
+    if (!overselected.ok) return
+    expect(overselected.state.chapter2Investigation.registerVerified).toBe(false)
+    expect(overselected.state.currentNarrative.title).toBe('材料混入，暂不能封存')
+
+    const verified = submitChapter2RegisterVerification(state, ['wet-transfer-stub', 'inspection-credential', 'night-pass-counterfoil'])
+    expect(verified.ok).toBe(true)
+    if (!verified.ok) return
+    expect(verified.state.chapter2Investigation.registerVerified).toBe(true)
+    expect(verified.state.flags).toMatchObject({
+      c2_transfer_room_identified: true,
+      c2_register_copy_preserved: true,
+      c2_register_tampered: true,
+    })
   })
 
   it('starts with chapter state and no month or risk loop', () => {
@@ -101,6 +161,38 @@ describe('desktop-first game engine', () => {
       charred_token_preserved: true,
       tianshun_reconnected: true,
     })
+  })
+
+  it('enters chapter two from the completed first chapter and grants five silver once', () => {
+    const completed = completeFirstChapter()
+    const wealthBeforeReward = completed.wealth
+
+    const entered = enterChapterTwo(completed)
+
+    expect(entered).toMatchObject({
+      ok: true,
+      state: {
+        chapter: 'chapter2',
+        mainlineNode: 'chapter2.entry',
+        phase: 'mainline',
+        screen: 'game',
+        wealth: wealthBeforeReward + 5,
+      },
+    })
+    if (!entered.ok) return
+    expect(entered.state.recentEvents[0]).toMatchObject({
+      chapter: 'chapter2',
+      title: '第一案结案补贴',
+      effects: ['银两 +5'],
+    })
+
+    expect(enterChapterTwo(entered.state)).toEqual({ ok: false, reason: 'invalid_phase' })
+  })
+
+  it('refuses to enter chapter two before the first chapter is complete', () => {
+    const state = startMainline(createInitialState())
+
+    expect(enterChapterTwo(state)).toEqual({ ok: false, reason: 'invalid_phase' })
   })
 
   it('lets the player choose a first-day investigation priority and resumes the first-case mainline', () => {
@@ -306,7 +398,7 @@ describe('desktop-first game engine', () => {
       screen: 'game',
       chapter: 'chapter2',
       phase: 'mainline',
-      mainlineNode: 'chapter2.case1',
+      mainlineNode: 'chapter2.rain-night-transfer',
     }
     const observedStages: string[] = []
 
@@ -314,6 +406,19 @@ describe('desktop-first game engine', () => {
       expect(state.phase).toBe('mainline')
       if (state.mainlineNode.includes('review') || state.mainlineNode.includes('sealed') || state.mainlineNode.includes('notice')) {
         observedStages.push(state.mainlineNode)
+      }
+      if (state.mainlineNode === 'chapter2.rain-night-transfer') state = confirmMainlineChoice(state, 'preserve-guard-responsibility')
+      else if (state.mainlineNode === 'chapter2.empty-dowry-house') state = confirmMainlineChoice(state, 'protect-witness-and-deed')
+      else if (state.mainlineNode === 'chapter2.before-the-watch-drum') state = confirmMainlineChoice(state, 'preserve-death-timeline')
+      else if (state.mainlineNode === 'chapter2.register-review') {
+        const verified = submitChapter2RegisterVerification(state, ['wet-transfer-stub', 'inspection-credential', 'night-pass-counterfoil'])
+        expect(verified.ok).toBe(true)
+        if (!verified.ok) return
+        const confirmed = confirmResult(verified.state)
+        expect(confirmed.ok).toBe(true)
+        if (!confirmed.ok) return
+        state = confirmed.state
+        continue
       }
       const advanced = advanceMainline(state)
       expect(advanced.ok).toBe(true)
@@ -323,7 +428,8 @@ describe('desktop-first game engine', () => {
     expect(state.chapter).toBe('chapter5')
     expect(state.screen).toBe('complete')
     expect(observedStages).toEqual([
-      'chapter2.paper-note-review',
+      'chapter2.register-review',
+      'chapter2.register-sealed',
       'chapter3.case-file-sealed',
       'chapter4.warehouse-resealed',
       'chapter5.clan-materials-notice',

@@ -56,7 +56,19 @@ function isGameState(value: unknown): value is GameState {
     isPendingResult(state.pendingResult) &&
     isNarrativeBlock(state.currentNarrative) && Array.isArray(state.recentEvents) && state.recentEvents.length <= 20 && state.recentEvents.every(isNarrativeEvent) &&
     (state.chapter1Investigation === undefined || isChapter1Investigation(state.chapter1Investigation)) &&
+    (state.chapter2Investigation === undefined || isChapter2Investigation(state.chapter2Investigation)) &&
     (state.lastCommandError === null || ['invalid_phase', 'not_found', 'invalid_choice'].includes(String(state.lastCommandError)))
+}
+
+function isChapter2Investigation(value: unknown): boolean {
+  if (!isRecord(value)) return false
+  const caseIds = ['rain-night-transfer', 'empty-dowry-house', 'before-the-watch-drum']
+  const branchIds = ['c2_01_responsibility_chain', 'c2_01_route_chain', 'c2_02_witness_deed', 'c2_02_receipt_chain', 'c2_03_death_chain', 'c2_03_record_chain']
+  return Array.isArray(value.completedCaseIds) && value.completedCaseIds.every((id) => caseIds.includes(String(id))) &&
+    Array.isArray(value.branchIds) && value.branchIds.every((id) => branchIds.includes(String(id))) &&
+    Array.isArray(value.materialIds) && value.materialIds.every((id) => typeof id === 'string') &&
+    Array.isArray(value.fixedFactIds) && value.fixedFactIds.every((id) => typeof id === 'string') &&
+    typeof value.registerVerified === 'boolean'
 }
 
 function isChapter1Investigation(value: unknown): boolean {
@@ -75,10 +87,7 @@ function isChapter1Investigation(value: unknown): boolean {
 }
 
 function withChapter1InvestigationDefaults(state: GameState): GameState {
-  if (state.chapter1Investigation) {
-    return {
-      ...state,
-      chapter1Investigation: {
+  const chapter1Investigation = state.chapter1Investigation ? {
         completedRouteIds: state.chapter1Investigation.completedRouteIds ?? [],
         activeRouteId: state.chapter1Investigation.activeRouteId ?? null,
         completedActionIds: state.chapter1Investigation.completedActionIds ?? [],
@@ -90,12 +99,7 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
         petitionResultIds: state.chapter1Investigation.petitionResultIds ?? [],
         confrontationMode: state.chapter1Investigation.confrontationMode ?? null,
         closureSubmitted: state.chapter1Investigation.closureSubmitted ?? false,
-      },
-    }
-  }
-  return {
-    ...state,
-    chapter1Investigation: {
+      } : {
       completedRouteIds: [],
       activeRouteId: null,
       completedActionIds: [],
@@ -107,8 +111,21 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
       petitionResultIds: [],
       confrontationMode: null,
       closureSubmitted: false,
-    },
+    }
+  const chapter2Investigation = state.chapter2Investigation ? {
+    completedCaseIds: state.chapter2Investigation.completedCaseIds ?? [],
+    branchIds: state.chapter2Investigation.branchIds ?? [],
+    materialIds: state.chapter2Investigation.materialIds ?? [],
+    fixedFactIds: state.chapter2Investigation.fixedFactIds ?? [],
+    registerVerified: state.chapter2Investigation.registerVerified ?? false,
+  } : {
+    completedCaseIds: [],
+    branchIds: [],
+    materialIds: [],
+    fixedFactIds: [],
+    registerVerified: false,
   }
+  return { ...state, chapter1Investigation, chapter2Investigation }
 }
 
 function isAttributes(value: unknown): boolean {

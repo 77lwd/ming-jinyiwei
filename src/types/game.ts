@@ -39,6 +39,23 @@ export interface Chapter1InvestigationState {
   closureSubmitted: boolean
 }
 
+export type Chapter2CaseId = 'rain-night-transfer' | 'empty-dowry-house' | 'before-the-watch-drum'
+export type Chapter2BranchId =
+  | 'c2_01_responsibility_chain'
+  | 'c2_01_route_chain'
+  | 'c2_02_witness_deed'
+  | 'c2_02_receipt_chain'
+  | 'c2_03_death_chain'
+  | 'c2_03_record_chain'
+
+export interface Chapter2InvestigationState {
+  completedCaseIds: Chapter2CaseId[]
+  branchIds: Chapter2BranchId[]
+  materialIds: string[]
+  fixedFactIds: string[]
+  registerVerified: boolean
+}
+
 export type NarrativeParagraphKind = 'prose' | 'dialogue' | 'monologue' | 'system'
 
 export interface NarrativeParagraph {
@@ -108,6 +125,7 @@ export interface GameState {
   currentNarrative: NarrativeBlock
   recentEvents: NarrativeEvent[]
   chapter1Investigation: Chapter1InvestigationState
+  chapter2Investigation: Chapter2InvestigationState
   lastCommandError: CommandError | null
 }
 

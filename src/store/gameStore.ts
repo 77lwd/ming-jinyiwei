@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { advanceMainline, chooseMainline, confirmResult, createInitialState, startGame, startMainline, submitChapter1Verification } from '../engine/gameEngine'
+import { advanceMainline, chooseMainline, confirmResult, createInitialState, enterChapterTwo, startGame, startMainline, submitChapter1Verification, submitChapter2RegisterVerification } from '../engine/gameEngine'
 import type { Chapter1QuestionId, GameState } from '../types'
 import { clearSave, loadSave, saveGame } from './saveRepository'
 
@@ -10,18 +10,20 @@ interface GameCommands {
   continueGame: () => void
   restart: () => void
   returnToTitle: () => void
+  enterChapterTwo: () => void
   nextPrologue: () => void
   skipPrologue: () => void
   advanceMainline: () => void
   chooseMainline: (choiceId: string) => void
   submitChapter1Verification: (questionId: Chapter1QuestionId, materialIds: string[]) => void
+  submitChapter2RegisterVerification: (materialIds: string[]) => void
   confirmResult: () => void
 }
 
 export type GameStore = GameState & GameCommands
 
 function toGameState(state: GameStore): GameState {
-  const { hasSave: _hasSave, saveError: _saveError, newGame: _newGame, continueGame: _continueGame, restart: _restart, returnToTitle: _returnToTitle, nextPrologue: _nextPrologue, skipPrologue: _skipPrologue, advanceMainline: _advanceMainline, chooseMainline: _chooseMainline, submitChapter1Verification: _submitChapter1Verification, confirmResult: _confirmResult, ...gameState } = state
+  const { hasSave: _hasSave, saveError: _saveError, newGame: _newGame, continueGame: _continueGame, restart: _restart, returnToTitle: _returnToTitle, enterChapterTwo: _enterChapterTwo, nextPrologue: _nextPrologue, skipPrologue: _skipPrologue, advanceMainline: _advanceMainline, chooseMainline: _chooseMainline, submitChapter1Verification: _submitChapter1Verification, submitChapter2RegisterVerification: _submitChapter2RegisterVerification, confirmResult: _confirmResult, ...gameState } = state
   return gameState
 }
 
@@ -56,6 +58,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   returnToTitle: () => set({ screen: 'title' }),
 
+  enterChapterTwo: () => {
+    const result = enterChapterTwo(toGameState(get()))
+    if (result.ok) persistAndSet(set, result.state)
+    else set({ lastCommandError: result.reason })
+  },
+
   nextPrologue: () => {
     const state = toGameState(get())
     const next = state.prologueScene >= 4 ? startMainline({ ...state, prologueScene: 5 }) : { ...state, prologueScene: state.prologueScene + 1 }
@@ -78,6 +86,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   submitChapter1Verification: (questionId, materialIds) => {
     const result = submitChapter1Verification(toGameState(get()), questionId, materialIds)
+    if (result.ok) persistAndSet(set, result.state)
+    else set({ lastCommandError: result.reason })
+  },
+
+  submitChapter2RegisterVerification: (materialIds) => {
+    const result = submitChapter2RegisterVerification(toGameState(get()), materialIds)
     if (result.ok) persistAndSet(set, result.state)
     else set({ lastCommandError: result.reason })
   },
