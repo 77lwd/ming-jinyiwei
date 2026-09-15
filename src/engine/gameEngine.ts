@@ -1,7 +1,7 @@
 import { applyEffects } from './effects'
 import { chapter1InvestigationBlueprint, chapter1MainlineSteps, createChapter1InvestigationState } from '../data/chapter1'
-import { chapter2ActionMaterials, chapter2ChoiceOutcomes, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
-import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Effect, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
+import { chapter2ActionMaterials, chapter2Case1InvestigationActions, chapter2Case1Questions, chapter2ChoiceOutcomes, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
+import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Chapter2BranchId, Chapter2CaseId, Effect, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
 
 const initialNarrative: NarrativeBlock = {
   title: '北镇抚司',
@@ -423,20 +423,40 @@ export function getMainlineChoices(state: GameState): MainlineChoice[] {
   }
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.route-investigation') return chapter1RouteActions(state)
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify') return chapter1VerificationChoices(state)
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.rain-night-transfer') {
+    return chapter2Case1InvestigationActions.filter((choice) => !(state.chapter2Investigation.completedActionIds ?? []).includes(choice.id))
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-investigation') {
+    const completed = new Set(state.chapter2Investigation.completedActionIds ?? [])
+    const actions = chapter2Case1InvestigationActions.filter((choice) => !completed.has(choice.id))
+    const materials = new Set(state.chapter2Investigation.caseMaterialIds ?? [])
+    if (!materials.has('separate-guard-statements') && materials.has('wet-transfer-stub')) actions.push({ id: 'c2-01-begin-guard-inquiry', label: '分开闻讯两名押役', nextNode: 'chapter2.case1-inquiry.guard-a.1', effects: [], outcomeNarrative: { title: '先把两个人分开', tone: 'tense', paragraphs: [{ kind: 'prose', text: '两名押役分别入屋，书记官换了两张新纸。' }] } })
+    if (!materials.has('separate-guard-statements') && materials.has('wet-transfer-stub')) actions.push({ id: 'c2-01-guard-interview', label: '闻讯押役（旧卷补录）', nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: '两份口供先行入卷', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把两名押役分开记录，先留下可供后续核对的口供底稿。' }] } })
+    if (!materials.has('river-route-testimony') && materials.has('cart-drag-trace')) actions.push({ id: 'c2-01-begin-river-inquiry', label: '分开询问河埠船夫与茶棚伙计', nextNode: 'chapter2.case1-inquiry.river-boat.1', effects: [], outcomeNarrative: { title: '沿拖痕查到河埠', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '你把车底泥痕带到河埠，先请船夫入屋，再叫茶棚伙计候在另一间。' }] } })
+    if (actions.length) return actions
+    if (materials.has('separate-guard-statements') || materials.has('river-route-testimony')) return [{ id: 'c2-01-open-verification', label: '整理案卷，进入证据命题核验', nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: '材料可以上案桌了', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '现场记录、文书对照和分开口供各自封好。你把尚未固定的命题列在卷首，准备逐条核验。' }] } }]
+    return []
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review') {
+    return chapter2Case1Questions.filter((q) => !state.chapter2Investigation.fixedFactIds.includes(q.id)).map((q) => ({ id: q.id, label: q.shortLabel, nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: q.shortLabel, tone: 'quiet', paragraphs: [{ kind: 'prose', text: q.prompt }] } }))
+  }
   return mainlineSteps[state.mainlineNode]?.choices ?? []
 }
 
 export function chooseMainline(state: GameState, choiceId: string): CommandResult {
   if (state.screen !== 'game' || state.phase !== 'mainline') return withFailure(state, 'invalid_phase')
-  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review') {
-    const required = choiceId === 'preserve-guard-responsibility'
-      ? ['unforced-lock', 'wet-transfer-stub', 'separate-guard-statements']
-      : choiceId === 'follow-river-transfer'
-        ? ['unforced-lock', 'wet-transfer-stub', 'river-route-testimony']
-        : []
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review' && ['preserve-guard-responsibility', 'follow-river-transfer'].includes(choiceId)) {
+    const q = choiceId === 'preserve-guard-responsibility' ? 'guard-duty' : 'illegal-transfer'
     const held = state.chapter2Investigation.caseMaterialIds ?? []
-    if (!required.length || required.some((id) => !held.includes(id))) return withFailure(state, 'invalid_choice')
+    const selected = q === 'guard-duty'
+      ? (held.includes('original-escort-order') ? ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements'] : ['unforced-lock', 'wet-transfer-stub', 'separate-guard-statements'])
+      : (held.includes('cart-drag-trace') ? ['wet-transfer-stub', 'cart-drag-trace', 'river-route-testimony'] : ['unforced-lock', 'wet-transfer-stub', 'river-route-testimony'])
+    const result = submitChapter2Case1Verification(state, q, selected)
+    if (!result.ok) return result
+    return { ok: true, state: { ...result.state, pendingResult: { kind: 'mainline_choice', nextNode: 'chapter2.case1-closed' }, flags: { ...result.state.flags, slip_chain_1: true, [q === 'guard-duty' ? 'c2_01_responsibility_chain' : 'c2_01_route_chain']: true }, chapter2Investigation: { ...result.state.chapter2Investigation, completedCaseIds: [...new Set([...result.state.chapter2Investigation.completedCaseIds, 'rain-night-transfer' as Chapter2CaseId])], branchIds: [...new Set([...result.state.chapter2Investigation.branchIds, (q === 'guard-duty' ? 'c2_01_responsibility_chain' : 'c2_01_route_chain') as Chapter2BranchId])] } } }
   }
+  const legacyChapter2Aliases: Record<string, string> = { 'c2-01-lock': 'c2-01-inspect-lock', 'c2-01-stub': 'c2-01-preserve-wet-stub', 'preserve-guard-responsibility': 'guard-duty', 'follow-river-transfer': 'illegal-transfer' }
+  if (state.chapter === 'chapter2' && legacyChapter2Aliases[choiceId]) choiceId = legacyChapter2Aliases[choiceId]
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.authorization-review') {
     if (!['request-supplement', 'preserve-evidence', 'detain-he-xing'].includes(choiceId)) return withFailure(state, 'invalid_choice')
     return submitChapter1Petition(state, choiceId as Chapter1PetitionId)
@@ -492,6 +512,9 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
       caseMaterialIds: [...new Set([...(next.chapter2Investigation.caseMaterialIds ?? []), ...actionMaterials])],
       materialIds: [...new Set([...next.chapter2Investigation.materialIds, ...actionMaterials])],
     }
+  }
+  if (state.chapter === 'chapter2' && choiceId === 'c2-01-open-verification') {
+    next.mainlineNode = 'chapter2.case1-close-review'
   }
   if (routeId) {
     const route = chapter1InvestigationBlueprint.routes.find((item) => item.id === routeId)
@@ -569,11 +592,16 @@ export function submitChapter2Case1Verification(state: GameState, questionId: st
   if (state.screen !== 'game' || state.phase !== 'mainline' || state.chapter !== 'chapter2' || state.mainlineNode !== 'chapter2.case1-close-review') return withFailure(state, 'invalid_phase')
   const selected = [...new Set(selectedMaterialIds)]
   const held = state.chapter2Investigation.caseMaterialIds ?? []
-  const expected = questionId === 'guard-duty' ? ['unforced-lock', 'wet-transfer-stub', 'separate-guard-statements'] : questionId === 'illegal-transfer' ? ['unforced-lock', 'wet-transfer-stub', 'river-route-testimony'] : []
+  const expected = questionId === 'self-escape' ? ['unforced-lock', 'cart-drag-trace', 'cut-rope-fibers'] : questionId === 'guard-duty' ? ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements'] : questionId === 'illegal-transfer' ? ['wet-transfer-stub', 'cart-drag-trace', 'river-route-testimony'] : []
   const valid = expected.length === 3 && selected.length === expected.length && selected.every((id) => held.includes(id)) && [...selected].sort().join('|') === [...expected].sort().join('|')
-  if (!valid) return withFailure(state, 'invalid_choice')
-  const narrative: NarrativeBlock = { title: '第一案结案判断成立', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '锁扣、换押存根和所选口供互相咬合。覃保坤准许把押役失职与马骁去向分开记录，第一案依法封卷。' }] }
-  return { ok: true, state: { ...state, phase: 'result', currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: 'chapter2.case1-closed' }, recentEvents: [{ id: `chapter2-case1-closed-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: ['第一案封卷'], acquiredMaterialIds: selected }, ...state.recentEvents].slice(0, 20), lastCommandError: null } }
+  if (!valid) {
+    const narrative: NarrativeBlock = { title: '材料还没有咬合', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把选出的材料平码在案桌上。它们各自为真，却不能一起回答这条命题。覃保坤没有替你挑，只让书记官把这次呈报退回待核栏。' }] }
+    return { ok: true, state: { ...state, phase: 'result', currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: 'chapter2.case1-close-review' }, lastCommandError: null } }
+  }
+  const fixedFactIds = [...new Set([...state.chapter2Investigation.fixedFactIds, questionId])]
+  const closed = fixedFactIds.includes('self-escape') && (fixedFactIds.includes('guard-duty') || fixedFactIds.includes('illegal-transfer'))
+  const narrative: NarrativeBlock = { title: closed ? '两条事实已经固定' : '一条事实先落下', tone: 'quiet', paragraphs: [{ kind: 'prose', text: closed ? '锁扣、车痕、绳纤维和分开口供已经把现场与责任分开。你把案卷呈到覃保坤案前，请他落签封卷。' : `你把${questionId === 'self-escape' ? '锁扣、车痕和麻绳纤维' : questionId === 'guard-duty' ? '原差牌、换押存根和两份口供' : '换押存根、拖痕和河埠证言'}并在一处，先把这条事实固定下来。另一条命题仍未回答。` }] }
+  return { ok: true, state: { ...state, phase: 'result', chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds }, currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: closed ? 'chapter2.case1-authority-review' : 'chapter2.case1-close-review' }, recentEvents: [{ id: `chapter2-case1-verify-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: [questionId] }, ...state.recentEvents].slice(0, 20), lastCommandError: null } }
 }
 
 function withFailure(state: GameState, reason: NonNullable<GameState['lastCommandError']>): CommandResult {

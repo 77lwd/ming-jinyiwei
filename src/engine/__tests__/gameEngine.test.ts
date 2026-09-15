@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { advanceMainline, chooseMainline, confirmResult, createInitialState, enterChapterTwo, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2RegisterVerification } from '../gameEngine'
+import { advanceMainline, chooseMainline, confirmResult, createInitialState, enterChapterTwo, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2RegisterVerification } from '../gameEngine'
 import type { GameState } from '../../types'
 
 function completeRoute(state: GameState, routeChoice: string, actionIds: string[]): GameState {
@@ -57,6 +57,55 @@ function completeFirstChapter(): GameState {
 }
 
 describe('desktop-first game engine', () => {
+  it('builds chapter two case one from eight separately acquired materials', () => {
+    let state: GameState = { ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.rain-night-transfer' }
+    for (const actionId of ['c2-01-inspect-lock', 'c2-01-inspect-shaft', 'c2-01-trace-drag-marks', 'c2-01-examine-rope-fibers', 'c2-01-preserve-wet-stub', 'c2-01-compare-escort-order']) {
+      state = confirmMainlineChoice(state, actionId)
+    }
+    expect(state.chapter2Investigation.caseMaterialIds).toEqual(expect.arrayContaining([
+      'unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order',
+    ]))
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(expect.arrayContaining(['c2-01-begin-guard-inquiry', 'c2-01-begin-river-inquiry']))
+  })
+
+  it('records an inquiry material only after separate question-and-answer exchanges', () => {
+    let state: GameState = {
+      ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.case1-inquiry.guard-a.1',
+      chapter2Investigation: { ...createInitialState().chapter2Investigation, caseMaterialIds: ['unforced-lock', 'original-escort-order'], materialIds: ['unforced-lock', 'original-escort-order'] },
+    }
+    for (const choiceId of ['c2-01-guard-a-key', 'c2-01-guard-a-shaft', 'c2-01-guard-a-finish', 'c2-01-guard-b-route', 'c2-01-guard-b-order', 'c2-01-guard-b-confront']) {
+      state = confirmMainlineChoice(state, choiceId)
+    }
+    expect(state.chapter2Investigation.caseMaterialIds).toContain('separate-guard-statements')
+  })
+
+  it('requires exact evidence sets and two sequential findings before case one closure', () => {
+    const allMaterials = ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order', 'separate-guard-statements', 'river-route-testimony']
+    let state: GameState = {
+      ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.case1-close-review',
+      chapter2Investigation: { ...createInitialState().chapter2Investigation, activeCaseId: 'rain-night-transfer', caseMaterialIds: allMaterials, materialIds: allMaterials },
+    }
+    for (const selected of [
+      ['unforced-lock', 'cart-drag-trace', 'wet-transfer-stub'],
+      allMaterials,
+    ]) {
+      const rejected = submitChapter2Case1Verification(state, 'self-escape', selected)
+      expect(rejected.ok).toBe(true)
+      if (rejected.ok) expect(rejected.state.chapter2Investigation.fixedFactIds).toEqual([])
+    }
+    const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'cart-drag-trace', 'cut-rope-fibers'])
+    expect(first.ok).toBe(true)
+    if (!first.ok) return
+    expect(first.state.chapter2Investigation.fixedFactIds).toContain('self-escape')
+    expect(first.state.pendingResult?.nextNode).toBe('chapter2.case1-close-review')
+    state = (confirmResult(first.state) as { ok: true; state: GameState }).state
+    const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements'])
+    expect(second.ok).toBe(true)
+    if (!second.ok) return
+    expect(second.state.chapter2Investigation.fixedFactIds).toEqual(expect.arrayContaining(['self-escape', 'guard-duty']))
+    expect(second.state.pendingResult?.nextNode).toBe('chapter2.case1-authority-review')
+  })
+
   it('starts chapter two with the first independent case and no retired free-action state', () => {
     const chapterTwo: GameState = {
       ...createInitialState(),

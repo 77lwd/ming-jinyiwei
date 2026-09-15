@@ -77,7 +77,7 @@ export function GameLayout() {
                 {state.chapter === 'chapter1' && <CaseContext node={state.mainlineNode} />}
                 {state.chapter === 'chapter2' && <Chapter2CaseContext node={state.mainlineNode} />}
                 {state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review' ? (
-                  <Chapter2Case1VerificationWorkbench materialIds={state.chapter2Investigation.caseMaterialIds ?? []} onVerify={state.submitChapter2Case1Verification} />
+                  <Chapter2Case1VerificationWorkbench materialIds={state.chapter2Investigation.caseMaterialIds ?? []} fixedFactIds={state.chapter2Investigation.fixedFactIds} onVerify={state.submitChapter2Case1Verification} />
                 ) : state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.register-review' ? (
                   <Chapter2RegisterWorkbench investigation={state.chapter2Investigation} onVerify={state.submitChapter2RegisterVerification} />
                 ) : state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify' ? (

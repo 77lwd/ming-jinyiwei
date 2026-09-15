@@ -1,16 +1,12 @@
 import { useState } from 'react'
 import { Check, FileSearch, ScrollText } from 'lucide-react'
-import { chapter2MaterialDescriptions, chapter2MaterialLabels } from '../data/chapter2'
+import { chapter2Case1Questions, chapter2MaterialDescriptions, chapter2MaterialLabels } from '../data/chapter2'
 
-const questions = [
-  { id: 'guard-duty', shortLabel: '押役是否存在失职？', prompt: '核对换押手续、现场锁扣与押役亲见口供。' },
-  { id: 'illegal-transfer', shortLabel: '马骁是否经过违规转移？', prompt: '核对换押存根、锁扣状态与河埠转运证言。' },
-]
-
-export function Chapter2Case1VerificationWorkbench({ materialIds, onVerify }: { materialIds: string[]; onVerify: (questionId: string, materialIds: string[]) => void }) {
-  const [activeQuestionId, setActiveQuestionId] = useState(questions[0].id)
+export function Chapter2Case1VerificationWorkbench({ materialIds, fixedFactIds = [], onVerify }: { materialIds: string[]; fixedFactIds?: string[]; onVerify: (questionId: string, materialIds: string[]) => void }) {
+  const questions = chapter2Case1Questions.filter((question) => !fixedFactIds.includes(question.id))
+  const [activeQuestionId, setActiveQuestionId] = useState<(typeof chapter2Case1Questions)[number]['id']>(questions[0]?.id ?? 'self-escape')
   const [selectedMaterialIds, setSelectedMaterialIds] = useState<string[]>([])
-  const selectQuestion = (id: string) => { setActiveQuestionId(id); setSelectedMaterialIds([]) }
+  const selectQuestion = (id: string) => { setActiveQuestionId(id as (typeof chapter2Case1Questions)[number]['id']); setSelectedMaterialIds([]) }
   const toggleMaterial = (id: string) => setSelectedMaterialIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])
 
   return <section className="verification-workbench" aria-labelledby="chapter2-case1-verification-heading">
