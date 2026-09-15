@@ -16,7 +16,7 @@ const branchLabels: Record<string, string> = {
 
 export function Chapter2CaseProgress({ node, investigation }: { node: string; investigation: Chapter2InvestigationState }) {
   const current = cases.findIndex(([id]) => node.includes(id))
-  return <section className="case-progress" aria-label="第二章案件进度"><div className="workbench-heading"><ClipboardList size={16} /><span>失号凭照工作板</span><small>第 {Math.max(1, current + 1)} 案</small></div><ol>{cases.map(([id, label], i) => { const complete = investigation.completedCaseIds.includes(id); const active = i === current; return <li key={id} className={complete ? 'is-complete' : active ? 'is-current' : ''} aria-current={active ? 'step' : undefined}><span>{complete ? <Check size={13} /> : i + 1}</span><b>{label}</b></li> })}</ol></section>
+  return <section className="case-progress" aria-label="第二章案件进度"><div className="workbench-heading"><ClipboardList size={16} /><span>失号凭照工作板</span><small>第 {Math.max(1, current + 1)} 案</small></div><ol>{cases.map(([id, label], i) => { const complete = investigation.completedCaseIds.includes(id); const active = i === current; const revealed = complete || active; return <li key={id} className={complete ? 'is-complete' : active ? 'is-current' : ''} aria-current={active ? 'step' : undefined}><span>{complete ? <Check size={13} /> : i + 1}</span><b>{revealed ? label : '待查案卷'}</b></li> })}</ol></section>
 }
 
 export function Chapter2CaseContext({ node }: { node: string }) {
