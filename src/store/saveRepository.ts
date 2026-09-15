@@ -65,6 +65,9 @@ function isChapter2Investigation(value: unknown): boolean {
   const caseIds = ['rain-night-transfer', 'empty-dowry-house', 'before-the-watch-drum']
   const branchIds = ['c2_01_responsibility_chain', 'c2_01_route_chain', 'c2_02_witness_deed', 'c2_02_receipt_chain', 'c2_03_death_chain', 'c2_03_record_chain']
   return Array.isArray(value.completedCaseIds) && value.completedCaseIds.every((id) => caseIds.includes(String(id))) &&
+    (value.activeCaseId === null || caseIds.includes(String(value.activeCaseId))) &&
+    Array.isArray(value.completedActionIds) && value.completedActionIds.every((id) => typeof id === 'string') &&
+    Array.isArray(value.caseMaterialIds) && value.caseMaterialIds.every((id) => typeof id === 'string') &&
     Array.isArray(value.branchIds) && value.branchIds.every((id) => branchIds.includes(String(id))) &&
     Array.isArray(value.materialIds) && value.materialIds.every((id) => typeof id === 'string') &&
     Array.isArray(value.fixedFactIds) && value.fixedFactIds.every((id) => typeof id === 'string') &&
@@ -113,12 +116,18 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
       closureSubmitted: false,
     }
   const chapter2Investigation = state.chapter2Investigation ? {
+    activeCaseId: state.chapter2Investigation.activeCaseId ?? null,
+    completedActionIds: state.chapter2Investigation.completedActionIds ?? [],
+    caseMaterialIds: state.chapter2Investigation.caseMaterialIds ?? [],
     completedCaseIds: state.chapter2Investigation.completedCaseIds ?? [],
     branchIds: state.chapter2Investigation.branchIds ?? [],
     materialIds: state.chapter2Investigation.materialIds ?? [],
     fixedFactIds: state.chapter2Investigation.fixedFactIds ?? [],
     registerVerified: state.chapter2Investigation.registerVerified ?? false,
   } : {
+    activeCaseId: null,
+    completedActionIds: [],
+    caseMaterialIds: [],
     completedCaseIds: [],
     branchIds: [],
     materialIds: [],

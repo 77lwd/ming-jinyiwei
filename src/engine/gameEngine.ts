@@ -1,6 +1,6 @@
 import { applyEffects } from './effects'
 import { chapter1InvestigationBlueprint, chapter1MainlineSteps, createChapter1InvestigationState } from '../data/chapter1'
-import { chapter2ChoiceOutcomes, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
+import { chapter2ActionMaterials, chapter2ChoiceOutcomes, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
 import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Effect, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
 
 const initialNarrative: NarrativeBlock = {
@@ -425,6 +425,15 @@ export function getMainlineChoices(state: GameState): MainlineChoice[] {
 
 export function chooseMainline(state: GameState, choiceId: string): CommandResult {
   if (state.screen !== 'game' || state.phase !== 'mainline') return withFailure(state, 'invalid_phase')
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review') {
+    const required = choiceId === 'preserve-guard-responsibility'
+      ? ['unforced-lock', 'wet-transfer-stub', 'separate-guard-statements']
+      : choiceId === 'follow-river-transfer'
+        ? ['unforced-lock', 'wet-transfer-stub', 'river-route-testimony']
+        : []
+    const held = state.chapter2Investigation.caseMaterialIds ?? []
+    if (!required.length || required.some((id) => !held.includes(id))) return withFailure(state, 'invalid_choice')
+  }
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.authorization-review') {
     if (!['request-supplement', 'preserve-evidence', 'detain-he-xing'].includes(choiceId)) return withFailure(state, 'invalid_choice')
     return submitChapter1Petition(state, choiceId as Chapter1PetitionId)
@@ -470,6 +479,15 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
       completedCaseIds: [...new Set([...next.chapter2Investigation.completedCaseIds, chapter2Outcome.caseId])],
       branchIds: [...new Set([...next.chapter2Investigation.branchIds, chapter2Outcome.branchId])],
       materialIds: [...new Set([...next.chapter2Investigation.materialIds, ...chapter2Outcome.materialIds])],
+    }
+  }
+  const actionMaterials = chapter2ActionMaterials[choiceId] ?? []
+  if (actionMaterials.length) {
+    next.chapter2Investigation = {
+      ...next.chapter2Investigation,
+      completedActionIds: [...new Set([...(next.chapter2Investigation.completedActionIds ?? []), choiceId])],
+      caseMaterialIds: [...new Set([...(next.chapter2Investigation.caseMaterialIds ?? []), ...actionMaterials])],
+      materialIds: [...new Set([...next.chapter2Investigation.materialIds, ...actionMaterials])],
     }
   }
   if (routeId) {

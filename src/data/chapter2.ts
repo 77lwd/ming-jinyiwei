@@ -85,8 +85,15 @@ export const chapter2ChoiceOutcomes: Record<string, Chapter2ChoiceOutcome> = {
 
 export const chapter2RegisterMaterialIds = ['wet-transfer-stub', 'inspection-credential', 'night-pass-counterfoil']
 
+export const chapter2ActionMaterials: Record<string, string[]> = {
+  'c2-01-lock': ['unforced-lock'],
+  'c2-01-stub': ['wet-transfer-stub'],
+  'c2-01-guard-interview': ['separate-guard-statements'],
+  'c2-01-river-interview': ['river-route-testimony'],
+}
+
 export function createChapter2InvestigationState(): Chapter2InvestigationState {
-  return { completedCaseIds: [], branchIds: [], materialIds: [], fixedFactIds: [], registerVerified: false }
+  return { activeCaseId: null, completedActionIds: [], caseMaterialIds: [], completedCaseIds: [], branchIds: [], materialIds: [], fixedFactIds: [], registerVerified: false }
 }
 
 const noEffects: Effect[] = []
@@ -103,6 +110,26 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
         { kind: 'dialogue', text: '覃保坤命人把两名押役分开：“先问亲眼见到的，再问后来听来的。谁把听来的写成亲眼见到，谁自己担。”' },
       ],
     },
+    choices: [
+      { id: 'c2-01-lock', label: '检查押送车锁扣与车辕', nextNode: 'chapter2.case1-lock', effects: noEffects, outcomeNarrative: { title: '锁扣没有被撞开', tone: 'tense', paragraphs: [{ kind: 'prose', text: '锁舌和扣环没有新撞痕，断裂车辕的木屑却朝外翻。' }] } },
+    ],
+  },
+  'chapter2.case1-lock': {
+    chapter: 'chapter2',
+    narrative: { title: '第一案 · 车辕断口', tone: 'tense', paragraphs: [{ kind: 'prose', text: '泥痕从车厢低处拖到门边，麻绳少了一条。你把锁扣、车辕和拖痕分别编号，先不替谁写结论。' }] },
+    choices: [{ id: 'c2-01-stub', label: '查看换押文书和车内遗留物', nextNode: 'chapter2.case1-inquiry', effects: noEffects, outcomeNarrative: { title: '存根上的空白', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '湿透的换押存根编号和蜡记都真，领取人只剩模糊别号，最终地点空白。' }] } }],
+  },
+  'chapter2.case1-inquiry': {
+    chapter: 'chapter2',
+    narrative: { title: '第一案 · 分开问话', tone: 'tense', paragraphs: [{ kind: 'dialogue', text: '覃保坤让你先问押役，再问河埠证人：“谁亲眼见到，谁只是在替别人圆话，要分开记。”' }] },
+    choices: [
+      { id: 'c2-01-guard-interview', label: '闻讯押役，固定失职责任', nextNode: 'chapter2.case1-close-review', effects: noEffects, outcomeNarrative: { title: '两份不能互相照看的口供', tone: 'tense', paragraphs: [{ kind: 'prose', text: '两名押役被分开记录。收钱、未回拨核验、擅离车旁和隐瞒所见各自落到纸上。' }] } },
+      { id: 'c2-01-river-interview', label: '询问河埠证人，固定转运去向', nextNode: 'chapter2.case1-close-review', effects: noEffects, outcomeNarrative: { title: '雨水里留下的去向', tone: 'tense', paragraphs: [{ kind: 'prose', text: '船夫确认篷车在三更末离开，茶棚伙计听见车中有人敲过两下木板。' }] } },
+    ],
+  },
+  'chapter2.case1-close-review': {
+    chapter: 'chapter2',
+    narrative: { title: '第一案 · 结案核验', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '三组材料已经入卷。你必须把事实、失职和仍待追查的去向分开呈报。' }] },
     choices: [
       { id: 'preserve-guard-responsibility', label: '先固定押役口供与失职责任', nextNode: 'chapter2.case1-closed', effects: noEffects, outcomeNarrative: { title: '两份不能互相照看的口供', tone: 'tense', paragraphs: [{ kind: 'prose', text: '两名押役被分开记录。收钱、未回拨核验、擅离车旁和隐瞒所见各自落到纸上；河埠方向却只剩模糊痕迹。' }, { kind: 'dialogue', text: '覃保坤道：“别因为他们胆小，就写成同谋；也别因为他们没想明白，就把责任抹掉。”' }] } },
       { id: 'follow-river-transfer', label: '先追河埠的篷车与交接路线', nextNode: 'chapter2.case1-closed', effects: noEffects, outcomeNarrative: { title: '雨水里留下的去向', tone: 'tense', paragraphs: [{ kind: 'prose', text: '船夫确认篷车在三更末离开，茶棚伙计听见车中有人敲过两下木板。你回到桥头时，两名押役的第二份口供已经变得过分一致。' }, { kind: 'dialogue', text: '覃保坤道：“你保住了车去哪儿，也让他们有时间把自己写得更干净。”' }] } },

@@ -49,6 +49,9 @@ export type Chapter2BranchId =
   | 'c2_03_record_chain'
 
 export interface Chapter2InvestigationState {
+  activeCaseId?: Chapter2CaseId | null
+  completedActionIds?: string[]
+  caseMaterialIds?: string[]
   completedCaseIds: Chapter2CaseId[]
   branchIds: Chapter2BranchId[]
   materialIds: string[]

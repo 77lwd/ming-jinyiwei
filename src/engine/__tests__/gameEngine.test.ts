@@ -81,6 +81,9 @@ describe('desktop-first game engine', () => {
       mainlineNode: 'chapter2.rain-night-transfer',
     }
 
+    state = confirmMainlineChoice(state, 'c2-01-lock')
+    state = confirmMainlineChoice(state, 'c2-01-stub')
+    state = confirmMainlineChoice(state, 'c2-01-guard-interview')
     state = confirmMainlineChoice(state, 'preserve-guard-responsibility')
     expect(state.flags).toMatchObject({ slip_chain_1: true, c2_01_responsibility_chain: true })
     expect(state.flags.c2_01_route_chain).not.toBe(true)
@@ -407,7 +410,10 @@ describe('desktop-first game engine', () => {
       if (state.mainlineNode.includes('review') || state.mainlineNode.includes('sealed') || state.mainlineNode.includes('notice')) {
         observedStages.push(state.mainlineNode)
       }
-      if (state.mainlineNode === 'chapter2.rain-night-transfer') state = confirmMainlineChoice(state, 'preserve-guard-responsibility')
+      if (state.mainlineNode === 'chapter2.rain-night-transfer') { state = confirmMainlineChoice(state, 'c2-01-lock'); continue }
+      else if (state.mainlineNode === 'chapter2.case1-lock') { state = confirmMainlineChoice(state, 'c2-01-stub'); continue }
+      else if (state.mainlineNode === 'chapter2.case1-inquiry') { state = confirmMainlineChoice(state, 'c2-01-guard-interview'); continue }
+      else if (state.mainlineNode === 'chapter2.case1-close-review') { state = confirmMainlineChoice(state, 'preserve-guard-responsibility'); continue }
       else if (state.mainlineNode === 'chapter2.empty-dowry-house') state = confirmMainlineChoice(state, 'protect-witness-and-deed')
       else if (state.mainlineNode === 'chapter2.before-the-watch-drum') state = confirmMainlineChoice(state, 'preserve-death-timeline')
       else if (state.mainlineNode === 'chapter2.register-review') {
@@ -428,6 +434,7 @@ describe('desktop-first game engine', () => {
     expect(state.chapter).toBe('chapter5')
     expect(state.screen).toBe('complete')
     expect(observedStages).toEqual([
+      'chapter2.case1-close-review',
       'chapter2.register-review',
       'chapter2.register-sealed',
       'chapter3.case-file-sealed',

@@ -40,6 +40,9 @@ describe('versioned desktop save repository', () => {
     expect(loaded.state.chapter1Investigation.openQuestionIds).toEqual(['wusheng-bag', 'fire-target', 'paper-fate'])
     expect(loaded.state.chapter1Investigation.petitionResultIds).toEqual([])
     expect(loaded.state.chapter2Investigation).toEqual({
+      activeCaseId: null,
+      completedActionIds: [],
+      caseMaterialIds: [],
       completedCaseIds: [],
       branchIds: [],
       materialIds: [],
