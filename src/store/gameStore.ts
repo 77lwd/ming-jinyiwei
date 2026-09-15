@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { advanceMainline, chooseMainline, confirmResult, createInitialState, enterChapterTwo, startGame, startMainline, submitChapter1Verification, submitChapter2RegisterVerification } from '../engine/gameEngine'
+import { advanceMainline, chooseMainline, confirmResult, createInitialState, enterChapterTwo, startGame, startMainline, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2RegisterVerification } from '../engine/gameEngine'
 import type { Chapter1QuestionId, GameState } from '../types'
 import { clearSave, loadSave, saveGame } from './saveRepository'
 
@@ -17,13 +17,14 @@ interface GameCommands {
   chooseMainline: (choiceId: string) => void
   submitChapter1Verification: (questionId: Chapter1QuestionId, materialIds: string[]) => void
   submitChapter2RegisterVerification: (materialIds: string[]) => void
+  submitChapter2Case1Verification: (materialIds: string[]) => void
   confirmResult: () => void
 }
 
 export type GameStore = GameState & GameCommands
 
 function toGameState(state: GameStore): GameState {
-  const { hasSave: _hasSave, saveError: _saveError, newGame: _newGame, continueGame: _continueGame, restart: _restart, returnToTitle: _returnToTitle, enterChapterTwo: _enterChapterTwo, nextPrologue: _nextPrologue, skipPrologue: _skipPrologue, advanceMainline: _advanceMainline, chooseMainline: _chooseMainline, submitChapter1Verification: _submitChapter1Verification, submitChapter2RegisterVerification: _submitChapter2RegisterVerification, confirmResult: _confirmResult, ...gameState } = state
+  const { hasSave: _hasSave, saveError: _saveError, newGame: _newGame, continueGame: _continueGame, restart: _restart, returnToTitle: _returnToTitle, enterChapterTwo: _enterChapterTwo, nextPrologue: _nextPrologue, skipPrologue: _skipPrologue, advanceMainline: _advanceMainline, chooseMainline: _chooseMainline, submitChapter1Verification: _submitChapter1Verification, submitChapter2Case1Verification: _submitChapter2Case1Verification, submitChapter2RegisterVerification: _submitChapter2RegisterVerification, confirmResult: _confirmResult, ...gameState } = state
   return gameState
 }
 
@@ -92,6 +93,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   submitChapter2RegisterVerification: (materialIds) => {
     const result = submitChapter2RegisterVerification(toGameState(get()), materialIds)
+    if (result.ok) persistAndSet(set, result.state)
+    else set({ lastCommandError: result.reason })
+  },
+  submitChapter2Case1Verification: (materialIds) => {
+    const result = submitChapter2Case1Verification(toGameState(get()), materialIds)
     if (result.ok) persistAndSet(set, result.state)
     else set({ lastCommandError: result.reason })
   },
