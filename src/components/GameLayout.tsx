@@ -11,6 +11,7 @@ import { Chapter1PetitionWorkbench } from './Chapter1PetitionWorkbench'
 import { Chapter2RegisterWorkbench } from './Chapter2RegisterWorkbench'
 import { Chapter2Case1VerificationWorkbench } from './Chapter2Case1VerificationWorkbench'
 import { Chapter2CaseContext, Chapter2CaseProgress, Chapter2CaseRecord, Chapter2InvestigationChoices } from './Chapter2CaseWorkbench'
+import { Chapter2InquiryDialogue } from './Chapter2InquiryDialogue'
 import { NarrativePanel } from './NarrativePanel'
 import { NetworkDrawer } from './NetworkDrawer'
 import type { NetworkId } from '../data/network'
@@ -92,7 +93,9 @@ export function GameLayout() {
               </NarrativePanel>
             </section>
           ) : state.phase === 'result' ? (
-              <ResultPanel chapter={state.chapter} node={state.mainlineNode} narrative={state.currentNarrative} event={state.recentEvents[0]} onConfirm={state.confirmResult} onOpenCaseRecord={() => setDrawer('record')} />
+            state.chapter === 'chapter2' && state.mainlineNode.startsWith('chapter2.case1-inquiry.')
+              ? <Chapter2InquiryDialogue node={state.mainlineNode} question={state.recentEvents[0]?.title ?? '继续说明当时所见。'} narrative={state.currentNarrative} onConfirm={state.confirmResult} />
+              : <ResultPanel chapter={state.chapter} node={state.mainlineNode} narrative={state.currentNarrative} event={state.recentEvents[0]} onConfirm={state.confirmResult} onOpenCaseRecord={() => setDrawer('record')} />
           ) : null}
         </section>
 

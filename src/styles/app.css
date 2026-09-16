@@ -80,6 +80,23 @@
   .developer-checkpoints button:hover { border-color: var(--brass); background: #1c2926; }
   .developer-checkpoints small { color: #aeb7af; line-height: 1.45; }
 
+  .inquiry-dialogue { width: min(900px, 100%); margin: 1rem auto 0; padding: 1.5rem 0 2rem; }
+  .inquiry-dialogue-heading { display: grid; grid-template-columns: 1fr auto; gap: .25rem 1rem; align-items: end; padding-bottom: 1rem; border-bottom: 1px solid #52605b; }
+  .inquiry-dialogue-heading span { grid-column: 1 / -1; color: var(--brass-light); font: 700 .78rem/1.4 system-ui, sans-serif; }
+  .inquiry-dialogue-heading h2 { margin: 0; color: #f2ead9; font-size: 1.65rem; letter-spacing: 0; }
+  .inquiry-dialogue-heading small { color: #9eaaa4; font: .78rem/1.5 system-ui, sans-serif; }
+  .inquiry-transcript { min-height: 360px; display: grid; align-content: start; gap: 1rem; padding: 1.5rem 0; }
+  .inquiry-line { width: min(72ch, 88%); padding: 1rem 1.1rem; border: 1px solid #55625d; border-radius: 4px; }
+  .inquiry-line strong, .inquiry-line > span { display: flex; align-items: center; gap: .4rem; margin-bottom: .55rem; color: var(--brass-light); font: 700 .8rem/1.4 system-ui, sans-serif; }
+  .inquiry-line p { margin: 0; color: #e3ded1; font-size: 1.02rem; line-height: 1.9; }
+  .inquiry-question { justify-self: end; background: #26322f; border-color: #69736c; }
+  .inquiry-question strong { color: #ddd1b6; }
+  .inquiry-answer { justify-self: start; background: #17211f; }
+  .inquiry-action { justify-self: start; padding: .8rem 1rem; background: transparent; border-color: #3f4d48; }
+  .inquiry-action p { color: #afb7af; font-size: .92rem; }
+  .inquiry-dialogue-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid #40514c; }
+  .inquiry-dialogue-actions p { max-width: 38rem; margin: 0 auto 0 0; color: #aeb7af; font: .82rem/1.65 system-ui, sans-serif; }
+
   .prologue { min-height: 100vh; position: relative; display: grid; align-items: end; overflow: hidden; color: #f2ead8; background: #121918; }
   .prologue-visual { position: absolute; inset: 0; overflow: hidden; background: #121918; }
   .prologue-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(8,13,12,.98), rgba(8,13,12,.18) 70%), linear-gradient(90deg, rgba(8,13,12,.22), transparent 58%); pointer-events: none; }
