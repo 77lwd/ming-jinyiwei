@@ -28,6 +28,9 @@ describe('Chapter2InquiryDialogue', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '继续听' }))
     expect(screen.getByText('他说到这里，手往腰后探了一下。')).toBeInTheDocument()
+    expect(screen.getByText('本轮记下')).toBeInTheDocument()
+    expect(screen.getByText(/钥匙的交接没有旁证/)).toBeInTheDocument()
+    expect(screen.getByText('下一步')).toBeInTheDocument()
     expect(onConfirm).not.toHaveBeenCalled()
 
     fireEvent.click(screen.getByRole('button', { name: '继续闻讯' }))
@@ -43,6 +46,22 @@ describe('Chapter2InquiryDialogue', () => {
     />)
 
     fireEvent.click(screen.getByRole('button', { name: '听他回答' }))
+    expect(screen.getByText('本人口供已签押')).toBeInTheDocument()
+    expect(screen.getByText(/两名押役口供已经可以分开对照/)).toBeInTheDocument()
+    expect(screen.getByText('新增核验材料：《两份分开记录的押役口供》')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '完成签押' })).toBeInTheDocument()
+  })
+
+  it('makes clear that Zhou Liu alone does not create the combined verification material', () => {
+    render(<Chapter2InquiryDialogue
+      node="chapter2.case1-inquiry.guard-a.3"
+      question="只说你自己看见了什么。"
+      narrative={{ title: '周六 · 亲见口供', paragraphs: [{ kind: 'dialogue', text: '我回来时车里已经没人。' }] }}
+      onConfirm={() => undefined}
+    />)
+
+    fireEvent.click(screen.getByRole('button', { name: '听他回答' }))
+    expect(screen.getByText('周六口供待签押')).toBeInTheDocument()
+    expect(screen.getByText(/尚未形成组合核验材料/)).toBeInTheDocument()
   })
 })

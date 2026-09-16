@@ -100,6 +100,14 @@
   .inquiry-answer { justify-self: start; background: #17211f; }
   .inquiry-action { justify-self: start; padding: .8rem 1rem; background: transparent; border-color: #3f4d48; }
   .inquiry-action p { color: #afb7af; font-size: .92rem; }
+  .inquiry-round-note { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; padding-top: .25rem; }
+  .inquiry-round-note div { padding: .85rem 1rem; background: rgba(12,20,18,.72); border-top: 1px solid #66716a; }
+  .inquiry-round-note strong { display: block; margin-bottom: .4rem; color: var(--brass-light); font: 700 .78rem/1.4 system-ui, sans-serif; }
+  .inquiry-round-note p { margin: 0; color: #bdc3ba; font-size: .88rem; line-height: 1.7; }
+  .inquiry-statement-summary { width: 100%; padding: 1rem 1.1rem; background: #1b2724; border: 1px solid #7b735f; border-radius: 4px; }
+  .inquiry-statement-summary > strong { display: block; margin-bottom: .55rem; color: #f0dfb8; font-size: 1rem; }
+  .inquiry-statement-summary p { margin: 0 0 .75rem; color: #d4d4ca; line-height: 1.75; }
+  .inquiry-statement-summary em { display: block; color: var(--brass-light); font: normal 700 .82rem/1.6 system-ui, sans-serif; }
   .inquiry-dialogue-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid #40514c; }
   .inquiry-dialogue-actions p { max-width: 38rem; margin: 0 auto 0 0; color: #aeb7af; font: .82rem/1.65 system-ui, sans-serif; }
 
