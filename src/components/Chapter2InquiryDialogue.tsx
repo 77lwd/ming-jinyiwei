@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, PenLine } from 'lucide-react'
+import { ChevronRight, PenLine, UserRound } from 'lucide-react'
 import type { NarrativeBlock } from '../types'
 
 const speakerByNode: Array<[string, string]> = [
@@ -37,17 +37,29 @@ export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }
       <small>第 {Math.min(visibleCount + 1, narrative.paragraphs.length + 1)} 轮记录</small>
     </header>
 
-    <div className="inquiry-transcript" aria-live="polite">
-      <article className="inquiry-line inquiry-question">
-        <strong>廖威达</strong>
-        <p>{question}</p>
-      </article>
-      {narrative.paragraphs.slice(0, visibleCount).map((paragraph, index) => (
-        <article className={`inquiry-line ${paragraph.kind === 'dialogue' ? 'inquiry-answer' : 'inquiry-action'}`} key={`${paragraph.kind}-${index}`}>
-          {paragraph.kind === 'dialogue' ? <strong>{speaker}</strong> : <span><PenLine size={14} />闻讯记录</span>}
-          <p>{paragraph.text}</p>
+    <div className="inquiry-stage">
+      <aside className="inquiry-portrait inquiry-portrait-witness" aria-label={`${speaker}肖像待补`}>
+        <span><UserRound size={36} aria-hidden="true" /></span>
+        <strong>{speaker}</strong>
+      </aside>
+
+      <div className="inquiry-transcript" aria-live="polite">
+        <article className="inquiry-line inquiry-question">
+          <strong>廖威达：</strong>
+          <p>{question}</p>
         </article>
-      ))}
+        {narrative.paragraphs.slice(0, visibleCount).map((paragraph, index) => (
+          <article className={`inquiry-line ${paragraph.kind === 'dialogue' ? 'inquiry-answer' : 'inquiry-action'}`} key={`${paragraph.kind}-${index}`}>
+            {paragraph.kind === 'dialogue' ? <strong>{speaker}：</strong> : <span><PenLine size={14} />闻讯记录</span>}
+            <p>{paragraph.text}</p>
+          </article>
+        ))}
+      </div>
+
+      <aside className="inquiry-portrait inquiry-portrait-player">
+        <img src="/assets/chapter1/characters/liao-weida-portrait-v1.png" alt="廖威达肖像" />
+        <strong>廖威达</strong>
+      </aside>
     </div>
 
     <footer className="inquiry-dialogue-actions">

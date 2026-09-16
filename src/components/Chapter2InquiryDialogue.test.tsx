@@ -16,9 +16,13 @@ describe('Chapter2InquiryDialogue', () => {
     />)
 
     expect(screen.getByText('你说钥匙起先在赵七手里。后来交给了谁？')).toBeInTheDocument()
+    expect(screen.getByText('廖威达：')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '廖威达肖像' })).toHaveAttribute('src', '/assets/chapter1/characters/liao-weida-portrait-v1.png')
+    expect(screen.getByLabelText('押役周六肖像待补')).toBeInTheDocument()
     expect(screen.queryByText('过桥前给了我。赵七手冻得发僵，说让我收着。')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '听他回答' }))
+    expect(screen.getByText('押役周六：')).toBeInTheDocument()
     expect(screen.getByText('过桥前给了我。赵七手冻得发僵，说让我收着。')).toBeInTheDocument()
     expect(screen.queryByText('他说到这里，手往腰后探了一下。')).not.toBeInTheDocument()
 

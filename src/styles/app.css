@@ -80,13 +80,19 @@
   .developer-checkpoints button:hover { border-color: var(--brass); background: #1c2926; }
   .developer-checkpoints small { color: #aeb7af; line-height: 1.45; }
 
-  .inquiry-dialogue { width: min(900px, 100%); margin: 1rem auto 0; padding: 1.5rem 0 2rem; }
+  .inquiry-dialogue { width: min(1120px, 100%); margin: 1rem auto 0; padding: 1.5rem 0 2rem; }
   .inquiry-dialogue-heading { display: grid; grid-template-columns: 1fr auto; gap: .25rem 1rem; align-items: end; padding-bottom: 1rem; border-bottom: 1px solid #52605b; }
   .inquiry-dialogue-heading span { grid-column: 1 / -1; color: var(--brass-light); font: 700 .78rem/1.4 system-ui, sans-serif; }
   .inquiry-dialogue-heading h2 { margin: 0; color: #f2ead9; font-size: 1.65rem; letter-spacing: 0; }
   .inquiry-dialogue-heading small { color: #9eaaa4; font: .78rem/1.5 system-ui, sans-serif; }
-  .inquiry-transcript { min-height: 360px; display: grid; align-content: start; gap: 1rem; padding: 1.5rem 0; }
-  .inquiry-line { width: min(72ch, 88%); padding: 1rem 1.1rem; border: 1px solid #55625d; border-radius: 4px; }
+  .inquiry-stage { min-height: 380px; display: grid; grid-template-columns: 128px minmax(520px, 1fr) 128px; gap: 1.5rem; align-items: start; padding: 1.5rem 0; }
+  .inquiry-portrait { display: grid; justify-items: center; gap: .65rem; color: #d6ccb7; font: 700 .82rem/1.4 system-ui, sans-serif; }
+  .inquiry-portrait img, .inquiry-portrait > span { width: 118px; height: 148px; display: grid; place-items: center; object-fit: cover; object-position: center top; background: #111a18; border: 1px solid #69736c; border-radius: 4px; }
+  .inquiry-portrait-witness { padding-top: 7.5rem; }
+  .inquiry-portrait-witness > span { color: #89958f; background: rgba(17,26,24,.82); border-style: dashed; }
+  .inquiry-portrait-player { padding-top: 0; }
+  .inquiry-transcript { min-height: 360px; display: grid; align-content: start; gap: 1rem; }
+  .inquiry-line { width: min(72ch, 94%); padding: 1rem 1.1rem; border: 1px solid #55625d; border-radius: 4px; }
   .inquiry-line strong, .inquiry-line > span { display: flex; align-items: center; gap: .4rem; margin-bottom: .55rem; color: var(--brass-light); font: 700 .8rem/1.4 system-ui, sans-serif; }
   .inquiry-line p { margin: 0; color: #e3ded1; font-size: 1.02rem; line-height: 1.9; }
   .inquiry-question { justify-self: end; background: #26322f; border-color: #69736c; }
