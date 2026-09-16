@@ -110,11 +110,11 @@ export const chapter2ActionMaterials: Record<string, string[]> = {
 }
 
 export const chapter2Case1InvestigationActions: MainlineChoice[] = [
-  { id: 'c2-01-inspect-lock', label: '拆下锁扣，检查锁舌与锁孔', nextNode: 'chapter2.case1-investigation', effects: noEffects, outcomeNarrative: { title: '锁没有被人撞开', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你先让人照着原位画下锁扣，才拔出穿销。锁孔里都是旧油泥，没有新刮出的铜屑；锁舌和扣环也找不到撬压留下的亮痕。雨水顺着车门往下淌，锁却是有人拿钥匙打开后重新挂回去的。' }, { kind: 'prose', text: '书记官把锁扣包进粗布，位置、朝向和穿销次序逐项写在签条上。' }] } },
+  { id: 'c2-01-inspect-lock', label: '勘验囚车、锁扣与车辕', nextNode: 'chapter2.case1-route-cart', effects: noEffects, outcomeNarrative: { title: '锁没有被人撞开', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你先让人照着原位画下锁扣，才拔出穿销。锁孔里都是旧油泥，没有新刮出的铜屑；锁舌和扣环也找不到撬压留下的亮痕。雨水顺着车门往下淌，锁却是有人拿钥匙打开后重新挂回去的。' }, { kind: 'prose', text: '书记官把锁扣包进粗布，位置、朝向和穿销次序逐项写在签条上。车辕断口还在泥里，须接着查。' }] } },
   { id: 'c2-01-inspect-shaft', label: '清开泥水，复看车辕断口', nextNode: 'chapter2.case1-investigation', effects: noEffects, outcomeNarrative: { title: '车停了，木头才断', tone: 'tense', paragraphs: [{ kind: 'prose', text: '断口外面糊满泥，里面的木色却还是浅的。你用竹片一点点剔开木刺，朝向全往同一边倒，断口深处没有行车时该带进去的泥砂。' }, { kind: 'prose', text: '这根车辕不是在路上颠断的。车已经停稳，才有人压住一头，把它硬折下来。' }] } },
-  { id: 'c2-01-trace-drag-marks', label: '沿车底擦痕追查原停车位置', nextNode: 'chapter2.case1-investigation', effects: noEffects, outcomeNarrative: { title: '车被重新摆过', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '官道上的轮辙在车后断了一截，桥坡下却另有两道被雨水冲浅的沟。你让人横放木尺，量过轮距，再伏低去看车底。横梁上的湿泥向河埠一侧拖开，边缘已经结了一层薄浆。' }, { kind: 'prose', text: '囚车先被拖下官道，隔了一阵，又被摆回翻倒的位置。所谓当场翻车，只是一层后来补上的样子。' }] } },
+  { id: 'c2-01-trace-drag-marks', label: '追查车底拖痕与遗留麻绳', nextNode: 'chapter2.case1-route-traces', effects: noEffects, outcomeNarrative: { title: '车被重新摆过', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '官道上的轮辙在车后断了一截，桥坡下却另有两道被雨水冲浅的沟。你让人横放木尺，量过轮距，再伏低去看车底。横梁上的湿泥向河埠一侧拖开，边缘已经结了一层薄浆。' }, { kind: 'prose', text: '囚车先被拖下官道，隔了一阵，又被摆回翻倒的位置。空车钩上还留着湿麻，须顺着这一处继续查。' }] } },
   { id: 'c2-01-examine-rope-fibers', label: '检查空车钩与残留麻纤维', nextNode: 'chapter2.case1-investigation', effects: noEffects, outcomeNarrative: { title: '少掉的那条麻绳', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '车尾两只铁钩，一只还缠着旧绳，另一只空着。你从钩根挑出几根湿麻，压在黑纸上对光看。纤维末端平齐，不是绷断时留下的乱茬。' }, { kind: 'prose', text: '有人用过这条绳，事后又拿刀割走。至于是绑人、拖车，还是两样都做过，卷里暂不多写。' }] } },
-  { id: 'c2-01-preserve-wet-stub', label: '夹纸吸水，展开车内湿存根', nextNode: 'chapter2.case1-investigation', effects: noEffects, outcomeNarrative: { title: '没有去处的换押存根', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '纸片黏在底板缝里，硬揭就会掉字。你先用干纸覆住两面，换了三次，等纸筋稍稍回硬，才从角上慢慢揭开。编号、纸种和半枚蜡记都是真的，领取人只剩一个被水晕开的姓，交接地点那一栏却从来没有落过笔。' }, { kind: 'prose', text: '真纸没有把手续变真。它只说明有人拿着一张没写完的存根，把人从原押送途中带走。' }] } },
+  { id: 'c2-01-preserve-wet-stub', label: '核验换押存根与原押送差牌', nextNode: 'chapter2.case1-route-documents', effects: noEffects, outcomeNarrative: { title: '没有去处的换押存根', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '纸片黏在底板缝里，硬揭就会掉字。你先用干纸覆住两面，换了三次，等纸筋稍稍回硬，才从角上慢慢揭开。编号、纸种和半枚蜡记都是真的，领取人只剩一个被水晕开的姓，交接地点那一栏却从来没有落过笔。' }, { kind: 'prose', text: '真纸没有把手续变真。要知道它缺了什么，还得回所调出原差牌逐栏对照。' }] } },
   { id: 'c2-01-compare-escort-order', label: '回所调出原差牌，逐栏对照', nextNode: 'chapter2.case1-investigation', effects: noEffects, outcomeNarrative: { title: '原差牌上没有河埠', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '原差牌从值房匣中调出时，封口仍是昨夜的旧蜡。押送人名、出发时刻和入城路线都写得清楚：过河桥后直走北门，不许中途停靠，也没有另派人接手。' }, { kind: 'prose', text: '你把湿存根平码在差牌旁边。两张纸的编号能接上，手续却接不上。书记官另起一页，把没有得到批准的每一处空白抄了下来。' }] } },
 ]
 
@@ -167,6 +167,22 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     chapter: 'chapter2',
     narrative: { title: '雨夜失押 · 调查案桌', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '现场图、车上遗物和两张差牌分开放着。已经查过的地方用朱点压住，尚未动手的部分仍留着空栏。你可以换一条线继续，不必照固定次序把现场走完。' }] },
   },
+  'chapter2.case1-route-cart': {
+    chapter: 'chapter2',
+    narrative: { title: '调查线 · 囚车与锁具', tone: 'tense', paragraphs: [{ kind: 'prose', text: '锁扣已经拆下入袋。车辕断口仍压在泥里，若不趁雨势加重前复看，断面很快会被泥水泡透。' }] },
+  },
+  'chapter2.case1-route-traces': {
+    chapter: 'chapter2',
+    narrative: { title: '调查线 · 拖痕与麻绳', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '轮辙已经把囚车被移动过的方向留下。车尾空钩上的残纤维，是这条线剩下的查验。' }] },
+  },
+  'chapter2.case1-route-documents': {
+    chapter: 'chapter2',
+    narrative: { title: '调查线 · 换押文书', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '湿存根已经保住，编号和蜡记也能辨认。下一步是调出原押送差牌，把路线、交接和授权逐栏对上。' }] },
+  },
+  'chapter2.case1-inquiry-select': {
+    chapter: 'chapter2',
+    narrative: { title: '雨夜失押 · 分开闻讯', tone: 'tense', paragraphs: [{ kind: 'prose', text: '现场和文书已经查完。两名押役各候一室，河埠的船夫与茶棚伙计也分开等候。每个人都要从头问完、复述确认并签押，才能形成自己的口供。' }] },
+  },
   'chapter2.case1-inquiry.guard-a.1': {
     chapter: 'chapter2',
     narrative: { title: '分开闻讯 · 押役周六', tone: 'tense', paragraphs: [{ kind: 'prose', text: '周六进门时，裤脚还在往下滴水。他先看了一眼空着的另一张椅子，才在案桌前站定。赵七被留在西厢，两个人听不见彼此说话。' }, { kind: 'dialogue', text: '“人是酉时后领的。班头验了锁，钥匙起先在赵七手里。出了北门一路没停，后来雨实在大，车辕又断，我们才靠边。”' }] },
@@ -211,8 +227,8 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     chapter: 'chapter2',
     narrative: { title: '赵七 · 第二份口供', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '赵七先前说过的“翻车”“撞门”和“无人来过”，已经无法写回同一份经过。书记官停笔，等他自己重新说。' }] },
     choices: [
-      { id: 'c2-01-guard-b-confront', label: '“从柳沟停车开始重说。谁看了牌，谁开的锁，周六离开时你在做什么，一件一件说。”', nextNode: 'chapter2.case1-investigation', outcomeNarrative: { title: '两份口供分开入卷', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“牌是我看的，锁是我开的。周六去牵马时，那两个人把马骁带下车。我没向值房回报，也没等正式回令。车辕是人走后才折的。”' }, { kind: 'prose', text: '两份口供分别签押。相同处和冲突处另列一页，没有让其中一个人的话替另一个人作证。' }] } },
-      { id: 'c2-01-guard-b-restatement', label: '“你可以说自己看错了牌，也可以说当时怕担事。但别再说人犯自己撞门。把你亲手做过的事写实。”', nextNode: 'chapter2.case1-investigation', outcomeNarrative: { title: '两份口供分开入卷', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“我认了那张牌，开了锁，也让周六离岗。人是别人带走的。车辕和翻车的样子，是他们走后才弄出来的。”' }, { kind: 'prose', text: '赵七按下手印。周六的口供仍封在另一页，两个人各自承担自己说过的话。' }] } },
+      { id: 'c2-01-guard-b-confront', label: '“从柳沟停车开始重说。谁看了牌，谁开的锁，周六离开时你在做什么，一件一件说。”', nextNode: 'chapter2.case1-inquiry-select', outcomeNarrative: { title: '赵七口供签押', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“牌是我看的，锁是我开的。周六去牵马时，那两个人把马骁带下车。我没向值房回报，也没等正式回令。车辕是人走后才折的。”' }, { kind: 'prose', text: '赵七从头复述一遍，在末页按了手印。至此，两名押役各有一份独立口供，相同处和冲突处另列一页。' }] } },
+      { id: 'c2-01-guard-b-restatement', label: '“你可以说自己看错了牌，也可以说当时怕担事。但别再说人犯自己撞门。把你亲手做过的事写实。”', nextNode: 'chapter2.case1-inquiry-select', outcomeNarrative: { title: '赵七口供签押', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“我认了那张牌，开了锁，也让周六离岗。人是别人带走的。车辕和翻车的样子，是他们走后才弄出来的。”' }, { kind: 'prose', text: '赵七按下手印。周六的口供仍封在另一页，两个人各自承担自己说过的话。' }] } },
     ],
   },
   'chapter2.case1-inquiry.river-boat.1': {
@@ -242,8 +258,8 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     chapter: 'chapter2',
     narrative: { title: '阿顺 · 篷车离开的方向', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“河对岸那辆篷车我也见过。车帘右下角补过一块浅布，赶车人走的是城南旧堤，不是往北门。”' }] },
     choices: [
-      { id: 'c2-01-river-tea-finish', label: '“把你亲眼看见的和隔河望见的分开说。看不清的人脸不写，只写车、时辰和去向。”', nextNode: 'chapter2.case1-investigation', outcomeNarrative: { title: '河埠证言相互对上', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '船夫认得靠岸处，伙计认得两辆车停留的先后。两个人都没有认出马骁，但时辰、搬运方式和篷车去向能够互相复核。' }] } },
-      { id: 'c2-01-river-tea-confirm', label: '“你只认那块补布，不能因此认定车里是谁。再把三更前后的先后说一遍，书记官照原话记。”', nextNode: 'chapter2.case1-investigation', outcomeNarrative: { title: '河埠证言相互对上', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '阿顺把官车到埠、有人下车、渡船离岸和篷车南去的次序重新说了一遍。与船夫口供重合的部分被单独标出。' }] } },
+      { id: 'c2-01-river-tea-finish', label: '“把你亲眼看见的和隔河望见的分开说。看不清的人脸不写，只写车、时辰和去向。”', nextNode: 'chapter2.case1-inquiry-select', outcomeNarrative: { title: '阿顺证言签押', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '阿顺从官车到埠说到篷车南去，在末页按了指印。船夫认得靠岸处，伙计认得两辆车停留的先后；两份证言各自成立，重合处另页对照。' }] } },
+      { id: 'c2-01-river-tea-confirm', label: '“你只认那块补布，不能因此认定车里是谁。再把三更前后的先后说一遍，书记官照原话记。”', nextNode: 'chapter2.case1-inquiry-select', outcomeNarrative: { title: '阿顺证言签押', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '阿顺把官车到埠、有人下车、渡船离岸和篷车南去的次序重新说了一遍，在末页按下指印。与船夫证言重合的部分另页标出。' }] } },
     ],
   },
   'chapter2.case1-authority-review': {

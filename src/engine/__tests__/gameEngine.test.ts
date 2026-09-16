@@ -56,16 +56,37 @@ function completeFirstChapter(): GameState {
   return state
 }
 
+function completeChapter2CaseOne(state: GameState): GameState {
+  for (const choiceId of ['c2-01-inspect-lock', 'c2-01-inspect-shaft', 'c2-01-trace-drag-marks', 'c2-01-examine-rope-fibers', 'c2-01-preserve-wet-stub', 'c2-01-compare-escort-order', 'c2-01-finish-investigation']) state = confirmMainlineChoice(state, choiceId)
+  for (const choiceId of ['c2-01-begin-guard-inquiry', 'c2-01-guard-a-key', 'c2-01-guard-a-shaft', 'c2-01-guard-a-finish', 'c2-01-guard-b-route', 'c2-01-guard-b-order', 'c2-01-guard-b-confront']) state = confirmMainlineChoice(state, choiceId)
+  for (const choiceId of ['c2-01-begin-river-inquiry', 'c2-01-river-boat-time', 'c2-01-river-boat-finish', 'c2-01-river-tea-cart', 'c2-01-river-tea-finish', 'c2-01-open-verification']) state = confirmMainlineChoice(state, choiceId)
+  const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'cart-drag-trace', 'cut-rope-fibers']) as { ok: true; state: GameState }
+  state = (confirmResult(first.state) as { ok: true; state: GameState }).state
+  const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements']) as { ok: true; state: GameState }
+  state = (confirmResult(second.state) as { ok: true; state: GameState }).state
+  return confirmMainlineChoice(state, 'preserve-guard-responsibility')
+}
+
 describe('desktop-first game engine', () => {
-  it('builds chapter two case one from eight separately acquired materials', () => {
+  it('separates case-one investigation into routes and keeps inquiry locked until all routes finish', () => {
     let state: GameState = { ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.rain-night-transfer' }
-    for (const actionId of ['c2-01-inspect-lock', 'c2-01-inspect-shaft', 'c2-01-trace-drag-marks', 'c2-01-examine-rope-fibers', 'c2-01-preserve-wet-stub', 'c2-01-compare-escort-order']) {
-      state = confirmMainlineChoice(state, actionId)
-    }
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['c2-01-inspect-lock', 'c2-01-trace-drag-marks', 'c2-01-preserve-wet-stub'])
+    state = confirmMainlineChoice(state, 'c2-01-inspect-lock')
+    expect(state.mainlineNode).toBe('chapter2.case1-route-cart')
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['c2-01-inspect-shaft'])
+    state = confirmMainlineChoice(state, 'c2-01-inspect-shaft')
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['c2-01-trace-drag-marks', 'c2-01-preserve-wet-stub'])
+    state = confirmMainlineChoice(state, 'c2-01-trace-drag-marks')
+    state = confirmMainlineChoice(state, 'c2-01-examine-rope-fibers')
+    state = confirmMainlineChoice(state, 'c2-01-preserve-wet-stub')
+    state = confirmMainlineChoice(state, 'c2-01-compare-escort-order')
     expect(state.chapter2Investigation.caseMaterialIds).toEqual(expect.arrayContaining([
       'unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order',
     ]))
-    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(expect.arrayContaining(['c2-01-begin-guard-inquiry', 'c2-01-begin-river-inquiry']))
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['c2-01-finish-investigation'])
+    state = confirmMainlineChoice(state, 'c2-01-finish-investigation')
+    expect(state.mainlineNode).toBe('chapter2.case1-inquiry-select')
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['c2-01-begin-guard-inquiry', 'c2-01-begin-river-inquiry'])
   })
 
   it('records an inquiry material only after separate question-and-answer exchanges', () => {
@@ -73,10 +94,32 @@ describe('desktop-first game engine', () => {
       ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.case1-inquiry.guard-a.1',
       chapter2Investigation: { ...createInitialState().chapter2Investigation, caseMaterialIds: ['unforced-lock', 'original-escort-order'], materialIds: ['unforced-lock', 'original-escort-order'] },
     }
-    for (const choiceId of ['c2-01-guard-a-key', 'c2-01-guard-a-shaft', 'c2-01-guard-a-finish', 'c2-01-guard-b-route', 'c2-01-guard-b-order', 'c2-01-guard-b-confront']) {
+    for (const choiceId of ['c2-01-guard-a-key', 'c2-01-guard-a-shaft']) {
       state = confirmMainlineChoice(state, choiceId)
     }
+    expect(state.chapter2Investigation.caseMaterialIds).not.toContain('separate-guard-statements')
+    state = confirmMainlineChoice(state, 'c2-01-guard-a-finish')
+    expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-guard-a-statement')
+    expect(state.chapter2Investigation.caseMaterialIds).not.toContain('separate-guard-statements')
+    for (const choiceId of ['c2-01-guard-b-route', 'c2-01-guard-b-order', 'c2-01-guard-b-confront']) state = confirmMainlineChoice(state, choiceId)
+    expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-guard-b-statement')
     expect(state.chapter2Investigation.caseMaterialIds).toContain('separate-guard-statements')
+  })
+
+  it('keeps the boatman and tea-stall statements separate until both witnesses finish', () => {
+    let state: GameState = {
+      ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.case1-inquiry.river-boat.1',
+      chapter2Investigation: { ...createInitialState().chapter2Investigation, caseMaterialIds: ['cart-drag-trace'], materialIds: ['cart-drag-trace'] },
+    }
+    state = confirmMainlineChoice(state, 'c2-01-river-boat-time')
+    expect(state.chapter2Investigation.caseMaterialIds).not.toContain('river-route-testimony')
+    state = confirmMainlineChoice(state, 'c2-01-river-boat-finish')
+    expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-river-boat-statement')
+    expect(state.chapter2Investigation.caseMaterialIds).not.toContain('river-route-testimony')
+    state = confirmMainlineChoice(state, 'c2-01-river-tea-cart')
+    state = confirmMainlineChoice(state, 'c2-01-river-tea-finish')
+    expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-river-tea-statement')
+    expect(state.chapter2Investigation.caseMaterialIds).toContain('river-route-testimony')
   })
 
   it('requires exact evidence sets and two sequential findings before case one closure', () => {
@@ -130,10 +173,7 @@ describe('desktop-first game engine', () => {
       mainlineNode: 'chapter2.rain-night-transfer',
     }
 
-    state = confirmMainlineChoice(state, 'c2-01-lock')
-    state = confirmMainlineChoice(state, 'c2-01-stub')
-    state = confirmMainlineChoice(state, 'c2-01-guard-interview')
-    state = confirmMainlineChoice(state, 'preserve-guard-responsibility')
+    state = completeChapter2CaseOne(state)
     expect(state.flags).toMatchObject({ slip_chain_1: true, c2_01_responsibility_chain: true })
     expect(state.flags.c2_01_route_chain).not.toBe(true)
     expect(state.chapter2Investigation.materialIds).toEqual(expect.arrayContaining(['unforced-lock', 'separate-guard-statements']))
@@ -459,10 +499,7 @@ describe('desktop-first game engine', () => {
       if (state.mainlineNode.includes('review') || state.mainlineNode.includes('sealed') || state.mainlineNode.includes('notice')) {
         observedStages.push(state.mainlineNode)
       }
-      if (state.mainlineNode === 'chapter2.rain-night-transfer') { state = confirmMainlineChoice(state, 'c2-01-lock'); continue }
-      else if (state.mainlineNode === 'chapter2.case1-lock') { state = confirmMainlineChoice(state, 'c2-01-stub'); continue }
-      else if (state.mainlineNode === 'chapter2.case1-inquiry') { state = confirmMainlineChoice(state, 'c2-01-guard-interview'); continue }
-      else if (state.mainlineNode === 'chapter2.case1-close-review') { state = confirmMainlineChoice(state, 'preserve-guard-responsibility'); continue }
+      if (state.mainlineNode === 'chapter2.rain-night-transfer') { state = completeChapter2CaseOne(state); continue }
       else if (state.mainlineNode === 'chapter2.empty-dowry-house') state = confirmMainlineChoice(state, 'protect-witness-and-deed')
       else if (state.mainlineNode === 'chapter2.before-the-watch-drum') state = confirmMainlineChoice(state, 'preserve-death-timeline')
       else if (state.mainlineNode === 'chapter2.register-review') {
@@ -483,7 +520,6 @@ describe('desktop-first game engine', () => {
     expect(state.chapter).toBe('chapter5')
     expect(state.screen).toBe('complete')
     expect(observedStages).toEqual([
-      'chapter2.case1-close-review',
       'chapter2.register-review',
       'chapter2.register-sealed',
       'chapter3.case-file-sealed',

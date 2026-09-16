@@ -85,7 +85,7 @@ export function GameLayout() {
                 ) : state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.authorization-review' ? (
                   <Chapter1PetitionWorkbench fixedFactIds={state.chapter1Investigation.fixedFactIds} choices={mainlineChoices} onChoose={state.chooseMainline} />
                 ) : mainlineChoices.length ? (
-                  state.chapter === 'chapter1' ? <InvestigationChoices choices={mainlineChoices} onChoose={state.chooseMainline} /> : state.chapter === 'chapter2' ? <Chapter2InvestigationChoices choices={mainlineChoices} onChoose={state.chooseMainline} /> : <div className="event-choices">{mainlineChoices.map((choice) => <button key={choice.id} data-audio-sfx="choice" onClick={() => state.chooseMainline(choice.id)}><span><strong>{choice.label}</strong></span><ChevronRight size={18} /></button>)}</div>
+                  state.chapter === 'chapter1' ? <InvestigationChoices choices={mainlineChoices} onChoose={state.chooseMainline} /> : state.chapter === 'chapter2' ? <Chapter2InvestigationChoices node={state.mainlineNode} choices={mainlineChoices} onChoose={state.chooseMainline} /> : <div className="event-choices">{mainlineChoices.map((choice) => <button key={choice.id} data-audio-sfx="choice" onClick={() => state.chooseMainline(choice.id)}><span><strong>{choice.label}</strong></span><ChevronRight size={18} /></button>)}</div>
                 ) : (
                   <div className="dossier-continue"><button className="button button-primary" data-audio-sfx="confirm" onClick={state.advanceMainline}>{continueLabels[state.mainlineNode] ?? '继续办差'} <ChevronRight size={18} /></button></div>
                 )}

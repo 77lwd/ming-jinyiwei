@@ -423,19 +423,37 @@ export function getMainlineChoices(state: GameState): MainlineChoice[] {
   }
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.route-investigation') return chapter1RouteActions(state)
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify') return chapter1VerificationChoices(state)
-  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.rain-night-transfer') {
-    return chapter2Case1InvestigationActions.filter((choice) => !(state.chapter2Investigation.completedActionIds ?? []).includes(choice.id))
-  }
-  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-investigation') {
+  if (state.chapter === 'chapter2' && ['chapter2.rain-night-transfer', 'chapter2.case1-investigation'].includes(state.mainlineNode)) {
     const completed = new Set(state.chapter2Investigation.completedActionIds ?? [])
-    const actions = chapter2Case1InvestigationActions.filter((choice) => !completed.has(choice.id))
-    const materials = new Set(state.chapter2Investigation.caseMaterialIds ?? [])
-    if (!materials.has('separate-guard-statements') && materials.has('wet-transfer-stub')) actions.push({ id: 'c2-01-begin-guard-inquiry', label: '分开闻讯两名押役', nextNode: 'chapter2.case1-inquiry.guard-a.1', effects: [], outcomeNarrative: { title: '先把两个人分开', tone: 'tense', paragraphs: [{ kind: 'prose', text: '两名押役分别入屋，书记官换了两张新纸。' }] } })
-    if (!materials.has('separate-guard-statements') && materials.has('wet-transfer-stub')) actions.push({ id: 'c2-01-guard-interview', label: '闻讯押役（旧卷补录）', nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: '两份口供先行入卷', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把两名押役分开记录，先留下可供后续核对的口供底稿。' }] } })
-    if (!materials.has('river-route-testimony') && materials.has('cart-drag-trace')) actions.push({ id: 'c2-01-begin-river-inquiry', label: '分开询问河埠船夫与茶棚伙计', nextNode: 'chapter2.case1-inquiry.river-boat.1', effects: [], outcomeNarrative: { title: '沿拖痕查到河埠', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '你把车底泥痕带到河埠，先请船夫入屋，再叫茶棚伙计候在另一间。' }] } })
-    if (actions.length) return actions
-    if (materials.has('separate-guard-statements') || materials.has('river-route-testimony')) return [{ id: 'c2-01-open-verification', label: '整理案卷，进入证据命题核验', nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: '材料可以上案桌了', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '现场记录、文书对照和分开口供各自封好。你把尚未固定的命题列在卷首，准备逐条核验。' }] } }]
-    return []
+    const routeStarters = [
+      ['c2-01-inspect-lock', 'c2-01-inspect-shaft'],
+      ['c2-01-trace-drag-marks', 'c2-01-examine-rope-fibers'],
+      ['c2-01-preserve-wet-stub', 'c2-01-compare-escort-order'],
+    ]
+    const choices = routeStarters.filter((ids) => ids.some((id) => !completed.has(id))).map((ids) => chapter2Case1InvestigationActions.find((choice) => choice.id === ids.find((id) => !completed.has(id)))!).filter(Boolean)
+    if (choices.length) return choices.filter((choice) => ['c2-01-inspect-lock', 'c2-01-trace-drag-marks', 'c2-01-preserve-wet-stub'].includes(choice.id))
+    return [{ id: 'c2-01-finish-investigation', label: '结束现场与文书调查，开始分开闻讯', nextNode: 'chapter2.case1-inquiry-select', effects: [], outcomeNarrative: { title: '调查材料封入案夹', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '六项现场与文书材料分别编号入袋。书记官收起勘验工具，换上四份空白口供纸，调查与闻讯从这里分开。' }] } }]
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-route-cart') return chapter2Case1InvestigationActions.filter((choice) => choice.id === 'c2-01-inspect-shaft' && !(state.chapter2Investigation.completedActionIds ?? []).includes(choice.id))
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-route-traces') return chapter2Case1InvestigationActions.filter((choice) => choice.id === 'c2-01-examine-rope-fibers' && !(state.chapter2Investigation.completedActionIds ?? []).includes(choice.id))
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-route-documents') return chapter2Case1InvestigationActions.filter((choice) => choice.id === 'c2-01-compare-escort-order' && !(state.chapter2Investigation.completedActionIds ?? []).includes(choice.id))
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-inquiry-select') {
+    const completed = new Set(state.chapter2Investigation.completedActionIds ?? [])
+    const choices: MainlineChoice[] = []
+    if (!completed.has('c2-01-guard-b-statement')) choices.push({ id: 'c2-01-begin-guard-inquiry', label: '分开闻讯周六与赵七', nextNode: completed.has('c2-01-guard-a-statement') ? 'chapter2.case1-inquiry.guard-b.1' : 'chapter2.case1-inquiry.guard-a.1', effects: [], outcomeNarrative: { title: '押役分室候问', tone: 'tense', paragraphs: [{ kind: 'prose', text: '两名押役分别候在东西厢。每人问完后单独复述、签押，不准互相补话。' }] } })
+    if (!completed.has('c2-01-river-tea-statement')) choices.push({ id: 'c2-01-begin-river-inquiry', label: '分开询问船夫与茶棚伙计', nextNode: completed.has('c2-01-river-boat-statement') ? 'chapter2.case1-inquiry.river-tea.1' : 'chapter2.case1-inquiry.river-boat.1', effects: [], outcomeNarrative: { title: '河埠证人分开候问', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '船夫先在东屋候问，茶棚伙计留在外间。两人的时辰和去向各自落纸后再作对照。' }] } })
+    if (!choices.length) choices.push({ id: 'c2-01-open-verification', label: '四份口供均已签押，进入证据命题核验', nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: '八项材料齐备', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '六项调查材料与四份独立口供各自封好。两组口供对照页作为两项核验材料入卷，案桌上共有八项可提交材料。' }] } })
+    return choices
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-authority-review') {
+    const guardDuty = state.chapter2Investigation.fixedFactIds.includes('guard-duty')
+    return [{
+      id: guardDuty ? 'preserve-guard-responsibility' : 'follow-river-transfer',
+      label: guardDuty ? '呈请追究押役失职，另案追查马骁去向' : '呈请确认违规转移，沿河埠路线继续追查',
+      nextNode: 'chapter2.case1-closed',
+      effects: [],
+      outcomeNarrative: { title: '覃保坤落签封卷', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '覃保坤逐页看过现场记录、文书对照和四份口供，在处置页落下签押。已经查清的事实与仍待追查的人犯去向分栏记录，第一案正式封卷。' }] },
+    }]
   }
   if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review') {
     return chapter2Case1Questions.filter((q) => !state.chapter2Investigation.fixedFactIds.includes(q.id)).map((q) => ({ id: q.id, label: q.shortLabel, nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: q.shortLabel, tone: 'quiet', paragraphs: [{ kind: 'prose', text: q.prompt }] } }))
@@ -455,7 +473,7 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
     if (!result.ok) return result
     return { ok: true, state: { ...result.state, pendingResult: { kind: 'mainline_choice', nextNode: 'chapter2.case1-closed' }, flags: { ...result.state.flags, slip_chain_1: true, [q === 'guard-duty' ? 'c2_01_responsibility_chain' : 'c2_01_route_chain']: true }, chapter2Investigation: { ...result.state.chapter2Investigation, completedCaseIds: [...new Set([...result.state.chapter2Investigation.completedCaseIds, 'rain-night-transfer' as Chapter2CaseId])], branchIds: [...new Set([...result.state.chapter2Investigation.branchIds, (q === 'guard-duty' ? 'c2_01_responsibility_chain' : 'c2_01_route_chain') as Chapter2BranchId])] } } }
   }
-  const legacyChapter2Aliases: Record<string, string> = { 'c2-01-lock': 'c2-01-inspect-lock', 'c2-01-stub': 'c2-01-preserve-wet-stub', 'preserve-guard-responsibility': 'guard-duty', 'follow-river-transfer': 'illegal-transfer' }
+  const legacyChapter2Aliases: Record<string, string> = { 'c2-01-lock': 'c2-01-inspect-lock', 'c2-01-stub': 'c2-01-preserve-wet-stub' }
   if (state.chapter === 'chapter2' && legacyChapter2Aliases[choiceId]) choiceId = legacyChapter2Aliases[choiceId]
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.authorization-review') {
     if (!['request-supplement', 'preserve-evidence', 'detain-he-xing'].includes(choiceId)) return withFailure(state, 'invalid_choice')
@@ -513,6 +531,17 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
       materialIds: [...new Set([...next.chapter2Investigation.materialIds, ...actionMaterials])],
     }
   }
+  const statementCompletionIds: Record<string, string> = {
+    'c2-01-guard-a-finish': 'c2-01-guard-a-statement',
+    'c2-01-guard-a-order': 'c2-01-guard-a-statement',
+    'c2-01-guard-b-confront': 'c2-01-guard-b-statement',
+    'c2-01-guard-b-restatement': 'c2-01-guard-b-statement',
+    'c2-01-river-boat-finish': 'c2-01-river-boat-statement',
+    'c2-01-river-tea-finish': 'c2-01-river-tea-statement',
+    'c2-01-river-tea-confirm': 'c2-01-river-tea-statement',
+  }
+  const completedStatementId = statementCompletionIds[choiceId]
+  if (completedStatementId) next.chapter2Investigation.completedActionIds = [...new Set([...(next.chapter2Investigation.completedActionIds ?? []), completedStatementId])]
   if (state.chapter === 'chapter2' && choiceId === 'c2-01-open-verification') {
     next.mainlineNode = 'chapter2.case1-close-review'
   }
@@ -537,7 +566,7 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
   if (!routeId) next.currentNarrative = choice.outcomeNarrative
   next.lastCommandError = null
   next.recentEvents = [
-    { id: `${state.mainlineNode}-${choice.id}`, chapter: state.chapter, title: choice.label, summary: choice.outcomeNarrative.paragraphs.map((paragraph) => paragraph.text).join(' '), effects: [...(healthCost ? [`健康 ${healthCost}`] : []), ...(choice.effects ?? []).map(formatEffect)], acquiredMaterialIds: chapter2Outcome?.materialIds ?? (routeActionId ? chapter1InvestigationBlueprint.routes.find((route) => route.actions.some((action) => action.id === routeActionId))?.actions.find((action) => action.id === routeActionId)?.materialIds : firstDayRouteId ? chapter1InvestigationBlueprint.routes.find((route) => route.id === firstDayRouteId)?.actions[0]?.materialIds : undefined) },
+    { id: `${state.mainlineNode}-${choice.id}`, chapter: state.chapter, title: choice.label, summary: choice.outcomeNarrative.paragraphs.map((paragraph) => paragraph.text).join(' '), effects: [...(healthCost ? [`健康 ${healthCost}`] : []), ...(choice.effects ?? []).map(formatEffect)], acquiredMaterialIds: chapter2Outcome?.materialIds ?? (actionMaterials.length ? actionMaterials : routeActionId ? chapter1InvestigationBlueprint.routes.find((route) => route.actions.some((action) => action.id === routeActionId))?.actions.find((action) => action.id === routeActionId)?.materialIds : firstDayRouteId ? chapter1InvestigationBlueprint.routes.find((route) => route.id === firstDayRouteId)?.actions[0]?.materialIds : undefined) },
     ...state.recentEvents,
   ].slice(0, 20)
   return { ok: true, state: next }
