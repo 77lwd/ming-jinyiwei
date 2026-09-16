@@ -37,7 +37,7 @@ describe('Chapter2InquiryDialogue', () => {
     expect(onConfirm).toHaveBeenCalledTimes(1)
   })
 
-  it('labels the final signed statement as completing the testimony', () => {
+  it('sends the player to testimony sorting instead of signing automatically', () => {
     render(<Chapter2InquiryDialogue
       node="chapter2.case1-inquiry.guard-b.3"
       question="从柳沟停车开始重说。"
@@ -46,10 +46,10 @@ describe('Chapter2InquiryDialogue', () => {
     />)
 
     fireEvent.click(screen.getByRole('button', { name: '听他回答' }))
-    expect(screen.getByText('本人口供已签押')).toBeInTheDocument()
-    expect(screen.getByText(/两名押役口供已经可以分开对照/)).toBeInTheDocument()
-    expect(screen.getByText('新增核验材料：《两份分开记录的押役口供》')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '完成签押' })).toBeInTheDocument()
+    expect(screen.getByText('赵七问话已完')).toBeInTheDocument()
+    expect(screen.getByText(/仍须作为冲突保留/)).toBeInTheDocument()
+    expect(screen.getByText(/签押后再与周六口供逐项对照/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '进入口供整理' })).toBeInTheDocument()
   })
 
   it('makes clear that Zhou Liu alone does not create the combined verification material', () => {
@@ -61,7 +61,7 @@ describe('Chapter2InquiryDialogue', () => {
     />)
 
     fireEvent.click(screen.getByRole('button', { name: '听他回答' }))
-    expect(screen.getByText('周六口供待签押')).toBeInTheDocument()
-    expect(screen.getByText(/尚未形成组合核验材料/)).toBeInTheDocument()
+    expect(screen.getByText('周六问话已完')).toBeInTheDocument()
+    expect(screen.getByText(/整理正确后才可复述签押/)).toBeInTheDocument()
   })
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { advanceMainline, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2RegisterVerification } from '../gameEngine'
+import { advanceMainline, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2InquiryReview, submitChapter2RegisterVerification } from '../gameEngine'
 import type { GameState } from '../../types'
 
 function completeRoute(state: GameState, routeChoice: string, actionIds: string[]): GameState {
@@ -57,10 +57,25 @@ function completeFirstChapter(): GameState {
   return state
 }
 
+function confirmInquiryReview(state: GameState, selections: string[]): GameState {
+  const reviewed = submitChapter2InquiryReview(state, selections)
+  if (!reviewed.ok) throw new Error('inquiry review failed')
+  return reviewed.state
+}
+
 function completeChapter2CaseOne(state: GameState): GameState {
   for (const choiceId of ['c2-01-inspect-lock', 'c2-01-inspect-shaft', 'c2-01-trace-drag-marks', 'c2-01-examine-rope-fibers', 'c2-01-preserve-wet-stub', 'c2-01-compare-escort-order', 'c2-01-finish-investigation']) state = confirmMainlineChoice(state, choiceId)
-  for (const choiceId of ['c2-01-begin-guard-inquiry', 'c2-01-guard-a-key', 'c2-01-guard-a-shaft', 'c2-01-guard-a-finish', 'c2-01-guard-b-route', 'c2-01-guard-b-order', 'c2-01-guard-b-confront']) state = confirmMainlineChoice(state, choiceId)
-  for (const choiceId of ['c2-01-begin-river-inquiry', 'c2-01-river-boat-time', 'c2-01-river-boat-finish', 'c2-01-river-tea-cart', 'c2-01-river-tea-finish', 'c2-01-open-verification']) state = confirmMainlineChoice(state, choiceId)
+  for (const choiceId of ['c2-01-begin-guard-inquiry', 'c2-01-guard-a-key', 'c2-01-guard-a-shaft', 'c2-01-guard-a-finish']) state = confirmMainlineChoice(state, choiceId)
+  state = confirmInquiryReview(state, ['zhou-stop:fact', 'zhou-guess:pending', 'zhou-gap:conflict'])
+  for (const choiceId of ['c2-01-continue-guard-b', 'c2-01-guard-b-route', 'c2-01-guard-b-order', 'c2-01-guard-b-confront']) state = confirmMainlineChoice(state, choiceId)
+  state = confirmInquiryReview(state, ['zhao-open:fact', 'zhao-claim:pending', 'zhao-denial:conflict'])
+  state = confirmInquiryReview(state, ['guard-stop:confirmed', 'guard-order:conflict', 'guard-lock:evidence'])
+  for (const choiceId of ['c2-01-begin-river-inquiry', 'c2-01-river-boat-time', 'c2-01-river-boat-finish']) state = confirmMainlineChoice(state, choiceId)
+  state = confirmInquiryReview(state, ['boat-route:fact', 'boat-name:pending', 'boat-count:conflict'])
+  for (const choiceId of ['c2-01-continue-river-tea', 'c2-01-river-tea-cart', 'c2-01-river-tea-finish']) state = confirmMainlineChoice(state, choiceId)
+  state = confirmInquiryReview(state, ['tea-sequence:fact', 'tea-name:pending', 'tea-denial:conflict'])
+  state = confirmInquiryReview(state, ['river-route:confirmed', 'river-identity:conflict', 'river-trace:evidence'])
+  state = confirmMainlineChoice(state, 'c2-01-open-verification')
   const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'cart-drag-trace', 'cut-rope-fibers']) as { ok: true; state: GameState }
   state = (confirmResult(first.state) as { ok: true; state: GameState }).state
   const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements']) as { ok: true; state: GameState }
@@ -137,7 +152,7 @@ describe('desktop-first game engine', () => {
     expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['c2-01-begin-guard-inquiry', 'c2-01-begin-river-inquiry'])
   })
 
-  it('records an inquiry material only after separate question-and-answer exchanges', () => {
+  it('requires testimony sorting and pair comparison before creating the guard material', () => {
     let state: GameState = {
       ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.case1-inquiry.guard-a.1',
       chapter2Investigation: { ...createInitialState().chapter2Investigation, caseMaterialIds: ['unforced-lock', 'original-escort-order'], materialIds: ['unforced-lock', 'original-escort-order'] },
@@ -147,10 +162,32 @@ describe('desktop-first game engine', () => {
     }
     expect(state.chapter2Investigation.caseMaterialIds).not.toContain('separate-guard-statements')
     state = confirmMainlineChoice(state, 'c2-01-guard-a-finish')
+    expect(state.mainlineNode).toBe('chapter2.case1-inquiry.guard-a.review')
+    expect(state.chapter2Investigation.completedActionIds).not.toContain('c2-01-guard-a-statement')
+    let reviewed = submitChapter2InquiryReview(state, ['zhou-stop:fact', 'zhou-guess:fact', 'zhou-gap:conflict'])
+    expect(reviewed.ok).toBe(true)
+    if (!reviewed.ok) return
+    expect(reviewed.state.mainlineNode).toBe('chapter2.case1-inquiry.guard-a.review')
+    reviewed = submitChapter2InquiryReview(state, ['zhou-stop:fact', 'zhou-guess:pending', 'zhou-gap:conflict'])
+    expect(reviewed.ok).toBe(true)
+    if (!reviewed.ok) return
+    state = reviewed.state
     expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-guard-a-statement')
     expect(state.chapter2Investigation.caseMaterialIds).not.toContain('separate-guard-statements')
+    state = confirmMainlineChoice(state, 'c2-01-continue-guard-b')
     for (const choiceId of ['c2-01-guard-b-route', 'c2-01-guard-b-order', 'c2-01-guard-b-confront']) state = confirmMainlineChoice(state, choiceId)
+    expect(state.mainlineNode).toBe('chapter2.case1-inquiry.guard-b.review')
+    reviewed = submitChapter2InquiryReview(state, ['zhao-open:fact', 'zhao-claim:pending', 'zhao-denial:conflict'])
+    expect(reviewed.ok).toBe(true)
+    if (!reviewed.ok) return
+    state = reviewed.state
     expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-guard-b-statement')
+    expect(state.mainlineNode).toBe('chapter2.case1-inquiry.guard.compare')
+    expect(state.chapter2Investigation.caseMaterialIds).not.toContain('separate-guard-statements')
+    reviewed = submitChapter2InquiryReview(state, ['guard-stop:confirmed', 'guard-order:conflict', 'guard-lock:evidence'])
+    expect(reviewed.ok).toBe(true)
+    if (!reviewed.ok) return
+    state = reviewed.state
     expect(state.chapter2Investigation.caseMaterialIds).toContain('separate-guard-statements')
   })
 
@@ -162,11 +199,16 @@ describe('desktop-first game engine', () => {
     state = confirmMainlineChoice(state, 'c2-01-river-boat-time')
     expect(state.chapter2Investigation.caseMaterialIds).not.toContain('river-route-testimony')
     state = confirmMainlineChoice(state, 'c2-01-river-boat-finish')
+    state = confirmInquiryReview(state, ['boat-route:fact', 'boat-name:pending', 'boat-count:conflict'])
     expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-river-boat-statement')
     expect(state.chapter2Investigation.caseMaterialIds).not.toContain('river-route-testimony')
+    state = confirmMainlineChoice(state, 'c2-01-continue-river-tea')
     state = confirmMainlineChoice(state, 'c2-01-river-tea-cart')
     state = confirmMainlineChoice(state, 'c2-01-river-tea-finish')
+    state = confirmInquiryReview(state, ['tea-sequence:fact', 'tea-name:pending', 'tea-denial:conflict'])
     expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-river-tea-statement')
+    expect(state.chapter2Investigation.caseMaterialIds).not.toContain('river-route-testimony')
+    state = confirmInquiryReview(state, ['river-route:confirmed', 'river-identity:conflict', 'river-trace:evidence'])
     expect(state.chapter2Investigation.caseMaterialIds).toContain('river-route-testimony')
   })
 

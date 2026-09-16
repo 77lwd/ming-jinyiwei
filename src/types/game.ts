@@ -57,6 +57,7 @@ export interface Chapter2InvestigationState {
   materialIds: string[]
   fixedFactIds: string[]
   registerVerified: boolean
+  inquiryReviewAttempts?: Record<string, number>
 }
 
 export type NarrativeParagraphKind = 'prose' | 'dialogue' | 'monologue' | 'system'

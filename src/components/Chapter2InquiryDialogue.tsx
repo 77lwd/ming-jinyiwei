@@ -25,10 +25,10 @@ const roundNotes: Record<string, { fixed: string; next: string }> = {
 }
 
 const finalStatements: Array<{ key: string; title: string; conclusion: string; material: string }> = [
-  { key: 'guard-a.3', title: '周六口供待签押', conclusion: '周六承认囚车在柳沟停过，他被赵七叫去牵马，回来时锁扣挂着、车内已经无人。他没有亲眼看见马骁自行逃走，也不能证明是谁把人带走。', material: '形成《周六签押口供》；尚未形成组合核验材料，需等赵七独立问完后再作对照。' },
-  { key: 'guard-b.3', title: '本人口供已签押', conclusion: '赵七承认自己看牌、开锁、允许周六离岗，并在没有回署核验和正式回令的情况下让来人带走马骁。两名押役口供已经可以分开对照，停车、钥匙和开锁经过上的相同处与冲突处均已列明。', material: '新增核验材料：《两份分开记录的押役口供》' },
-  { key: 'river-boat.2', title: '陈老桨证言待签押', conclusion: '陈老桨能够固定渡船时辰、被带者上船方式、东岸靠岸处和篷车南去方向，但无法辨认被带者身份。', material: '形成《陈老桨签押证言》；尚未形成组合核验材料，需与茶棚伙计的独立证言对照。' },
-  { key: 'river-tea.2', title: '本人口供已签押', conclusion: '阿顺能够固定官车停留、车内声响、抬人往河边以及篷车南去的先后。与船夫证言重合后，河埠转移路线已有两份独立来源。', material: '新增核验材料：《船夫与茶棚伙计证言》' },
+  { key: 'guard-a.3', title: '周六问话已完', conclusion: '三轮问话已经把柳沟停车、来客递纸、周六离岗和回来后的空车串在一起，但其中仍混有周六听来的判断。', material: '下一步：整理亲见事实、待核说法和现场冲突；整理正确后才可复述签押。' },
+  { key: 'guard-b.3', title: '赵七问话已完', conclusion: '赵七已经交代看牌、开锁和未回署核验的经过；他先前所说的“撞门逃走”仍须作为冲突保留。', material: '下一步：整理赵七个人口供；签押后再与周六口供逐项对照。' },
+  { key: 'river-boat.2', title: '陈老桨问话已完', conclusion: '船夫能够固定渡船时辰、被带者上船方式、东岸靠岸处和篷车去向，但不能辨认被带者身份。', material: '下一步：整理船夫证言；不能把路线判断写成身份确认。' },
+  { key: 'river-tea.2', title: '阿顺问话已完', conclusion: '阿顺能够固定官车停留、车内声响、抬人往河边和篷车南去的先后，但他没有看清人脸。', material: '下一步：整理阿顺证言；签押后再与船夫证言对照。' },
 ]
 
 export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }: {
@@ -39,6 +39,7 @@ export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }
 }) {
   const [visibleCount, setVisibleCount] = useState(0)
   const speaker = speakerByNode.find(([key]) => node.includes(key))?.[1] ?? '证人'
+  const inquiryRound = node.match(/\.(\d)$/)?.[1] ?? '1'
   const finalStatement = finalStatements.find((item) => node.includes(item.key))
   const isCompleteStatement = Boolean(finalStatement)
   const roundNote = roundNotes[narrative.title]
@@ -46,7 +47,7 @@ export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }
   const buttonLabel = visibleCount === 0
     ? '听他回答'
     : allVisible
-      ? isCompleteStatement ? '完成签押' : '继续闻讯'
+      ? isCompleteStatement ? '进入口供整理' : '继续闻讯'
       : '继续听'
 
   const advance = () => {
@@ -58,7 +59,7 @@ export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }
     <header className="inquiry-dialogue-heading">
       <span>分开闻讯</span>
       <h2 id="inquiry-dialogue-heading">{speaker}</h2>
-      <small>第 {Math.min(visibleCount + 1, narrative.paragraphs.length + 1)} 轮记录</small>
+      <small>第 {inquiryRound} 问</small>
     </header>
 
     <div className="inquiry-stage">
@@ -82,7 +83,7 @@ export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }
           <div><strong>本轮记下</strong><p>{roundNote.fixed}</p></div>
           <div><strong>下一步</strong><p>{roundNote.next}</p></div>
         </section>}
-        {allVisible && finalStatement && <section className="inquiry-statement-summary" aria-label="口供签押结果">
+        {allVisible && finalStatement && <section className="inquiry-statement-summary" aria-label="问话阶段结论">
           <strong>{finalStatement.title}</strong>
           <p>{finalStatement.conclusion}</p>
           <em>{finalStatement.material}</em>
@@ -96,7 +97,7 @@ export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }
     </div>
 
     <footer className="inquiry-dialogue-actions">
-      {allVisible && isCompleteStatement && <p>书记官按本人口述誊清，复述无误后由本人签押；未亲见、未辨认的部分不写成已证事实。</p>}
+      {allVisible && isCompleteStatement && <p>问话到这里结束。口供尚未签押，须先由你把亲见、听闻和冲突逐句分开。</p>}
       <button className="button button-primary" onClick={advance}>{buttonLabel}<ChevronRight size={18} /></button>
     </footer>
   </section>

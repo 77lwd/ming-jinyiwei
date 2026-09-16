@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { advanceMainline, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, startGame, startMainline, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2RegisterVerification } from '../engine/gameEngine'
+import { advanceMainline, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, startGame, startMainline, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2InquiryReview, submitChapter2RegisterVerification } from '../engine/gameEngine'
 import type { DeveloperCheckpointId } from '../engine/gameEngine'
 import type { Chapter1QuestionId, GameState } from '../types'
 import { clearSave, loadSave, saveGame } from './saveRepository'
@@ -20,6 +20,7 @@ interface GameCommands {
   submitChapter1Verification: (questionId: Chapter1QuestionId, materialIds: string[]) => void
   submitChapter2RegisterVerification: (materialIds: string[]) => void
   submitChapter2Case1Verification: (questionId: string, materialIds: string[]) => void
+  submitChapter2InquiryReview: (selections: string[]) => void
   confirmResult: () => void
   startDeveloperCheckpoint: (checkpoint: DeveloperCheckpointId) => void
 }
@@ -27,7 +28,7 @@ interface GameCommands {
 export type GameStore = GameState & GameCommands
 
 function toGameState(state: GameStore): GameState {
-  const { hasSave: _hasSave, saveError: _saveError, developerMode: _developerMode, newGame: _newGame, continueGame: _continueGame, restart: _restart, returnToTitle: _returnToTitle, enterChapterTwo: _enterChapterTwo, nextPrologue: _nextPrologue, skipPrologue: _skipPrologue, advanceMainline: _advanceMainline, chooseMainline: _chooseMainline, submitChapter1Verification: _submitChapter1Verification, submitChapter2Case1Verification: _submitChapter2Case1Verification, submitChapter2RegisterVerification: _submitChapter2RegisterVerification, confirmResult: _confirmResult, startDeveloperCheckpoint: _startDeveloperCheckpoint, ...gameState } = state
+  const { hasSave: _hasSave, saveError: _saveError, developerMode: _developerMode, newGame: _newGame, continueGame: _continueGame, restart: _restart, returnToTitle: _returnToTitle, enterChapterTwo: _enterChapterTwo, nextPrologue: _nextPrologue, skipPrologue: _skipPrologue, advanceMainline: _advanceMainline, chooseMainline: _chooseMainline, submitChapter1Verification: _submitChapter1Verification, submitChapter2Case1Verification: _submitChapter2Case1Verification, submitChapter2InquiryReview: _submitChapter2InquiryReview, submitChapter2RegisterVerification: _submitChapter2RegisterVerification, confirmResult: _confirmResult, startDeveloperCheckpoint: _startDeveloperCheckpoint, ...gameState } = state
   return gameState
 }
 
@@ -102,6 +103,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
   submitChapter2Case1Verification: (questionId, materialIds) => {
     const result = submitChapter2Case1Verification(toGameState(get()), questionId, materialIds)
+    if (result.ok) persistAndSet(set, result.state, get().developerMode)
+    else set({ lastCommandError: result.reason })
+  },
+  submitChapter2InquiryReview: (selections) => {
+    const result = submitChapter2InquiryReview(toGameState(get()), selections)
     if (result.ok) persistAndSet(set, result.state, get().developerMode)
     else set({ lastCommandError: result.reason })
   },

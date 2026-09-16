@@ -102,11 +102,76 @@ export const chapter2ActionMaterials: Record<string, string[]> = {
   'c2-01-examine-rope-fibers': ['cut-rope-fibers'],
   'c2-01-preserve-wet-stub': ['wet-transfer-stub'],
   'c2-01-compare-escort-order': ['original-escort-order'],
-  'c2-01-guard-b-confront': ['separate-guard-statements'],
-  'c2-01-guard-b-restatement': ['separate-guard-statements'],
-  'c2-01-guard-interview': ['separate-guard-statements'],
-  'c2-01-river-tea-finish': ['river-route-testimony'],
-  'c2-01-river-tea-confirm': ['river-route-testimony'],
+}
+
+export type Chapter2InquiryReview = {
+  title: string
+  instruction: string
+  categories: Array<{ id: string; label: string }>
+  statements: Array<{ id: string; text: string }>
+  expected: string[]
+  successTitle: string
+  successText: string
+  nextNode: string
+  completionId?: string
+  materialId?: string
+}
+
+export const chapter2InquiryReviews: Record<string, Chapter2InquiryReview> = {
+  'chapter2.case1-inquiry.guard-a.review': {
+    title: '整理周六口供', instruction: '把周六亲眼见到的、听来的推断和需要与物证核对的缺口分开。',
+    categories: [{ id: 'fact', label: '写入亲见事实' }, { id: 'pending', label: '列入待核' }, { id: 'conflict', label: '标记冲突' }],
+    statements: [
+      { id: 'zhou-stop', text: '柳沟来了两个人，赵七接过一张纸；周六离开后回来，锁扣挂着，车内无人。' },
+      { id: 'zhou-guess', text: '来人拿的一定是有效换押文书，马骁必定由他们合法接走。' },
+      { id: 'zhou-gap', text: '周六先称行车中翻车，却没听见断木声；车辕断口也没有行车带泥。' },
+    ],
+    expected: ['zhou-stop:fact', 'zhou-guess:pending', 'zhou-gap:conflict'],
+    successTitle: '周六口供复述签押', successText: '书记官按三栏誊清。周六听过一遍，在“未见马骁如何离车”一行旁按下手印。',
+    nextNode: 'chapter2.case1-inquiry.guard-a.signed', completionId: 'c2-01-guard-a-statement',
+  },
+  'chapter2.case1-inquiry.guard-b.review': {
+    title: '整理赵七口供', instruction: '只把赵七承认亲手做过的事写成事实；他的辩解与前后冲突另列。',
+    categories: [{ id: 'fact', label: '写入亲历事实' }, { id: 'pending', label: '列入待核' }, { id: 'conflict', label: '标记冲突' }],
+    statements: [
+      { id: 'zhao-open', text: '赵七签领钥匙、看牌、开锁，并在没有回署核验时让来人带走马骁。' },
+      { id: 'zhao-claim', text: '来人所持牌子必定是真的，因此赵七没有责任。' },
+      { id: 'zhao-denial', text: '赵七先称无人来过、马骁撞门逃走，后又承认自己开锁并重新挂锁。' },
+    ],
+    expected: ['zhao-open:fact', 'zhao-claim:pending', 'zhao-denial:conflict'],
+    successTitle: '赵七口供复述签押', successText: '赵七撤回“撞门逃走”的说法，把看牌、开锁和未回署核验逐项复述，在末页按下手印。',
+    nextNode: 'chapter2.case1-inquiry.guard.compare', completionId: 'c2-01-guard-b-statement',
+  },
+  'chapter2.case1-inquiry.guard.compare': {
+    title: '对照两份押役口供', instruction: '找出两人能够互相印证的事实、真正冲突的说法，以及可以解决冲突的物证。',
+    categories: [{ id: 'confirmed', label: '相互印证' }, { id: 'conflict', label: '口供冲突' }, { id: 'evidence', label: '物证解决' }],
+    statements: [
+      { id: 'guard-stop', text: '囚车在柳沟停下，来人接近囚车，周六曾离开看守位置。' },
+      { id: 'guard-order', text: '是谁让周六离岗、钥匙当时由谁保管，两人的说法不能互相照看。' },
+      { id: 'guard-lock', text: '锁扣没有撞痕，原差牌也没有中途换押授权。' },
+    ],
+    expected: ['guard-stop:confirmed', 'guard-order:conflict', 'guard-lock:evidence'],
+    successTitle: '押役口供对照入卷', successText: '相同处、冲突处和物证能够固定的部分分栏抄清，两份原口供仍各自封存。',
+    nextNode: 'chapter2.case1-inquiry-select', materialId: 'separate-guard-statements',
+  },
+  'chapter2.case1-inquiry.river-boat.review': {
+    title: '整理陈老桨证言', instruction: '船夫能固定水路与时辰，但不能替案卷认定被带者身份。',
+    categories: [{ id: 'fact', label: '写入亲见事实' }, { id: 'pending', label: '列入待核' }, { id: 'conflict', label: '标记冲突' }],
+    statements: [{ id: 'boat-route', text: '三更第三梆后，一人被两人架上船；船靠东岸芦苇地，篷车随后南去。' }, { id: 'boat-name', text: '被架上船的人就是马骁。' }, { id: 'boat-count', text: '船夫起初说“两个病人”，细问后承认只有一名被架扶者。' }],
+    expected: ['boat-route:fact', 'boat-name:pending', 'boat-count:conflict'], successTitle: '陈老桨证言复述签押', successText: '陈老桨沿着水路重新说过一遍，在“未看清被带者面貌”后按下指印。', nextNode: 'chapter2.case1-inquiry.river-boat.signed', completionId: 'c2-01-river-boat-statement',
+  },
+  'chapter2.case1-inquiry.river-tea.review': {
+    title: '整理阿顺证言', instruction: '把门缝里的亲见、隔河辨认不清的部分和前后改口分开。',
+    categories: [{ id: 'fact', label: '写入亲见亲听' }, { id: 'pending', label: '列入待核' }, { id: 'conflict', label: '标记冲突' }],
+    statements: [{ id: 'tea-sequence', text: '官车先到、篷车后到；车内有两下撞板声，有人被抬往河边。' }, { id: 'tea-name', text: '阿顺看清了被抬者就是马骁。' }, { id: 'tea-denial', text: '阿顺先说没有出去看，后来承认曾从门缝观察车外。' }],
+    expected: ['tea-sequence:fact', 'tea-name:pending', 'tea-denial:conflict'], successTitle: '阿顺证言复述签押', successText: '阿顺把官车到埠、渡船离岸和篷车南去的次序复述一遍，在末页按下指印。', nextNode: 'chapter2.case1-inquiry.river.compare', completionId: 'c2-01-river-tea-statement',
+  },
+  'chapter2.case1-inquiry.river.compare': {
+    title: '对照两份河埠证言', instruction: '两人只能共同固定路线，不能共同确认被带者身份。',
+    categories: [{ id: 'confirmed', label: '相互印证' }, { id: 'conflict', label: '保留边界' }, { id: 'evidence', label: '物证衔接' }],
+    statements: [{ id: 'river-route', text: '三更后有人从茶棚附近被带往渡船，东岸有篷车接应并向南离开。' }, { id: 'river-identity', text: '两人都没有看清被带者面貌，不能据此写成已经认出马骁。' }, { id: 'river-trace', text: '桥坡拖痕和错开的轮辙把囚车与河埠方向接在一起。' }],
+    expected: ['river-route:confirmed', 'river-identity:conflict', 'river-trace:evidence'], successTitle: '河埠证言对照入卷', successText: '水路、时辰和篷车去向由两份独立证言互相印证；身份仍列待查。', nextNode: 'chapter2.case1-inquiry-select', materialId: 'river-route-testimony',
+  },
 }
 
 export const chapter2Case1InvestigationActions: MainlineChoice[] = [
@@ -183,6 +248,14 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     chapter: 'chapter2',
     narrative: { title: '雨夜失押 · 分开闻讯', tone: 'tense', paragraphs: [{ kind: 'prose', text: '现场和文书已经查完。两名押役各候一室，河埠的船夫与茶棚伙计也分开等候。每个人都要从头问完、复述确认并签押，才能形成自己的口供。' }] },
   },
+  'chapter2.case1-inquiry.guard-a.review': { chapter: 'chapter2', narrative: { title: '周六 · 口供整理', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '三轮问话已经记完。签押之前，须把周六亲眼见到的、听赵七说的和与现场相冲突的部分分开。' }] } },
+  'chapter2.case1-inquiry.guard-a.signed': { chapter: 'chapter2', narrative: { title: '周六口供复述签押', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '周六听过誊清后的口供，在“未见马骁如何离车”旁按下手印。' }] } },
+  'chapter2.case1-inquiry.guard-b.review': { chapter: 'chapter2', narrative: { title: '赵七 · 口供整理', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '赵七的承认、辩解和前后改口仍在三页纸上。须先分栏，才能让他逐项复述签押。' }] } },
+  'chapter2.case1-inquiry.guard.compare': { chapter: 'chapter2', narrative: { title: '两份押役口供对照', tone: 'tense', paragraphs: [{ kind: 'prose', text: '两份口供已经分别签押。现在只对照相互印证的事实、真正的冲突和能够解决冲突的物证。' }] } },
+  'chapter2.case1-inquiry.river-boat.review': { chapter: 'chapter2', narrative: { title: '陈老桨 · 证言整理', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '水路和时辰可以落纸，被带者身份仍须留在待核栏。' }] } },
+  'chapter2.case1-inquiry.river-boat.signed': { chapter: 'chapter2', narrative: { title: '陈老桨证言复述签押', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '陈老桨沿水路重新说过一遍，在“未看清面貌”后按下指印。' }] } },
+  'chapter2.case1-inquiry.river-tea.review': { chapter: 'chapter2', narrative: { title: '阿顺 · 证言整理', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '门缝里看见的、隔河辨认不清的和最初隐去的部分，须各自归栏。' }] } },
+  'chapter2.case1-inquiry.river.compare': { chapter: 'chapter2', narrative: { title: '两份河埠证言对照', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '两份证言可以共同固定路线，却不能共同确认被带者是谁。' }] } },
   'chapter2.case1-inquiry.guard-a.1': {
     chapter: 'chapter2',
     narrative: { title: '分开闻讯 · 押役周六', tone: 'tense', paragraphs: [{ kind: 'prose', text: '周六进门时，裤脚还在往下滴水。他先看了一眼空着的另一张椅子，才在案桌前站定。赵七被留在西厢，两个人听不见彼此说话。' }, { kind: 'dialogue', text: '“人是酉时后领的。班头验了锁，钥匙起先在赵七手里。出了北门一路没停，后来雨实在大，车辕又断，我们才靠边。”' }] },
@@ -203,8 +276,8 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     chapter: 'chapter2',
     narrative: { title: '周六 · 把亲眼所见的重新说一遍', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '书记官把前两页推开，另换了一张纸。周六盯着纸边，半晌才把“翻车”和“人犯逃走”两个说法拆开。' }] },
     choices: [
-      { id: 'c2-01-guard-a-finish', label: '“不要替赵七补，也不要拿猜的充数。从柳沟停车起，只说你自己看见了什么。”', nextNode: 'chapter2.case1-inquiry.guard-b.1', outcomeNarrative: { title: '周六 · 亲见口供', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“我看见两个人到车边，赵七拿过一张纸。我被叫去牵马，回来时车已经挪到坡下，锁扣挂着，车里没人。马骁怎么下的车，我没看见。”' }] } },
-      { id: 'c2-01-guard-a-order', label: '“原差牌不许中途停靠。谁叫你去牵马，谁准你离开车旁，把名字说清楚。”', nextNode: 'chapter2.case1-inquiry.guard-b.1', outcomeNarrative: { title: '周六 · 离岗口供', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“是赵七。他说来人有上头的牌子，让我别多问。我离开车旁约一盏茶，没人接我的岗。”' }] } },
+      { id: 'c2-01-guard-a-finish', label: '“不要替赵七补，也不要拿猜的充数。从柳沟停车起，只说你自己看见了什么。”', nextNode: 'chapter2.case1-inquiry.guard-a.review', outcomeNarrative: { title: '周六 · 亲见口供', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“我看见两个人到车边，赵七拿过一张纸。我被叫去牵马，回来时车已经挪到坡下，锁扣挂着，车里没人。马骁怎么下的车，我没看见。”' }, { kind: 'prose', text: '廖威达把“来人奉命换押”圈在纸外。那是周六听来的说法，不是他亲眼见到的事。余下的话，还要逐句分栏。' }] } },
+      { id: 'c2-01-guard-a-order', label: '“原差牌不许中途停靠。谁叫你去牵马，谁准你离开车旁，把名字说清楚。”', nextNode: 'chapter2.case1-inquiry.guard-a.review', outcomeNarrative: { title: '周六 · 离岗口供', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“是赵七。他说来人有上头的牌子，让我别多问。我离开车旁约一盏茶，没人接我的岗。”' }, { kind: 'prose', text: '书记官没有立刻誊清，只在“赵七所说”旁留下一道空栏，等着把亲见、听闻和冲突分开。' }] } },
     ],
   },
   'chapter2.case1-inquiry.guard-b.1': {
@@ -227,8 +300,8 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     chapter: 'chapter2',
     narrative: { title: '赵七 · 第二份口供', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '赵七先前说过的“翻车”“撞门”和“无人来过”，已经无法写回同一份经过。书记官停笔，等他自己重新说。' }] },
     choices: [
-      { id: 'c2-01-guard-b-confront', label: '“从柳沟停车开始重说。谁看了牌，谁开的锁，周六离开时你在做什么，一件一件说。”', nextNode: 'chapter2.case1-inquiry-select', outcomeNarrative: { title: '赵七口供签押', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“牌是我看的，锁是我开的。周六去牵马时，那两个人把马骁带下车。我没向值房回报，也没等正式回令。车辕是人走后才折的。”' }, { kind: 'prose', text: '赵七从头复述一遍，在末页按了手印。至此，两名押役各有一份独立口供，相同处和冲突处另列一页。' }] } },
-      { id: 'c2-01-guard-b-restatement', label: '“你可以说自己看错了牌，也可以说当时怕担事。但别再说人犯自己撞门。把你亲手做过的事写实。”', nextNode: 'chapter2.case1-inquiry-select', outcomeNarrative: { title: '赵七口供签押', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“我认了那张牌，开了锁，也让周六离岗。人是别人带走的。车辕和翻车的样子，是他们走后才弄出来的。”' }, { kind: 'prose', text: '赵七按下手印。周六的口供仍封在另一页，两个人各自承担自己说过的话。' }] } },
+      { id: 'c2-01-guard-b-confront', label: '“从柳沟停车开始重说。谁看了牌，谁开的锁，周六离开时你在做什么，一件一件说。”', nextNode: 'chapter2.case1-inquiry.guard-b.review', outcomeNarrative: { title: '赵七 · 重新交代', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“牌是我看的，锁是我开的。周六去牵马时，那两个人把马骁带下车。我没向值房回报，也没等正式回令。车辕是人走后才折的。”' }, { kind: 'prose', text: '这一次他说得慢。书记官逐项留出空格，等着把承认的动作、为自己开脱的话和前后的矛盾分开。' }] } },
+      { id: 'c2-01-guard-b-restatement', label: '“你可以说自己看错了牌，也可以说当时怕担事。但别再说人犯自己撞门。把你亲手做过的事写实。”', nextNode: 'chapter2.case1-inquiry.guard-b.review', outcomeNarrative: { title: '赵七 · 重新交代', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“我认了那张牌，开了锁，也让周六离岗。人是别人带走的。车辕和翻车的样子，是他们走后才弄出来的。”' }, { kind: 'prose', text: '廖威达没有催他按手印。前面那句“撞门逃走”还在旧页上，须与这份说法并列核清。' }] } },
     ],
   },
   'chapter2.case1-inquiry.river-boat.1': {
@@ -243,7 +316,7 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     chapter: 'chapter2',
     narrative: { title: '船夫 · 船靠到哪里', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“他们不让我靠正渡口，叫我停在东岸芦苇边。那边早有一辆带篷的车等着。人上车后，往城南去了。”' }] },
     choices: [
-      { id: 'c2-01-river-boat-finish', label: '“你没有看清那人的脸，就只写你看见的：人数、上船方式、靠岸地方和篷车去向。别替我们认人。”', nextNode: 'chapter2.case1-inquiry.river-tea.1', outcomeNarrative: { title: '船夫证言落纸', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '陈老桨照着水路重新说了一遍，在“未看清被带者面貌”后面按了指印。' }] } },
+      { id: 'c2-01-river-boat-finish', label: '“你没有看清那人的脸，就只写你看见的：人数、上船方式、靠岸地方和篷车去向。别替我们认人。”', nextNode: 'chapter2.case1-inquiry.river-boat.review', outcomeNarrative: { title: '船夫 · 沿水路重说', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“三更第三梆后开的船。一个人被两个架着，从东岸芦苇边下船。那边有篷车，接上人便往南走。我没看清被架着的是谁。”' }, { kind: 'prose', text: '书记官把“马骁”二字留在笔外。船夫能认水路，不能替案卷认人。' }] } },
     ],
   },
   'chapter2.case1-inquiry.river-tea.1': {
@@ -258,8 +331,8 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     chapter: 'chapter2',
     narrative: { title: '阿顺 · 篷车离开的方向', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“河对岸那辆篷车我也见过。车帘右下角补过一块浅布，赶车人走的是城南旧堤，不是往北门。”' }] },
     choices: [
-      { id: 'c2-01-river-tea-finish', label: '“把你亲眼看见的和隔河望见的分开说。看不清的人脸不写，只写车、时辰和去向。”', nextNode: 'chapter2.case1-inquiry-select', outcomeNarrative: { title: '阿顺证言签押', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '阿顺从官车到埠说到篷车南去，在末页按了指印。船夫认得靠岸处，伙计认得两辆车停留的先后；两份证言各自成立，重合处另页对照。' }] } },
-      { id: 'c2-01-river-tea-confirm', label: '“你只认那块补布，不能因此认定车里是谁。再把三更前后的先后说一遍，书记官照原话记。”', nextNode: 'chapter2.case1-inquiry-select', outcomeNarrative: { title: '阿顺证言签押', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '阿顺把官车到埠、有人下车、渡船离岸和篷车南去的次序重新说了一遍，在末页按下指印。与船夫证言重合的部分另页标出。' }] } },
+      { id: 'c2-01-river-tea-finish', label: '“把你亲眼看见的和隔河望见的分开说。看不清的人脸不写，只写车、时辰和去向。”', nextNode: 'chapter2.case1-inquiry.river-tea.review', outcomeNarrative: { title: '阿顺 · 按先后重说', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“官车先停，篷车后到。车里响过两下，有人被抬去河边。渡船离开以后，东岸那辆篷车往南走了。脸，我一个也没看清。”' }] } },
+      { id: 'c2-01-river-tea-confirm', label: '“你只认那块补布，不能因此认定车里是谁。再把三更前后的先后说一遍，书记官照原话记。”', nextNode: 'chapter2.case1-inquiry.river-tea.review', outcomeNarrative: { title: '阿顺 · 按先后重说', tone: 'quiet', paragraphs: [{ kind: 'dialogue', text: '“先来的是官车，后到的是补过车帘的篷车。有人被抬向河边，船离岸后，那辆篷车从东岸往南去了。我只能认车，认不出人。”' }] } },
     ],
   },
   'chapter2.case1-authority-review': {

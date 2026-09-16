@@ -12,6 +12,7 @@ import { Chapter2RegisterWorkbench } from './Chapter2RegisterWorkbench'
 import { Chapter2Case1VerificationWorkbench } from './Chapter2Case1VerificationWorkbench'
 import { Chapter2CaseContext, Chapter2CaseProgress, Chapter2CaseRecord, Chapter2InvestigationChoices } from './Chapter2CaseWorkbench'
 import { Chapter2InquiryDialogue } from './Chapter2InquiryDialogue'
+import { Chapter2InquiryReviewWorkbench } from './Chapter2InquiryReviewWorkbench'
 import { NarrativePanel } from './NarrativePanel'
 import { NetworkDrawer } from './NetworkDrawer'
 import type { NetworkId } from '../data/network'
@@ -77,7 +78,9 @@ export function GameLayout() {
                 {state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.feng-reunion' && state.flags.tianshun_reconnected && <section className="relationship-update" aria-label="人脉更新"><img src="/assets/chapter1/characters/feng-tianshun-portrait-v1.png" alt="冯天顺肖像" /><div><strong>人脉更新</strong><span>冯天顺已加入你的人脉</span><small>关系阶段：熟悉 · 他仍把你当作儿时兄弟，愿意与你恢复往来。</small></div><button type="button" className="button button-secondary" onClick={() => openNetwork('feng_tianshun')}>查看人脉</button></section>}
                 {state.chapter === 'chapter1' && <CaseContext node={state.mainlineNode} />}
                 {state.chapter === 'chapter2' && <Chapter2CaseContext node={state.mainlineNode} />}
-                {state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review' ? (
+                {state.chapter === 'chapter2' && state.mainlineNode.includes('case1-inquiry.') && (state.mainlineNode.endsWith('.review') || state.mainlineNode.endsWith('.compare')) ? (
+                  <Chapter2InquiryReviewWorkbench node={state.mainlineNode} errorTitle={state.currentNarrative.title} onSubmit={state.submitChapter2InquiryReview} />
+                ) : state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review' ? (
                   <Chapter2Case1VerificationWorkbench materialIds={state.chapter2Investigation.caseMaterialIds ?? []} fixedFactIds={state.chapter2Investigation.fixedFactIds} onVerify={state.submitChapter2Case1Verification} />
                 ) : state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.register-review' ? (
                   <Chapter2RegisterWorkbench investigation={state.chapter2Investigation} onVerify={state.submitChapter2RegisterVerification} />

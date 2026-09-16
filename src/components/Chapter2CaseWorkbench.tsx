@@ -34,14 +34,15 @@ export function Chapter2CaseContext({ node }: { node: string }) {
 
 export function Chapter2InvestigationChoices({ node, choices, onChoose }: { node: string; choices: Array<{ id: string; label: string }>; onChoose: (id: string) => void }) {
   const targets: Record<string, string> = { 'preserve-guard-responsibility': '押役口供与换押存根', 'follow-river-transfer': '河埠篷车与交接痕迹', 'protect-witness-and-deed': '卢小绫与继承副契', 'trace-credential-handover': '封验凭照交割次序', 'preserve-death-timeline': '尸体、门闩与更鼓时序', 'preserve-altered-record-chain': '值夜簿与货封放行记录' }
-  const isInquiryQuestion = node.includes('case1-inquiry.')
+  const isInquiryTransition = node.endsWith('.signed')
+  const isInquiryQuestion = node.includes('case1-inquiry.') && !isInquiryTransition
   const isInquirySelect = node === 'chapter2.case1-inquiry-select'
   const isRouteAction = node.includes('case1-route')
   const isCaseOneInvestigation = node === 'chapter2.rain-night-transfer' || isRouteAction || node === 'chapter2.case1-investigation'
-  const heading = isInquiryQuestion ? '选择下一句问话' : isInquirySelect ? '选择闻讯对象' : isRouteAction ? '继续当前调查' : isCaseOneInvestigation ? '选择调查路线' : '选择查案重点'
-  const note = isInquiryQuestion ? '问完、复述并签押后才形成口供' : isInquirySelect ? '调查已结束，四人分开记录' : isRouteAction ? '完成这条线后返回调查案桌' : isCaseOneInvestigation ? '三条路线均须完成' : '按当前案情推进'
-  const kind = isInquiryQuestion ? '闻讯问话' : isInquirySelect ? '闻讯对象' : isRouteAction ? '调查动作' : isCaseOneInvestigation ? '调查路线' : '办案动作'
-  return <section className="investigation-board" aria-label="第二章调查选择"><div className="workbench-heading"><Search size={16} /><span>{heading}</span><small>{note}</small></div><div className="investigation-list">{choices.map((choice, i) => <button key={choice.id} className="investigation-card" data-index={String(i + 1).padStart(2, '0')} onClick={() => onChoose(choice.id)}><span className="investigation-card-icon"><FileText size={17} /></span><span className="investigation-card-copy"><small className="investigation-card-kind">{kind}</small><strong>{choice.label}</strong><small>{targets[choice.id] ?? (isInquiryQuestion ? '继续核清这份口供' : isInquirySelect ? '完成后单独签押入卷' : '完成当前路线后返回案桌')}</small></span><span className="investigation-card-arrow">›</span></button>)}</div></section>
+  const heading = isInquiryTransition ? '继续分开闻讯' : isInquiryQuestion ? '选择下一句问话' : isInquirySelect ? '选择闻讯对象' : isRouteAction ? '继续当前调查' : isCaseOneInvestigation ? '选择调查路线' : '选择查案重点'
+  const note = isInquiryTransition ? '上一份口供已经封存' : isInquiryQuestion ? '问完、复述并签押后才形成口供' : isInquirySelect ? '调查已结束，四人分开记录' : isRouteAction ? '完成这条线后返回调查案桌' : isCaseOneInvestigation ? '三条路线均须完成' : '按当前案情推进'
+  const kind = isInquiryTransition ? '闻讯进度' : isInquiryQuestion ? '闻讯问话' : isInquirySelect ? '闻讯对象' : isRouteAction ? '调查动作' : isCaseOneInvestigation ? '调查路线' : '办案动作'
+  return <section className="investigation-board" aria-label="第二章调查选择"><div className="workbench-heading"><Search size={16} /><span>{heading}</span><small>{note}</small></div><div className="investigation-list">{choices.map((choice, i) => <button key={choice.id} className="investigation-card" data-index={String(i + 1).padStart(2, '0')} onClick={() => onChoose(choice.id)}><span className="investigation-card-icon"><FileText size={17} /></span><span className="investigation-card-copy"><small className="investigation-card-kind">{kind}</small><strong>{choice.label}</strong><small>{targets[choice.id] ?? (isInquiryTransition ? '下一人仍须独立记录' : isInquiryQuestion ? '继续核清这份口供' : isInquirySelect ? '完成后单独签押入卷' : '完成当前路线后返回案桌')}</small></span><span className="investigation-card-arrow">›</span></button>)}</div></section>
 }
 
 export function Chapter2CaseRecord({ node, investigation }: { node: string; investigation: Chapter2InvestigationState }) {

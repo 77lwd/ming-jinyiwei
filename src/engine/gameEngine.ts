@@ -1,6 +1,6 @@
 import { applyEffects } from './effects'
 import { chapter1InvestigationBlueprint, chapter1MainlineSteps, createChapter1InvestigationState } from '../data/chapter1'
-import { chapter2ActionMaterials, chapter2Case1InvestigationActions, chapter2Case1Questions, chapter2ChoiceOutcomes, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
+import { chapter2ActionMaterials, chapter2Case1InvestigationActions, chapter2Case1Questions, chapter2ChoiceOutcomes, chapter2InquiryReviews, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
 import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Chapter2BranchId, Chapter2CaseId, Effect, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
 
 const initialNarrative: NarrativeBlock = {
@@ -509,6 +509,8 @@ export function getMainlineChoices(state: GameState): MainlineChoice[] {
     if (!choices.length) choices.push({ id: 'c2-01-open-verification', label: '四份口供均已签押，进入证据命题核验', nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: '八项材料齐备', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '六项调查材料与四份独立口供各自封好。两组口供对照页作为两项核验材料入卷，案桌上共有八项可提交材料。' }] } })
     return choices
   }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-inquiry.guard-a.signed') return [{ id: 'c2-01-continue-guard-b', label: '封存周六口供，单独提讯赵七', nextNode: 'chapter2.case1-inquiry.guard-b.1', effects: [], outcomeNarrative: { title: '换一间屋子', tone: 'tense', paragraphs: [{ kind: 'prose', text: '周六的口供封进案夹。赵七从西厢带来时，看不见前一份记录，也不知道周六已经说到哪里。' }] } }]
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-inquiry.river-boat.signed') return [{ id: 'c2-01-continue-river-tea', label: '封存船夫证言，单独询问阿顺', nextNode: 'chapter2.case1-inquiry.river-tea.1', effects: [], outcomeNarrative: { title: '茶棚伙计进屋', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '陈老桨的证言先行封存。阿顺被带进来时，桌上只留车辙图，没有船夫刚刚按过指印的那一页。' }] } }]
   if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-authority-review') {
     const guardDuty = state.chapter2Investigation.fixedFactIds.includes('guard-duty')
     return [{
@@ -599,17 +601,6 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
       materialIds: [...new Set([...next.chapter2Investigation.materialIds, ...actionMaterials])],
     }
   }
-  const statementCompletionIds: Record<string, string> = {
-    'c2-01-guard-a-finish': 'c2-01-guard-a-statement',
-    'c2-01-guard-a-order': 'c2-01-guard-a-statement',
-    'c2-01-guard-b-confront': 'c2-01-guard-b-statement',
-    'c2-01-guard-b-restatement': 'c2-01-guard-b-statement',
-    'c2-01-river-boat-finish': 'c2-01-river-boat-statement',
-    'c2-01-river-tea-finish': 'c2-01-river-tea-statement',
-    'c2-01-river-tea-confirm': 'c2-01-river-tea-statement',
-  }
-  const completedStatementId = statementCompletionIds[choiceId]
-  if (completedStatementId) next.chapter2Investigation.completedActionIds = [...new Set([...(next.chapter2Investigation.completedActionIds ?? []), completedStatementId])]
   if (state.chapter === 'chapter2' && choiceId === 'c2-01-open-verification') {
     next.mainlineNode = 'chapter2.case1-close-review'
   }
@@ -637,6 +628,21 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
     { id: `${state.mainlineNode}-${choice.id}`, chapter: state.chapter, title: choice.label, summary: choice.outcomeNarrative.paragraphs.map((paragraph) => paragraph.text).join(' '), effects: [...(healthCost ? [`健康 ${healthCost}`] : []), ...(choice.effects ?? []).map(formatEffect)], acquiredMaterialIds: chapter2Outcome?.materialIds ?? (actionMaterials.length ? actionMaterials : routeActionId ? chapter1InvestigationBlueprint.routes.find((route) => route.actions.some((action) => action.id === routeActionId))?.actions.find((action) => action.id === routeActionId)?.materialIds : firstDayRouteId ? chapter1InvestigationBlueprint.routes.find((route) => route.id === firstDayRouteId)?.actions[0]?.materialIds : undefined) },
     ...state.recentEvents,
   ].slice(0, 20)
+  return { ok: true, state: next }
+}
+
+export function submitChapter2InquiryReview(state: GameState, selections: string[]): CommandResult {
+  if (state.screen !== 'game' || state.phase !== 'mainline' || state.chapter !== 'chapter2') return withFailure(state, 'invalid_phase')
+  const review = chapter2InquiryReviews[state.mainlineNode]
+  if (!review) return withFailure(state, 'invalid_choice')
+  const exact = selections.length === review.expected.length && review.expected.every((item) => selections.includes(item))
+  const attempts = { ...(state.chapter2Investigation.inquiryReviewAttempts ?? {}), [state.mainlineNode]: (state.chapter2Investigation.inquiryReviewAttempts?.[state.mainlineNode] ?? 0) + 1 }
+  if (!exact) return { ok: true, state: { ...state, chapter2Investigation: { ...state.chapter2Investigation, inquiryReviewAttempts: attempts }, currentNarrative: { title: '这份记录还不能签押', tone: 'tense', paragraphs: [{ kind: 'prose', text: '亲眼所见、听来的判断和与物证冲突的说法仍混在一起。书记官把纸推回案前，等你重新分栏。' }] } } }
+  const completedActionIds = review.completionId ? [...new Set([...(state.chapter2Investigation.completedActionIds ?? []), review.completionId])] : state.chapter2Investigation.completedActionIds ?? []
+  const caseMaterialIds = review.materialId ? [...new Set([...(state.chapter2Investigation.caseMaterialIds ?? []), review.materialId])] : state.chapter2Investigation.caseMaterialIds ?? []
+  const materialIds = review.materialId ? [...new Set([...state.chapter2Investigation.materialIds, review.materialId])] : state.chapter2Investigation.materialIds
+  const next = enterMainlineNode({ ...state, chapter2Investigation: { ...state.chapter2Investigation, completedActionIds, caseMaterialIds, materialIds, inquiryReviewAttempts: attempts } }, review.nextNode)
+  next.currentNarrative = { title: review.successTitle, tone: 'quiet', paragraphs: [{ kind: 'prose', text: review.successText }] }
   return { ok: true, state: next }
 }
 
