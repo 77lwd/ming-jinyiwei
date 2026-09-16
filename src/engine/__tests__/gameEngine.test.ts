@@ -15,6 +15,7 @@ function completeRoute(state: GameState, routeChoice: string, actionIds: string[
 function confirmMainlineChoice(state: GameState, choiceId: string): GameState {
   const chosen = chooseMainline(state, choiceId)
   if (!chosen.ok) throw new Error(`mainline choice failed: ${choiceId}`)
+  if (chosen.state.phase === 'mainline') return chosen.state
   const confirmed = confirmResult(chosen.state)
   if (!confirmed.ok) throw new Error(`mainline result failed: ${choiceId}`)
   return confirmed.state
@@ -99,6 +100,21 @@ describe('desktop-first game engine', () => {
     expect(verification.mainlineNode).toBe('chapter2.case1-close-review')
     expect(verification.chapter2Investigation.caseMaterialIds).toHaveLength(8)
     expect(verification.chapter2Investigation.fixedFactIds).toEqual([])
+  })
+
+  it('opens the selected case-one inquiry directly without a verification receipt', () => {
+    const state = createDeveloperCheckpointState('chapter2-case1-inquiry')
+
+    const opened = chooseMainline(state, 'c2-01-begin-guard-inquiry')
+
+    expect(opened).toMatchObject({
+      ok: true,
+      state: {
+        phase: 'mainline',
+        mainlineNode: 'chapter2.case1-inquiry.guard-a.1',
+        pendingResult: null,
+      },
+    })
   })
   it('separates case-one investigation into routes and keeps inquiry locked until all routes finish', () => {
     let state: GameState = { ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.rain-night-transfer' }

@@ -546,6 +546,10 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
   const choice = getMainlineChoices(state).find((item) => item.id === choiceId)
   if (!choice) return withFailure(state, 'invalid_choice')
 
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-inquiry-select' && ['c2-01-begin-guard-inquiry', 'c2-01-begin-river-inquiry'].includes(choiceId)) {
+    return { ok: true, state: enterMainlineNode(state, choice.nextNode) }
+  }
+
   const chapter2Outcome = state.chapter === 'chapter2' ? chapter2ChoiceOutcomes[choiceId] : undefined
   const firstDayRouteId = state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.paper-shop-fire' ? chapter1RouteIdFromChoice(choiceId) : null
   const routeActionId = state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.route-investigation' ? choiceId : null
