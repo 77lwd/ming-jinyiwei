@@ -14,6 +14,12 @@ const branchLabels: Record<string, string> = {
   c2_03_death_chain: '死亡时序链', c2_03_record_chain: '改簿记录链',
 }
 
+const fixedFactLabels: Record<string, string> = {
+  'self-escape': '马骁并非自行破锁逃脱',
+  'guard-duty': '押役在押送与交接中存在失职',
+  'illegal-transfer': '押送途中发生未经批准的转移',
+}
+
 export function Chapter2CaseProgress({ node, investigation }: { node: string; investigation: Chapter2InvestigationState }) {
   const current = node.includes('case1') || node.includes('rain-night-transfer') ? 0 : node.includes('case2') || node.includes('empty-dowry-house') ? 1 : node.includes('case3') || node.includes('before-the-watch-drum') ? 2 : cases.findIndex(([id]) => node.includes(id))
   return <section className="case-progress" aria-label="第二章案件进度"><div className="workbench-heading"><ClipboardList size={16} /><span>失号凭照工作板</span><small>第 {Math.max(1, current + 1)} 案</small></div><ol>{cases.map(([id, label], i) => { const complete = investigation.completedCaseIds.includes(id); const active = i === current; const revealed = complete || active; return <li key={id} className={complete ? 'is-complete' : active ? 'is-current' : ''} aria-current={active ? 'step' : undefined}><span>{complete ? <Check size={13} /> : i + 1}</span><b>{revealed ? label : '待查案卷'}</b></li> })}</ol></section>
@@ -38,8 +44,32 @@ export function Chapter2InvestigationChoices({ node, choices, onChoose }: { node
   return <section className="investigation-board" aria-label="第二章调查选择"><div className="workbench-heading"><Search size={16} /><span>{heading}</span><small>{note}</small></div><div className="investigation-list">{choices.map((choice, i) => <button key={choice.id} className="investigation-card" data-index={String(i + 1).padStart(2, '0')} onClick={() => onChoose(choice.id)}><span className="investigation-card-icon"><FileText size={17} /></span><span className="investigation-card-copy"><small className="investigation-card-kind">{kind}</small><strong>{choice.label}</strong><small>{targets[choice.id] ?? (isInquiryQuestion ? '继续核清这份口供' : isInquirySelect ? '完成后单独签押入卷' : '完成当前路线后返回案桌')}</small></span><span className="investigation-card-arrow">›</span></button>)}</div></section>
 }
 
-export function Chapter2CaseRecord({ investigation }: { investigation: Chapter2InvestigationState }) {
+export function Chapter2CaseRecord({ node, investigation }: { node: string; investigation: Chapter2InvestigationState }) {
   const completed = new Set(investigation.completedActionIds ?? [])
   const statements = [['c2-01-guard-a-statement', '周六口供'], ['c2-01-guard-b-statement', '赵七口供'], ['c2-01-river-boat-statement', '船夫陈老桨证言'], ['c2-01-river-tea-statement', '茶棚伙计阿顺证言']] as const
-  return <aside className="case-record" aria-label="失号凭照案情记录"><h2><FileText size={18} />失号凭照</h2><p>三案材料分卷保存，章末只核验凭照流转。</p><section className="case-record-facts"><h3>已结案件</h3><ul>{cases.map(([id, label]) => <li key={id}><Check size={13} />{label}{investigation.completedCaseIds.includes(id) ? ' · 已封卷' : ' · 待办理'}</li>)}</ul></section><section className="case-record-facts"><h3>闻讯记录</h3><ul>{statements.map(([id, label]) => <li key={id}>{completed.has(id) ? <Check size={13} /> : null}{label} · {completed.has(id) ? '已复述签押' : '尚未完成'}</li>)}</ul></section><section className="case-record-facts"><h3>已取得材料</h3>{investigation.materialIds.length ? <ul>{investigation.materialIds.map(id => <li key={id}><Check size={13} />{chapter2MaterialLabels[id] ?? id}</li>)}</ul> : <p>尚未取得材料。</p>}</section><section className="case-record-facts"><h3>选择的证据链</h3>{investigation.branchIds.length ? <ul>{investigation.branchIds.map(id => <li key={id}><Check size={13} />{branchLabels[id] ?? id}</li>)}</ul> : <p>尚未形成分支记录。</p>}</section><section className="case-record-facts"><h3>章末总簿要求</h3><p>湿透的换押存根、未剪角的封验凭照、夜放牌副券，必须精确三件齐备。</p></section></aside>
+  const isCaseOne = node.includes('rain-night-transfer') || node.includes('case1')
+  if (isCaseOne) {
+    const routes = [
+      ['囚车与锁具', ['c2-01-inspect-lock', 'c2-01-inspect-shaft']],
+      ['拖痕与麻绳', ['c2-01-trace-drag-marks', 'c2-01-examine-rope-fibers']],
+      ['换押文书', ['c2-01-preserve-wet-stub', 'c2-01-compare-escort-order']],
+    ] as const
+    const inquiryVisible = node.includes('inquiry') || node.includes('close-review') || node.includes('authority-review') || node.includes('case1-closed') || statements.some(([id]) => completed.has(id))
+    const materials = investigation.caseMaterialIds ?? []
+    const fixedFacts = investigation.fixedFactIds.filter((id) => fixedFactLabels[id])
+    return <aside className="case-record" aria-label="雨夜失押案情记录">
+      <h2><FileText size={18} />雨夜失押</h2>
+      <p>这里只记录本案已经完成的调查、签押口供与核验事实。</p>
+      <section className="case-record-facts"><h3>调查进度</h3><ul>{routes.map(([label, actionIds]) => { const count = actionIds.filter((id) => completed.has(id)).length; return <li key={label}>{count === actionIds.length ? <Check size={13} /> : null}{label} · {count === 0 ? '尚未开始' : count === actionIds.length ? '已完成' : `${count}/${actionIds.length}`}</li> })}</ul></section>
+      {inquiryVisible && <section className="case-record-facts"><h3>闻讯记录</h3><ul>{statements.map(([id, label]) => <li key={id}>{completed.has(id) ? <Check size={13} /> : null}{label} · {completed.has(id) ? '已复述签押' : '闻讯未完'}</li>)}</ul></section>}
+      <section className="case-record-facts"><h3>本案材料</h3>{materials.length ? <ul>{materials.map((id) => <li key={id}><Check size={13} />{chapter2MaterialLabels[id] ?? id}</li>)}</ul> : <p>尚未取得可入卷材料。</p>}</section>
+      {fixedFacts.length > 0 && <section className="case-record-facts"><h3>已固定事实</h3><ul>{fixedFacts.map((id) => <li key={id}><Check size={13} />{fixedFactLabels[id]}</li>)}</ul></section>}
+      {investigation.branchIds.some((id) => id.startsWith('c2_01_')) && <section className="case-record-facts"><h3>结案记录</h3><ul>{investigation.branchIds.filter((id) => id.startsWith('c2_01_')).map((id) => <li key={id}><Check size={13} />{branchLabels[id] ?? id}</li>)}</ul></section>}
+    </aside>
+  }
+
+  const currentIndex = node.includes('empty-dowry') || node.includes('case2') ? 1 : node.includes('before-the-watch') || node.includes('case3') ? 2 : 3
+  const currentTitle = currentIndex === 1 ? cases[1][1] : currentIndex === 2 ? cases[2][1] : '失号凭照 · 章末核验'
+  const revealedCases = cases.filter(([id], index) => investigation.completedCaseIds.includes(id) || index === currentIndex)
+  return <aside className="case-record" aria-label="失号凭照案情记录"><h2><FileText size={18} />{currentTitle}</h2><p>{currentIndex < 3 ? '只显示已经办理或当前正在办理的案卷。' : '三案已经封卷，现核对凭照流转记录。'}</p><section className="case-record-facts"><h3>案件进度</h3><ul>{revealedCases.map(([id, label]) => { const isComplete = investigation.completedCaseIds.includes(id); return <li key={id}>{isComplete ? <Check size={13} /> : null}{label} · {isComplete ? '已封卷' : '办理中'}</li> })}</ul></section><section className="case-record-facts"><h3>已入卷材料</h3>{investigation.materialIds.length ? <ul>{investigation.materialIds.map((id) => <li key={id}><Check size={13} />{chapter2MaterialLabels[id] ?? id}</li>)}</ul> : <p>尚未取得材料。</p>}</section>{investigation.branchIds.length > 0 && <section className="case-record-facts"><h3>已形成记录</h3><ul>{investigation.branchIds.map((id) => <li key={id}><Check size={13} />{branchLabels[id] ?? id}</li>)}</ul></section>}</aside>
 }
