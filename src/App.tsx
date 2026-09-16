@@ -16,10 +16,11 @@ export default function App() {
   const continueGame = useGameStore((state) => state.continueGame)
   const nextPrologue = useGameStore((state) => state.nextPrologue)
   const skipPrologue = useGameStore((state) => state.skipPrologue)
+  const startDeveloperCheckpoint = useGameStore((state) => state.startDeveloperCheckpoint)
 
   return <>
     <AudioInteractionBridge />
-    {screen === 'title' && <TitleScreen hasSave={hasSave} saveError={saveError} onNewGame={newGame} onContinue={continueGame} />}
+    {screen === 'title' && <TitleScreen hasSave={hasSave} saveError={saveError} onNewGame={newGame} onContinue={continueGame} onDeveloperStart={import.meta.env.DEV ? startDeveloperCheckpoint : undefined} />}
     {screen === 'complete' && <ChapterComplete />}
     {screen === 'game' && phase === 'prologue' && <PrologueView sceneIndex={prologueScene} onNext={nextPrologue} onSkip={skipPrologue} />}
     {screen === 'game' && phase !== 'prologue' && <GameLayout />}

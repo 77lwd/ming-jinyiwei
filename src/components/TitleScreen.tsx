@@ -1,14 +1,17 @@
 import { ArrowRight, History, Shield } from 'lucide-react'
 import { AudioSettingsPanel } from './AudioSettingsPanel'
+import { DeveloperMenu } from './DeveloperMenu'
+import type { DeveloperCheckpointId } from '../engine/gameEngine'
 
 interface TitleScreenProps {
   hasSave: boolean
   saveError: string | null
   onNewGame: () => void
   onContinue: () => void
+  onDeveloperStart?: (checkpoint: DeveloperCheckpointId) => void
 }
 
-export function TitleScreen({ hasSave, saveError, onNewGame, onContinue }: TitleScreenProps) {
+export function TitleScreen({ hasSave, saveError, onNewGame, onContinue, onDeveloperStart }: TitleScreenProps) {
   const startNewGame = () => {
     if (!hasSave || window.confirm('确定覆盖当前存档并重新开始吗？')) onNewGame()
   }
@@ -17,6 +20,7 @@ export function TitleScreen({ hasSave, saveError, onNewGame, onContinue }: Title
     <main className="title-screen">
       <div className="title-art" aria-hidden="true" />
       <AudioSettingsPanel />
+      {onDeveloperStart && <DeveloperMenu onStart={onDeveloperStart} />}
       <section className="title-content" aria-labelledby="game-title">
         <div className="title-kicker"><Shield size={16} /> 单机文字角色扮演</div>
         <h1 id="game-title">我在明朝当锦衣卫</h1>

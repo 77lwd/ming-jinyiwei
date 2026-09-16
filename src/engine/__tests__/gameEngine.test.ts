@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { advanceMainline, chooseMainline, confirmResult, createInitialState, enterChapterTwo, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2RegisterVerification } from '../gameEngine'
+import { advanceMainline, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2RegisterVerification } from '../gameEngine'
 import type { GameState } from '../../types'
 
 function completeRoute(state: GameState, routeChoice: string, actionIds: string[]): GameState {
@@ -68,6 +68,38 @@ function completeChapter2CaseOne(state: GameState): GameState {
 }
 
 describe('desktop-first game engine', () => {
+  it('creates chapter two developer checkpoints with the first chapter carry-over intact', () => {
+    const state = createDeveloperCheckpointState('chapter2-case1-investigation')
+
+    expect(state).toMatchObject({
+      screen: 'game',
+      phase: 'mainline',
+      chapter: 'chapter2',
+      mainlineNode: 'chapter2.rain-night-transfer',
+      wealth: 35,
+      flags: {
+        prologue_survivor: true,
+        first_case_closed: true,
+        charred_token_preserved: true,
+        tianshun_reconnected: true,
+      },
+    })
+    expect(state.npcRelations.feng_tianshun).toBeGreaterThan(0)
+  })
+
+  it('prepares only the prerequisites needed by later case one developer checkpoints', () => {
+    const inquiry = createDeveloperCheckpointState('chapter2-case1-inquiry')
+    expect(inquiry.mainlineNode).toBe('chapter2.case1-inquiry-select')
+    expect(inquiry.chapter2Investigation.caseMaterialIds).toEqual(expect.arrayContaining([
+      'unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order',
+    ]))
+    expect(inquiry.chapter2Investigation.caseMaterialIds).not.toContain('separate-guard-statements')
+
+    const verification = createDeveloperCheckpointState('chapter2-case1-verification')
+    expect(verification.mainlineNode).toBe('chapter2.case1-close-review')
+    expect(verification.chapter2Investigation.caseMaterialIds).toHaveLength(8)
+    expect(verification.chapter2Investigation.fixedFactIds).toEqual([])
+  })
   it('separates case-one investigation into routes and keeps inquiry locked until all routes finish', () => {
     let state: GameState = { ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.rain-night-transfer' }
     expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['c2-01-inspect-lock', 'c2-01-trace-drag-marks', 'c2-01-preserve-wet-stub'])

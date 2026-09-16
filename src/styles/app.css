@@ -66,6 +66,19 @@
   .save-error { max-width: 31rem; padding: .65rem .75rem; color: #f0c8bf; background: rgba(158,54,42,.18); border: 1px solid rgba(197,92,79,.55); line-height: 1.7; }
   .title-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
   .title-screen > .audio-settings, .prologue > .audio-settings, .complete-screen > .audio-settings { position: absolute; top: 1rem; right: 1rem; z-index: 5; }
+  .developer-menu { position: absolute; left: 1rem; bottom: 1rem; z-index: 20; font-family: system-ui, sans-serif; }
+  .developer-trigger { display: inline-flex; align-items: center; gap: .45rem; padding: .55rem .7rem; color: #d8cfbd; background: rgba(14,22,21,.88); border: 1px solid #59645f; border-radius: 4px; font-size: .78rem; }
+  .developer-trigger:hover { color: #fff4dc; border-color: var(--brass); }
+  .developer-backdrop { position: fixed; inset: 0; display: grid; place-items: center; padding: 2rem; background: rgba(5,9,8,.76); }
+  .developer-dialog { width: min(600px, calc(100vw - 4rem)); padding: 1.4rem; color: #eee4d0; background: #172220; border: 1px solid #68736c; box-shadow: 0 24px 70px rgba(0,0,0,.55); }
+  .developer-dialog header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .developer-dialog header span { color: var(--brass-light); font-size: .75rem; font-weight: 700; }
+  .developer-dialog h2 { margin: .3rem 0 0; font-size: 1.45rem; }
+  .developer-dialog > p { margin: 1rem 0; color: #bfc5bc; line-height: 1.7; }
+  .developer-checkpoints { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+  .developer-checkpoints button { min-height: 86px; display: grid; align-content: center; gap: .35rem; padding: .9rem; text-align: left; color: #eee4d0; background: #111b19; border: 1px solid #52605b; border-radius: 4px; }
+  .developer-checkpoints button:hover { border-color: var(--brass); background: #1c2926; }
+  .developer-checkpoints small { color: #aeb7af; line-height: 1.45; }
 
   .prologue { min-height: 100vh; position: relative; display: grid; align-items: end; overflow: hidden; color: #f2ead8; background: #121918; }
   .prologue-visual { position: absolute; inset: 0; overflow: hidden; background: #121918; }

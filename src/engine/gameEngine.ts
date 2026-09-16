@@ -23,6 +23,12 @@ const initialRelations: GameState['npcRelations'] = {
   liao_chengzhi: 0,
 }
 
+export type DeveloperCheckpointId =
+  | 'chapter2-entry'
+  | 'chapter2-case1-investigation'
+  | 'chapter2-case1-inquiry'
+  | 'chapter2-case1-verification'
+
 interface MainlineStep {
   chapter: GameState['chapter']
   title?: string
@@ -334,6 +340,64 @@ export function createInitialState(): GameState {
     chapter2Investigation: createChapter2InvestigationState(),
     lastCommandError: null,
   }
+}
+
+export function createDeveloperCheckpointState(checkpoint: DeveloperCheckpointId): GameState {
+  const base: GameState = {
+    ...createInitialState(),
+    screen: 'game',
+    phase: 'mainline',
+    chapter: 'chapter2',
+    wealth: 35,
+    flags: {
+      prologue_survivor: true,
+      first_case_closed: true,
+      charred_token_preserved: true,
+      tianshun_reconnected: true,
+    },
+    npcRelations: { ...initialRelations, feng_tianshun: 1 },
+    recentEvents: [{
+      id: 'chapter2-first-case-closure-payment',
+      chapter: 'chapter2',
+      title: '第一案结案补贴',
+      summary: '第一案依法封结后，署里发下五两办案补贴。',
+      effects: ['银两 +5'],
+    }],
+  }
+
+  if (checkpoint === 'chapter2-entry') return enterMainlineNode(base, 'chapter2.entry')
+  if (checkpoint === 'chapter2-case1-investigation') return enterMainlineNode(base, 'chapter2.rain-night-transfer')
+
+  const investigationActions = chapter2Case1InvestigationActions.map((action) => action.id)
+  const investigationMaterials = ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order']
+  const investigation = {
+    ...createChapter2InvestigationState(),
+    activeCaseId: 'rain-night-transfer' as const,
+    completedActionIds: investigationActions,
+    caseMaterialIds: investigationMaterials,
+    materialIds: investigationMaterials,
+  }
+
+  if (checkpoint === 'chapter2-case1-inquiry') {
+    return enterMainlineNode({ ...base, chapter2Investigation: investigation }, 'chapter2.case1-inquiry-select')
+  }
+
+  const testimonyActions = [
+    'c2-01-guard-a-statement',
+    'c2-01-guard-b-statement',
+    'c2-01-river-boat-statement',
+    'c2-01-river-tea-statement',
+  ]
+  const allMaterials = [...investigationMaterials, 'separate-guard-statements', 'river-route-testimony']
+  return enterMainlineNode({
+    ...base,
+    chapter2Investigation: {
+      ...investigation,
+      completedActionIds: [...investigationActions, ...testimonyActions],
+      caseMaterialIds: allMaterials,
+      materialIds: allMaterials,
+    },
+  }, 'chapter2.case1-close-review')
 }
 
 export function startGame(state: GameState): GameState {
