@@ -217,7 +217,7 @@
   .verification-heading h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
   .verification-heading p { margin: 0; color: #b9c2bc; font-size: .8rem; line-height: 1.55; }
   .verification-heading > strong { align-self: start; padding-top: .25rem; color: var(--brass-light); font-size: .78rem; }
-  .verification-layout { display: grid; grid-template-columns: minmax(290px, .72fr) minmax(0, 1.28fr); min-height: 360px; }
+  .verification-layout { display: grid; grid-template-columns: minmax(290px, .72fr) minmax(0, 1.28fr); align-items: start; min-height: 360px; }
   .verification-questions { padding: 1.1rem 1.25rem 1.25rem 0; border: 0; border-right: 1px solid #40514c; }
   .verification-questions legend, .verification-materials legend { margin: 0 0 .75rem; color: #d8cfbd; font-size: .8rem; font-weight: 750; }
   .verification-question-list { display: grid; gap: .45rem; }
@@ -228,7 +228,8 @@
   .verification-question > em { color: var(--brass-light); font-size: .66rem; font-style: normal; }
   .verification-question strong { font-size: .88rem; line-height: 1.35; }
   .verification-question small { color: #aeb9b3; font-size: .72rem; line-height: 1.45; }
-  .verification-materials { min-width: 0; margin: 0; padding: 1.1rem 0 1.25rem 1.25rem; border: 0; }
+  .verification-material-panel { min-width: 0; height: min(68vh, 720px); min-height: 540px; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  .verification-materials { min-width: 0; min-height: 0; margin: 0; padding: 1.1rem .55rem 1.25rem 1.25rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; border: 0; }
   .verification-materials > p { margin: -.35rem 0 .75rem; color: #9fa9a4; font-size: .74rem; }
   .material-checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
   .material-checklist label { min-height: 76px; display: grid; grid-template-columns: 20px 1fr; gap: .16rem .55rem; align-content: start; padding: .7rem .75rem; color: #d2d7d1; background: #15221f; border: 1px solid #3f504b; border-radius: 4px; cursor: pointer; }
@@ -249,7 +250,7 @@
   .material-group { display: grid; gap: .4rem; }
   .material-group h4 { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin: 0; color: #aeb7b2; font-size: .74rem; letter-spacing: .03em; }
   .material-group h4 span { color: #8f9a94; font-size: .68rem; font-weight: 500; }
-  .verification-submit { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 0; border-top: 1px solid #40514c; }
+  .verification-submit { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 0 .9rem 1.25rem; border-top: 1px solid #40514c; }
   .verification-submit p { margin: 0; color: #b4bdb7; font-size: .78rem; }
   .verification-submit p strong { color: var(--brass-light); }
   .verification-submit .button:disabled { color: #7f8984; background: #26302d; border-color: #3d4945; opacity: 1; }
@@ -912,7 +913,9 @@
     .dossier-spread { padding: 1.1rem; }
     .verification-layout, .petition-workbench { grid-template-columns: 1fr; }
     .verification-questions { padding-right: 0; border-right: 0; border-bottom: 1px solid var(--dossier-line); }
-    .verification-materials { padding-left: 0; }
+    .verification-material-panel { height: auto; min-height: 0; display: block; }
+    .verification-materials { padding-left: 0; overflow: visible; scrollbar-gutter: auto; }
+    .verification-submit { padding-left: 0; }
     .petition-portrait { display: none; }
   }
 }
