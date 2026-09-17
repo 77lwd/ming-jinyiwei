@@ -76,9 +76,9 @@ function completeChapter2CaseOne(state: GameState): GameState {
   state = confirmInquiryReview(state, ['tea-sequence:fact', 'tea-name:pending', 'tea-denial:conflict'])
   state = confirmInquiryReview(state, ['river-route:confirmed', 'river-identity:conflict', 'river-trace:evidence'])
   state = confirmMainlineChoice(state, 'c2-01-open-verification')
-  const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'cart-drag-trace', 'cut-rope-fibers']) as { ok: true; state: GameState }
+  const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers']) as { ok: true; state: GameState }
   state = (confirmResult(first.state) as { ok: true; state: GameState }).state
-  const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements']) as { ok: true; state: GameState }
+  const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements']) as { ok: true; state: GameState }
   state = (confirmResult(second.state) as { ok: true; state: GameState }).state
   return confirmMainlineChoice(state, 'preserve-guard-responsibility')
 }
@@ -113,7 +113,7 @@ describe('desktop-first game engine', () => {
 
     const verification = createDeveloperCheckpointState('chapter2-case1-verification')
     expect(verification.mainlineNode).toBe('chapter2.case1-close-review')
-    expect(verification.chapter2Investigation.caseMaterialIds).toHaveLength(8)
+    expect(verification.chapter2Investigation.caseMaterialIds).toHaveLength(12)
     expect(verification.chapter2Investigation.fixedFactIds).toEqual([])
   })
 
@@ -173,6 +173,7 @@ describe('desktop-first game engine', () => {
     if (!reviewed.ok) return
     state = reviewed.state
     expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-guard-a-statement')
+    expect(state.chapter2Investigation.caseMaterialIds).toContain('zhou-liu-signed-statement')
     expect(state.chapter2Investigation.caseMaterialIds).not.toContain('separate-guard-statements')
     state = confirmMainlineChoice(state, 'c2-01-continue-guard-b')
     for (const choiceId of ['c2-01-guard-b-route', 'c2-01-guard-b-order', 'c2-01-guard-b-confront']) state = confirmMainlineChoice(state, choiceId)
@@ -182,6 +183,7 @@ describe('desktop-first game engine', () => {
     if (!reviewed.ok) return
     state = reviewed.state
     expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-guard-b-statement')
+    expect(state.chapter2Investigation.caseMaterialIds).toContain('zhao-qi-signed-statement')
     expect(state.mainlineNode).toBe('chapter2.case1-inquiry.guard.compare')
     expect(state.chapter2Investigation.caseMaterialIds).not.toContain('separate-guard-statements')
     reviewed = submitChapter2InquiryReview(state, ['guard-stop:confirmed', 'guard-order:conflict', 'guard-lock:evidence'])
@@ -201,19 +203,25 @@ describe('desktop-first game engine', () => {
     state = confirmMainlineChoice(state, 'c2-01-river-boat-finish')
     state = confirmInquiryReview(state, ['boat-route:fact', 'boat-name:pending', 'boat-count:conflict'])
     expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-river-boat-statement')
+    expect(state.chapter2Investigation.caseMaterialIds).toContain('chen-laojiang-signed-testimony')
     expect(state.chapter2Investigation.caseMaterialIds).not.toContain('river-route-testimony')
     state = confirmMainlineChoice(state, 'c2-01-continue-river-tea')
     state = confirmMainlineChoice(state, 'c2-01-river-tea-cart')
     state = confirmMainlineChoice(state, 'c2-01-river-tea-finish')
     state = confirmInquiryReview(state, ['tea-sequence:fact', 'tea-name:pending', 'tea-denial:conflict'])
     expect(state.chapter2Investigation.completedActionIds).toContain('c2-01-river-tea-statement')
+    expect(state.chapter2Investigation.caseMaterialIds).toContain('ashun-signed-testimony')
     expect(state.chapter2Investigation.caseMaterialIds).not.toContain('river-route-testimony')
     state = confirmInquiryReview(state, ['river-route:confirmed', 'river-identity:conflict', 'river-trace:evidence'])
     expect(state.chapter2Investigation.caseMaterialIds).toContain('river-route-testimony')
   })
 
   it('requires exact evidence sets and two sequential findings before case one closure', () => {
-    const allMaterials = ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order', 'separate-guard-statements', 'river-route-testimony']
+    const allMaterials = [
+      'unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order',
+      'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements',
+      'chen-laojiang-signed-testimony', 'ashun-signed-testimony', 'river-route-testimony',
+    ]
     let state: GameState = {
       ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.case1-close-review',
       chapter2Investigation: { ...createInitialState().chapter2Investigation, activeCaseId: 'rain-night-transfer', caseMaterialIds: allMaterials, materialIds: allMaterials },
@@ -226,17 +234,25 @@ describe('desktop-first game engine', () => {
       expect(rejected.ok).toBe(true)
       if (rejected.ok) expect(rejected.state.chapter2Investigation.fixedFactIds).toEqual([])
     }
-    const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'cart-drag-trace', 'cut-rope-fibers'])
+    const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers'])
     expect(first.ok).toBe(true)
     if (!first.ok) return
     expect(first.state.chapter2Investigation.fixedFactIds).toContain('self-escape')
     expect(first.state.pendingResult?.nextNode).toBe('chapter2.case1-close-review')
     state = (confirmResult(first.state) as { ok: true; state: GameState }).state
-    const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements'])
+    const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements'])
     expect(second.ok).toBe(true)
     if (!second.ok) return
     expect(second.state.chapter2Investigation.fixedFactIds).toEqual(expect.arrayContaining(['self-escape', 'guard-duty']))
     expect(second.state.pendingResult?.nextNode).toBe('chapter2.case1-authority-review')
+
+    state = { ...state, chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds: [] } }
+    const route = submitChapter2Case1Verification(state, 'illegal-transfer', [
+      'wet-transfer-stub', 'cart-drag-trace', 'chen-laojiang-signed-testimony',
+      'ashun-signed-testimony', 'river-route-testimony', 'original-escort-order',
+    ])
+    expect(route.ok).toBe(true)
+    if (route.ok) expect(route.state.chapter2Investigation.fixedFactIds).toContain('illegal-transfer')
   })
 
   it('starts chapter two with the first independent case and no retired free-action state', () => {

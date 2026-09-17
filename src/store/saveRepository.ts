@@ -1,4 +1,5 @@
 import type { GameState, NarrativeBlock, NarrativeEvent, PendingResult, Clue, NpcId } from '../types'
+import { chapter2InquiryReviews } from '../data/chapter2'
 
 export const SAVE_VERSION = 3
 export const SAVE_KEY = 'ming_jinyiwei.save.v3'
@@ -134,6 +135,11 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
     fixedFactIds: [],
     registerVerified: false,
   }
+  const signedOriginals = Object.values(chapter2InquiryReviews)
+    .filter((review) => review.completionId && review.materialId && chapter2Investigation.completedActionIds.includes(review.completionId))
+    .map((review) => review.materialId!)
+  chapter2Investigation.caseMaterialIds = [...new Set([...chapter2Investigation.caseMaterialIds, ...signedOriginals])]
+  chapter2Investigation.materialIds = [...new Set([...chapter2Investigation.materialIds, ...signedOriginals])]
   return { ...state, chapter1Investigation, chapter2Investigation }
 }
 

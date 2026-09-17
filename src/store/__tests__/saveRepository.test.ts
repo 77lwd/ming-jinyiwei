@@ -56,4 +56,16 @@ describe('versioned desktop save repository', () => {
     expect(loadSave()).toEqual({ status: 'invalid' })
     expect(localStorage.getItem(SAVE_KEY)).toBe('{bad')
   })
+
+  it('restores signed originals from existing testimony completion records only', () => {
+    const state = createInitialState()
+    state.chapter2Investigation.completedActionIds = ['c2-01-guard-a-statement']
+    saveGame(state)
+    const loaded = loadSave()
+    expect(loaded.status).toBe('ok')
+    if (loaded.status !== 'ok') return
+    expect(loaded.state.chapter2Investigation.caseMaterialIds).toEqual(['zhou-liu-signed-statement'])
+    expect(loaded.state.chapter2Investigation.materialIds).toEqual(['zhou-liu-signed-statement'])
+    expect(loaded.state.chapter2Investigation.caseMaterialIds).not.toContain('zhao-qi-signed-statement')
+  })
 })

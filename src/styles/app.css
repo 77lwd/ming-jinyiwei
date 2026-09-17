@@ -224,21 +224,27 @@
   .verification-question { min-height: 82px; display: grid; grid-template-columns: 22px 1fr; gap: .18rem .55rem; padding: .75rem; color: #c7cec8; background: transparent; border: 1px solid #3d4d48; border-radius: 4px; text-align: left; }
   .verification-question:hover { background: #172521; border-color: #6f7e77; }
   .verification-question.is-selected { color: #f2eadb; background: #1b2c27; border-color: var(--brass-light); }
-  .verification-question > span { grid-row: 1 / 3; color: var(--brass-light); }
+  .verification-question > span { grid-row: 1 / 4; color: var(--brass-light); }
+  .verification-question > em { color: var(--brass-light); font-size: .66rem; font-style: normal; }
   .verification-question strong { font-size: .88rem; line-height: 1.35; }
   .verification-question small { color: #aeb9b3; font-size: .72rem; line-height: 1.45; }
   .verification-materials { min-width: 0; margin: 0; padding: 1.1rem 0 1.25rem 1.25rem; border: 0; }
   .verification-materials > p { margin: -.35rem 0 .75rem; color: #9fa9a4; font-size: .74rem; }
   .material-checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
-  .material-checklist label { min-height: 76px; display: grid; grid-template-columns: 20px 1fr; gap: .16rem .55rem; align-content: center; padding: .65rem .75rem; color: #d2d7d1; background: #15221f; border: 1px solid #3f504b; border-radius: 4px; cursor: pointer; }
+  .material-checklist label { min-height: 76px; display: grid; grid-template-columns: 20px 1fr; gap: .16rem .55rem; align-content: start; padding: .7rem .75rem; color: #d2d7d1; background: #15221f; border: 1px solid #3f504b; border-radius: 4px; cursor: pointer; }
   .material-checklist label:hover { background: #192925; border-color: #718078; }
   .material-checklist label.is-selected { color: #f5ecdb; background: #20342e; border-color: var(--brass-light); }
   .material-checklist input { position: absolute; opacity: 0; pointer-events: none; }
-  .material-checklist label > span { grid-row: 1 / 3; width: 18px; height: 18px; display: grid; place-items: center; margin-top: .08rem; border: 1px solid #7f8b85; border-radius: 2px; }
-  .material-checklist label.is-selected > span { color: #18120d; background: var(--brass-light); border-color: var(--brass-light); }
+  .material-checklist label > span:first-of-type { width: 18px; height: 18px; display: grid; place-items: center; margin-top: .08rem; border: 1px solid #7f8b85; border-radius: 2px; }
+  .material-checklist label.is-selected > span:first-of-type { color: #18120d; background: var(--brass-light); border-color: var(--brass-light); }
   .material-checklist label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .material-file-details { min-width: 0; display: grid; gap: .2rem; }
   .material-checklist strong { font-size: .82rem; }
   .material-checklist small { color: #aeb7b2; font-size: .7rem; line-height: 1.45; }
+  .material-checklist .material-file-details strong { font-size: .82rem; }
+  .material-file-details em { color: #d0b47d; font-size: .68rem; font-style: normal; }
+  .material-checklist .material-file-details small { color: #aeb7b2; font-size: .7rem; line-height: 1.45; }
+  .material-checklist .material-file-details .material-formation { padding-top: .22rem; border-top: 1px solid rgba(174, 183, 178, .2); color: #c0c6c1; }
   .verification-submit { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 0; border-top: 1px solid #40514c; }
   .verification-submit p { margin: 0; color: #b4bdb7; font-size: .78rem; }
   .verification-submit p strong { color: var(--brass-light); }
@@ -777,15 +783,19 @@
   .verification-question:hover { background: rgba(242, 235, 221, .55); border-color: #846151; }
   .verification-question.is-selected { color: #332d26; background: rgba(128, 65, 54, .1); border-color: #8b4a3d; }
   .verification-question > span { color: var(--seal); }
+  .verification-question > em { color: #7c4036; }
   .verification-question small, .verification-materials > p { color: #696257; }
   .verification-materials { padding: 1rem 0 1rem 1rem; }
   .material-checklist { gap: .45rem; }
   .material-checklist label { min-height: 70px; color: #464139; background: rgba(248, 244, 235, .55); border-color: rgba(119, 105, 84, .48); border-radius: 1px; }
   .material-checklist label:hover { background: #f2ebdd; border-color: #846151; }
   .material-checklist label.is-selected { color: #352e27; background: rgba(126, 65, 54, .1); border-color: #8b4a3d; }
-  .material-checklist label > span { border-color: #777063; border-radius: 1px; }
-  .material-checklist label.is-selected > span { color: #f4ead8; background: var(--seal); border-color: var(--seal); }
+  .material-checklist label > span:first-of-type { border-color: #777063; border-radius: 1px; }
+  .material-checklist label.is-selected > span:first-of-type { color: #f4ead8; background: var(--seal); border-color: var(--seal); }
+  .material-file-details em { color: #7b4338; }
   .material-checklist small { color: #676055; }
+  .material-checklist .material-file-details small { color: #676055; }
+  .material-checklist .material-file-details .material-formation { border-top-color: rgba(119, 105, 84, .25); color: #5d574d; }
   .verification-submit { border-top-color: var(--dossier-line); }
   .verification-submit p { color: #625c52; }
   .verification-submit p strong { color: var(--seal); }

@@ -6,7 +6,7 @@ const checkpoints: Array<{ id: DeveloperCheckpointId; label: string; note: strin
   { id: 'chapter2-entry', label: '第二章 · 章节开篇', note: '检查五两补贴与第一案交接。' },
   { id: 'chapter2-case1-investigation', label: '第一案 · 开始调查', note: '从三条调查路线的起点开始。' },
   { id: 'chapter2-case1-inquiry', label: '第一案 · 开始闻讯', note: '六项调查材料已入卷，四人均未问讯。' },
-  { id: 'chapter2-case1-verification', label: '第一案 · 提交核验', note: '八件材料已取得，核验命题尚未固定。' },
+  { id: 'chapter2-case1-verification', label: '第一案 · 提交核验', note: '十二件材料已取得，核验命题尚未固定。' },
 ]
 
 export function DeveloperMenu({ onStart }: { onStart: (checkpoint: DeveloperCheckpointId) => void }) {

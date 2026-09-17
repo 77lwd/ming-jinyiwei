@@ -1,6 +1,6 @@
 import { applyEffects } from './effects'
 import { chapter1InvestigationBlueprint, chapter1MainlineSteps, createChapter1InvestigationState } from '../data/chapter1'
-import { chapter2ActionMaterials, chapter2Case1InvestigationActions, chapter2Case1Questions, chapter2ChoiceOutcomes, chapter2InquiryReviews, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
+import { chapter2ActionMaterials, chapter2Case1InvestigationActions, chapter2Case1Questions, chapter2Case1VerificationSets, chapter2ChoiceOutcomes, chapter2InquiryReviews, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
 import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Chapter2BranchId, Chapter2CaseId, Effect, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
 
 const initialNarrative: NarrativeBlock = {
@@ -388,7 +388,11 @@ export function createDeveloperCheckpointState(checkpoint: DeveloperCheckpointId
     'c2-01-river-boat-statement',
     'c2-01-river-tea-statement',
   ]
-  const allMaterials = [...investigationMaterials, 'separate-guard-statements', 'river-route-testimony']
+  const allMaterials = [
+    ...investigationMaterials,
+    'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements',
+    'chen-laojiang-signed-testimony', 'ashun-signed-testimony', 'river-route-testimony',
+  ]
   return enterMainlineNode({
     ...base,
     chapter2Investigation: {
@@ -506,7 +510,7 @@ export function getMainlineChoices(state: GameState): MainlineChoice[] {
     const choices: MainlineChoice[] = []
     if (!completed.has('c2-01-guard-b-statement')) choices.push({ id: 'c2-01-begin-guard-inquiry', label: '分开闻讯周六与赵七', nextNode: completed.has('c2-01-guard-a-statement') ? 'chapter2.case1-inquiry.guard-b.1' : 'chapter2.case1-inquiry.guard-a.1', effects: [], outcomeNarrative: { title: '押役分室候问', tone: 'tense', paragraphs: [{ kind: 'prose', text: '两名押役分别候在东西厢。每人问完后单独复述、签押，不准互相补话。' }] } })
     if (!completed.has('c2-01-river-tea-statement')) choices.push({ id: 'c2-01-begin-river-inquiry', label: '分开询问船夫与茶棚伙计', nextNode: completed.has('c2-01-river-boat-statement') ? 'chapter2.case1-inquiry.river-tea.1' : 'chapter2.case1-inquiry.river-boat.1', effects: [], outcomeNarrative: { title: '河埠证人分开候问', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '船夫先在东屋候问，茶棚伙计留在外间。两人的时辰和去向各自落纸后再作对照。' }] } })
-    if (!choices.length) choices.push({ id: 'c2-01-open-verification', label: '四份口供均已签押，进入证据命题核验', nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: '八项材料齐备', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '六项调查材料与四份独立口供各自封好。两组口供对照页作为两项核验材料入卷，案桌上共有八项可提交材料。' }] } })
+    if (!choices.length) choices.push({ id: 'c2-01-open-verification', label: '四份口供均已签押，进入证据命题核验', nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: '十二项材料齐备', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '六项现场与文书材料、四份个人签押口供、两张口供对照页依形成次序封好。十二项材料分别保留原始来源，不再把四人的话缩成两个标题。' }] } })
     return choices
   }
   if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-inquiry.guard-a.signed') return [{ id: 'c2-01-continue-guard-b', label: '封存周六口供，单独提讯赵七', nextNode: 'chapter2.case1-inquiry.guard-b.1', effects: [], outcomeNarrative: { title: '换一间屋子', tone: 'tense', paragraphs: [{ kind: 'prose', text: '周六的口供封进案夹。赵七从西厢带来时，看不见前一份记录，也不知道周六已经说到哪里。' }] } }]
@@ -532,9 +536,7 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
   if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review' && ['preserve-guard-responsibility', 'follow-river-transfer'].includes(choiceId)) {
     const q = choiceId === 'preserve-guard-responsibility' ? 'guard-duty' : 'illegal-transfer'
     const held = state.chapter2Investigation.caseMaterialIds ?? []
-    const selected = q === 'guard-duty'
-      ? (held.includes('original-escort-order') ? ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements'] : ['unforced-lock', 'wet-transfer-stub', 'separate-guard-statements'])
-      : (held.includes('cart-drag-trace') ? ['wet-transfer-stub', 'cart-drag-trace', 'river-route-testimony'] : ['unforced-lock', 'wet-transfer-stub', 'river-route-testimony'])
+    const selected = [...(chapter2Case1VerificationSets[q] ?? [])].filter((id) => held.includes(id))
     const result = submitChapter2Case1Verification(state, q, selected)
     if (!result.ok) return result
     return { ok: true, state: { ...result.state, pendingResult: { kind: 'mainline_choice', nextNode: 'chapter2.case1-closed' }, flags: { ...result.state.flags, slip_chain_1: true, [q === 'guard-duty' ? 'c2_01_responsibility_chain' : 'c2_01_route_chain']: true }, chapter2Investigation: { ...result.state.chapter2Investigation, completedCaseIds: [...new Set([...result.state.chapter2Investigation.completedCaseIds, 'rain-night-transfer' as Chapter2CaseId])], branchIds: [...new Set([...result.state.chapter2Investigation.branchIds, (q === 'guard-duty' ? 'c2_01_responsibility_chain' : 'c2_01_route_chain') as Chapter2BranchId])] } } }
@@ -695,15 +697,15 @@ export function submitChapter2Case1Verification(state: GameState, questionId: st
   if (state.screen !== 'game' || state.phase !== 'mainline' || state.chapter !== 'chapter2' || state.mainlineNode !== 'chapter2.case1-close-review') return withFailure(state, 'invalid_phase')
   const selected = [...new Set(selectedMaterialIds)]
   const held = state.chapter2Investigation.caseMaterialIds ?? []
-  const expected = questionId === 'self-escape' ? ['unforced-lock', 'cart-drag-trace', 'cut-rope-fibers'] : questionId === 'guard-duty' ? ['original-escort-order', 'wet-transfer-stub', 'separate-guard-statements'] : questionId === 'illegal-transfer' ? ['wet-transfer-stub', 'cart-drag-trace', 'river-route-testimony'] : []
-  const valid = expected.length === 3 && selected.length === expected.length && selected.every((id) => held.includes(id)) && [...selected].sort().join('|') === [...expected].sort().join('|')
+  const expected = [...(chapter2Case1VerificationSets[questionId] ?? [])]
+  const valid = expected.length > 0 && selected.length === expected.length && selected.every((id) => held.includes(id)) && [...selected].sort().join('|') === [...expected].sort().join('|')
   if (!valid) {
     const narrative: NarrativeBlock = { title: '材料还没有咬合', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你把选出的材料平码在案桌上。它们各自为真，却不能一起回答这条命题。覃保坤没有替你挑，只让书记官把这次呈报退回待核栏。' }] }
     return { ok: true, state: { ...state, phase: 'result', currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: 'chapter2.case1-close-review' }, lastCommandError: null } }
   }
   const fixedFactIds = [...new Set([...state.chapter2Investigation.fixedFactIds, questionId])]
   const closed = fixedFactIds.includes('self-escape') && (fixedFactIds.includes('guard-duty') || fixedFactIds.includes('illegal-transfer'))
-  const narrative: NarrativeBlock = { title: closed ? '两条事实已经固定' : '一条事实先落下', tone: 'quiet', paragraphs: [{ kind: 'prose', text: closed ? '锁扣、车痕、绳纤维和分开口供已经把现场与责任分开。你把案卷呈到覃保坤案前，请他落签封卷。' : `你把${questionId === 'self-escape' ? '锁扣、车痕和麻绳纤维' : questionId === 'guard-duty' ? '原差牌、换押存根和两份口供' : '换押存根、拖痕和河埠证言'}并在一处，先把这条事实固定下来。另一条命题仍未回答。` }] }
+  const narrative: NarrativeBlock = { title: closed ? '两条事实已经固定' : '一条事实先落下', tone: 'quiet', paragraphs: [{ kind: 'prose', text: closed ? '现场勘验、原始文书、个人签押口供和对照记录已经各自归位。哪一句出自谁、哪一处由物证补上，都能从卷中倒查。你把案卷呈到覃保坤案前，请他落签封卷。' : `你把${questionId === 'self-escape' ? '锁扣、车辕、拖痕和断绳记录' : questionId === 'guard-duty' ? '原差牌、换押存根、两份个人口供和押役对照页' : '换押文书、车痕、两份河埠证言和对照页'}依形成次序排开，先固定这一条事实。原件、口供和整理记录没有混作同一种材料，另一条命题仍须另行核验。` }] }
   return { ok: true, state: { ...state, phase: 'result', chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds }, currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: closed ? 'chapter2.case1-authority-review' : 'chapter2.case1-close-review' }, recentEvents: [{ id: `chapter2-case1-verify-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: [questionId] }, ...state.recentEvents].slice(0, 20), lastCommandError: null } }
 }
 
