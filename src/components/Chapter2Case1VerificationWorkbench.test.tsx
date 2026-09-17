@@ -23,9 +23,28 @@ describe('Chapter2Case1VerificationWorkbench', () => {
     render(<Chapter2Case1VerificationWorkbench materialIds={materials} onVerify={vi.fn()} />)
 
     expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.includes('本题须提交 4 项直接材料') === true)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /押役是否存在失职/ }))
+    fireEvent.click(screen.getByRole('radio', { name: /押役是否存在失职/ }))
     expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.includes('本题须提交 5 项直接材料') === true)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /是否发生未经批准的转移/ }))
+    fireEvent.click(screen.getByRole('radio', { name: /是否发生未经批准的转移/ }))
     expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.includes('本题须提交 6 项直接材料') === true)).toBeInTheDocument()
+  })
+
+  it('keeps each proposition selection when switching between questions', () => {
+    render(<Chapter2Case1VerificationWorkbench materialIds={materials} onVerify={vi.fn()} />)
+    fireEvent.click(screen.getByLabelText('未受强力破坏的锁扣'))
+    fireEvent.click(screen.getByRole('radio', { name: /押役是否存在失职/ }))
+    fireEvent.click(screen.getByLabelText('原押送差牌对照'))
+    fireEvent.click(screen.getByRole('radio', { name: /基础事实/ }))
+    expect(screen.getByLabelText('未受强力破坏的锁扣')).toBeChecked()
+    fireEvent.click(screen.getByRole('radio', { name: /押役是否存在失职/ }))
+    expect(screen.getByLabelText('原押送差牌对照')).toBeChecked()
+  })
+
+  it('groups materials by how they entered the case file', () => {
+    render(<Chapter2Case1VerificationWorkbench materialIds={materials} onVerify={vi.fn()} />)
+    expect(screen.getByRole('heading', { name: /现场与物证\s*4项/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /文书原件\s*2项/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /独立签押口供\s*4项/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /口供与证言对照\s*2项/ })).toBeInTheDocument()
   })
 })
