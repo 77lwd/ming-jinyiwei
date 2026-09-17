@@ -76,9 +76,9 @@ function completeChapter2CaseOne(state: GameState): GameState {
   state = confirmInquiryReview(state, ['tea-sequence:fact', 'tea-name:pending', 'tea-denial:conflict'])
   state = confirmInquiryReview(state, ['river-route:confirmed', 'river-identity:conflict', 'river-trace:evidence'])
   state = confirmMainlineChoice(state, 'c2-01-open-verification')
-  const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers']) as { ok: true; state: GameState }
+  const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'zhao-qi-signed-statement']) as { ok: true; state: GameState }
   state = (confirmResult(first.state) as { ok: true; state: GameState }).state
-  const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements']) as { ok: true; state: GameState }
+  const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement']) as { ok: true; state: GameState }
   state = (confirmResult(second.state) as { ok: true; state: GameState }).state
   return confirmMainlineChoice(state, 'preserve-guard-responsibility')
 }
@@ -228,28 +228,32 @@ describe('desktop-first game engine', () => {
     }
     for (const selected of [
       ['unforced-lock', 'cart-drag-trace', 'wet-transfer-stub'],
+      ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers'],
       allMaterials,
     ]) {
       const rejected = submitChapter2Case1Verification(state, 'self-escape', selected)
       expect(rejected.ok).toBe(true)
       if (rejected.ok) expect(rejected.state.chapter2Investigation.fixedFactIds).toEqual([])
     }
-    const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers'])
+    const first = submitChapter2Case1Verification(state, 'self-escape', ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'zhao-qi-signed-statement'])
     expect(first.ok).toBe(true)
     if (!first.ok) return
     expect(first.state.chapter2Investigation.fixedFactIds).toContain('self-escape')
+    expect(first.state.currentNarrative.paragraphs[0].text).toContain('赵七又承认亲手开锁交人')
+    expect(first.state.currentNarrative.paragraphs[0].text).toContain('翻车现场经过人为布置')
     expect(first.state.pendingResult?.nextNode).toBe('chapter2.case1-close-review')
     state = (confirmResult(first.state) as { ok: true; state: GameState }).state
-    const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements'])
+    const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement'])
     expect(second.ok).toBe(true)
     if (!second.ok) return
     expect(second.state.chapter2Investigation.fixedFactIds).toEqual(expect.arrayContaining(['self-escape', 'guard-duty']))
+    expect(second.state.currentNarrative.paragraphs[0].text).toContain('两名押役在看守与交接中均有失职')
     expect(second.state.pendingResult?.nextNode).toBe('chapter2.case1-authority-review')
 
     state = { ...state, chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds: [] } }
     const route = submitChapter2Case1Verification(state, 'illegal-transfer', [
-      'wet-transfer-stub', 'cart-drag-trace', 'chen-laojiang-signed-testimony',
-      'ashun-signed-testimony', 'river-route-testimony', 'original-escort-order',
+      'wet-transfer-stub', 'cart-drag-trace', 'zhao-qi-signed-statement',
+      'ashun-signed-testimony', 'original-escort-order',
     ])
     expect(route.ok).toBe(true)
     if (route.ok) expect(route.state.chapter2Investigation.fixedFactIds).toContain('illegal-transfer')

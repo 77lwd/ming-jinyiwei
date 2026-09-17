@@ -128,9 +128,9 @@ export const chapter2MaterialProvenance: Record<string, { kind: string; source: 
 }
 
 export const chapter2Case1VerificationSets: Record<string, readonly string[]> = {
-  'self-escape': ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers'],
-  'guard-duty': ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements'],
-  'illegal-transfer': ['wet-transfer-stub', 'cart-drag-trace', 'original-escort-order', 'chen-laojiang-signed-testimony', 'ashun-signed-testimony', 'river-route-testimony'],
+  'self-escape': ['unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'zhao-qi-signed-statement'],
+  'guard-duty': ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement'],
+  'illegal-transfer': ['wet-transfer-stub', 'cart-drag-trace', 'original-escort-order', 'zhao-qi-signed-statement', 'ashun-signed-testimony'],
 }
 
 export type Chapter2InquiryReview = {
@@ -213,9 +213,9 @@ export const chapter2Case1InvestigationActions: MainlineChoice[] = [
 ]
 
 export const chapter2Case1Questions = [
-  { id: 'self-escape', stageLabel: '基础事实 · 必须核验', shortLabel: '马骁是否自行破锁逃脱？', prompt: '只核对锁具、车辆移动与绳索使用留下的现场痕迹。', requiredCount: 4 },
-  { id: 'guard-duty', stageLabel: '结案侧重 · 与去向方向二选一', shortLabel: '押役是否存在失职？', prompt: '核对原押送命令、换押手续与两名押役各自所见。', requiredCount: 5 },
-  { id: 'illegal-transfer', stageLabel: '结案侧重 · 与责任方向二选一', shortLabel: '是否发生未经批准的转移？', prompt: '核对换押存根、车辆去向和河埠证人的目击。', requiredCount: 6 },
+  { id: 'self-escape', stageLabel: '基础事实 · 必须核验', shortLabel: '马骁是否自行脱逃，翻车现场是否经过人为伪造？', prompt: '核对锁具、开锁交人口供与停车后重新布置现场的痕迹。', requiredCount: 4 },
+  { id: 'guard-duty', stageLabel: '结案侧重 · 与去向方向二选一', shortLabel: '押役是否存在失职？', prompt: '核对原押送命令、残缺换押手续与两名押役各自承认的行为。', requiredCount: 4 },
+  { id: 'illegal-transfer', stageLabel: '结案侧重 · 与责任方向二选一', shortLabel: '是否发生未经批准的转移？', prompt: '核对换押权限、赵七交人口供、车辆去向与河埠目击。', requiredCount: 5 },
 ] as const
 
 export function createChapter2InvestigationState(): Chapter2InvestigationState {
@@ -370,7 +370,7 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
   },
   'chapter2.case1-close-review': {
     chapter: 'chapter2',
-    narrative: { title: '第一案 · 结案核验', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '十二项材料已经按取得和形成次序入卷。先固定马骁并非自行破锁，再从押役责任与河埠去向中选择一条保全更完整的证据链呈报；没有选作本次结案侧重的方向仍留待续查。' }] },
+    narrative: { title: '第一案 · 结案核验', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '十二项材料已经按取得和形成次序入卷。先核清马骁是否自行脱逃、翻车现场是否经过人为伪造，再从押役责任与河埠去向中选择一条保全更完整的证据链呈报；没有选作本次结案侧重的方向仍留待续查。' }] },
     choices: [
       { id: 'preserve-guard-responsibility', label: '先固定押役口供与失职责任', nextNode: 'chapter2.case1-closed', effects: noEffects, outcomeNarrative: { title: '两份不能互相照看的口供', tone: 'tense', paragraphs: [{ kind: 'prose', text: '两名押役被分开记录。收钱、未回拨核验、擅离车旁和隐瞒所见各自落到纸上；河埠方向却只剩模糊痕迹。' }, { kind: 'dialogue', text: '覃保坤道：“别因为他们胆小，就写成同谋；也别因为他们没想明白，就把责任抹掉。”' }] } },
       { id: 'follow-river-transfer', label: '先追河埠的篷车与交接路线', nextNode: 'chapter2.case1-closed', effects: noEffects, outcomeNarrative: { title: '雨水里留下的去向', tone: 'tense', paragraphs: [{ kind: 'prose', text: '船夫确认篷车在三更末离开，茶棚伙计听见车中有人敲过两下木板。你回到桥头时，两名押役的第二份口供已经变得过分一致。' }, { kind: 'dialogue', text: '覃保坤道：“你保住了车去哪儿，也让他们有时间把自己写得更干净。”' }] } },

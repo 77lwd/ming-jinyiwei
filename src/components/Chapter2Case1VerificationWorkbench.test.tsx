@@ -19,14 +19,21 @@ describe('Chapter2Case1VerificationWorkbench', () => {
     expect(screen.getByText(/周六与赵七两份原口供分别签押后/)).toBeInTheDocument()
   })
 
-  it('uses a different required material count for each proposition', () => {
+  it('shows the audited material count for each proposition', () => {
     render(<Chapter2Case1VerificationWorkbench materialIds={materials} onVerify={vi.fn()} />)
 
     expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.includes('本题须提交 4 项直接材料') === true)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('radio', { name: /押役是否存在失职/ }))
-    expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.includes('本题须提交 5 项直接材料') === true)).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.includes('本题须提交 4 项直接材料') === true)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('radio', { name: /是否发生未经批准的转移/ }))
-    expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.includes('本题须提交 6 项直接材料') === true)).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.includes('本题须提交 5 项直接材料') === true)).toBeInTheDocument()
+  })
+
+  it('frames the first proposition as escape and staged-scene verification', () => {
+    render(<Chapter2Case1VerificationWorkbench materialIds={materials} onVerify={vi.fn()} />)
+
+    expect(screen.getByRole('radio', { name: /马骁是否自行脱逃，翻车现场是否经过人为伪造/ })).toBeInTheDocument()
+    expect(screen.getByText(/核对锁具、开锁交人口供与停车后重新布置现场的痕迹/)).toBeInTheDocument()
   })
 
   it('keeps each proposition selection when switching between questions', () => {

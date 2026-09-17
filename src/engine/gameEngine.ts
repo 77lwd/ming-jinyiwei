@@ -705,7 +705,12 @@ export function submitChapter2Case1Verification(state: GameState, questionId: st
   }
   const fixedFactIds = [...new Set([...state.chapter2Investigation.fixedFactIds, questionId])]
   const closed = fixedFactIds.includes('self-escape') && (fixedFactIds.includes('guard-duty') || fixedFactIds.includes('illegal-transfer'))
-  const narrative: NarrativeBlock = { title: closed ? '两条事实已经固定' : '一条事实先落下', tone: 'quiet', paragraphs: [{ kind: 'prose', text: closed ? '现场勘验、原始文书、个人签押口供和对照记录已经各自归位。哪一句出自谁、哪一处由物证补上，都能从卷中倒查。你把案卷呈到覃保坤案前，请他落签封卷。' : `你把${questionId === 'self-escape' ? '锁扣、车辕、拖痕和断绳记录' : questionId === 'guard-duty' ? '原差牌、换押存根、两份个人口供和押役对照页' : '换押文书、车痕、两份河埠证言和对照页'}依形成次序排开，先固定这一条事实。原件、口供和整理记录没有混作同一种材料，另一条命题仍须另行核验。` }] }
+  const findingText = questionId === 'self-escape'
+    ? '锁扣没有遭到破坏，赵七又承认亲手开锁交人；车辕是在停车后折断，囚车也曾被拖离原位再摆回官道。马骁并非自行破锁脱逃，翻车现场经过人为布置。'
+    : questionId === 'guard-duty'
+      ? '原差牌不准中途换押，湿存根的交接栏又不完整；周六承认离开看守位置，赵七承认未经回署核验便开锁交人。两名押役在看守与交接中均有失职。'
+      : '原差牌没有换押授权，湿存根也缺少完整交接；赵七承认开锁交人，囚车拖痕与阿顺所见又把人车动向接到河埠。押送途中确实发生了未经批准的转移。'
+  const narrative: NarrativeBlock = { title: closed ? '两条事实已经固定' : '一条事实先落下', tone: 'quiet', paragraphs: [{ kind: 'prose', text: closed ? `${findingText}这条结论与已经固定的基础事实并列入卷，哪一句出自谁、哪一处由物证补上，都能从卷中倒查。你把案卷呈到覃保坤案前，请他落签封卷。` : `${findingText}另一条命题仍须另行核验。` }] }
   return { ok: true, state: { ...state, phase: 'result', chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds }, currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: closed ? 'chapter2.case1-authority-review' : 'chapter2.case1-close-review' }, recentEvents: [{ id: `chapter2-case1-verify-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: [questionId] }, ...state.recentEvents].slice(0, 20), lastCommandError: null } }
 }
 

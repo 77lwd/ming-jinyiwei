@@ -15,7 +15,7 @@ const branchLabels: Record<string, string> = {
 }
 
 const fixedFactLabels: Record<string, string> = {
-  'self-escape': '马骁并非自行破锁逃脱',
+  'self-escape': '马骁并非自行脱逃，翻车现场经过人为伪造',
   'guard-duty': '押役在押送与交接中存在失职',
   'illegal-transfer': '押送途中发生未经批准的转移',
 }
