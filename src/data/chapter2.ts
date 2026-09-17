@@ -151,9 +151,9 @@ export const chapter2InquiryReviews: Record<string, Chapter2InquiryReview> = {
     title: '整理周六口供', instruction: '把周六亲眼见到的、听来的推断和需要与物证核对的缺口分开。',
     categories: [{ id: 'fact', label: '写入亲见事实' }, { id: 'pending', label: '列入待核' }, { id: 'conflict', label: '标记冲突' }],
     statements: [
+      { id: 'zhou-gap', text: '周六先称行车中翻车，却没听见断木声；车辕断口也没有行车带泥。' },
       { id: 'zhou-stop', text: '柳沟来了两个人，赵七接过一张纸；周六离开后回来，锁扣挂着，车内无人。' },
       { id: 'zhou-guess', text: '来人拿的一定是有效换押文书，马骁必定由他们合法接走。' },
-      { id: 'zhou-gap', text: '周六先称行车中翻车，却没听见断木声；车辕断口也没有行车带泥。' },
     ],
     expected: ['zhou-stop:fact', 'zhou-guess:pending', 'zhou-gap:conflict'],
     successTitle: '周六口供复述签押', successText: '书记官按三栏誊清。周六听过一遍，在“未见马骁如何离车”一行旁按下手印。',
@@ -163,9 +163,9 @@ export const chapter2InquiryReviews: Record<string, Chapter2InquiryReview> = {
     title: '整理赵七口供', instruction: '只把赵七承认亲手做过的事写成事实；他的辩解与前后冲突另列。',
     categories: [{ id: 'fact', label: '写入亲历事实' }, { id: 'pending', label: '列入待核' }, { id: 'conflict', label: '标记冲突' }],
     statements: [
-      { id: 'zhao-open', text: '赵七签领钥匙、看牌、开锁，并在没有回署核验时让来人带走马骁。' },
       { id: 'zhao-claim', text: '来人所持牌子必定是真的，因此赵七没有责任。' },
       { id: 'zhao-denial', text: '赵七先称无人来过、马骁撞门逃走，后又承认自己开锁并重新挂锁。' },
+      { id: 'zhao-open', text: '赵七签领钥匙、看牌、开锁，并在没有回署核验时让来人带走马骁。' },
     ],
     expected: ['zhao-open:fact', 'zhao-claim:pending', 'zhao-denial:conflict'],
     successTitle: '赵七口供复述签押', successText: '赵七撤回“撞门逃走”的说法，把看牌、开锁和未回署核验逐项复述，在末页按下手印。',
@@ -175,9 +175,9 @@ export const chapter2InquiryReviews: Record<string, Chapter2InquiryReview> = {
     title: '对照两份押役口供', instruction: '找出两人能够互相印证的事实、真正冲突的说法，以及可以解决冲突的物证。',
     categories: [{ id: 'confirmed', label: '相互印证' }, { id: 'conflict', label: '口供冲突' }, { id: 'evidence', label: '物证解决' }],
     statements: [
+      { id: 'guard-lock', text: '锁扣没有撞痕，原差牌也没有中途换押授权。' },
       { id: 'guard-stop', text: '囚车在柳沟停下，来人接近囚车，周六曾离开看守位置。' },
       { id: 'guard-order', text: '是谁让周六离岗、钥匙当时由谁保管，两人的说法不能互相照看。' },
-      { id: 'guard-lock', text: '锁扣没有撞痕，原差牌也没有中途换押授权。' },
     ],
     expected: ['guard-stop:confirmed', 'guard-order:conflict', 'guard-lock:evidence'],
     successTitle: '押役口供对照入卷', successText: '相同处、冲突处和物证能够固定的部分分栏抄清，两份原口供仍各自封存。',
@@ -186,19 +186,19 @@ export const chapter2InquiryReviews: Record<string, Chapter2InquiryReview> = {
   'chapter2.case1-inquiry.river-boat.review': {
     title: '整理陈老桨证言', instruction: '船夫能固定水路与时辰，但不能替案卷认定被带者身份。',
     categories: [{ id: 'fact', label: '写入亲见事实' }, { id: 'pending', label: '列入待核' }, { id: 'conflict', label: '标记冲突' }],
-    statements: [{ id: 'boat-route', text: '三更第三梆后，一人被两人架上船；船靠东岸芦苇地，篷车随后南去。' }, { id: 'boat-name', text: '被架上船的人就是马骁。' }, { id: 'boat-count', text: '船夫起初说“两个病人”，细问后承认只有一名被架扶者。' }],
+    statements: [{ id: 'boat-name', text: '被架上船的人就是马骁。' }, { id: 'boat-route', text: '三更第三梆后，一人被两人架上船；船靠东岸芦苇地，篷车随后南去。' }, { id: 'boat-count', text: '船夫起初说“两个病人”，细问后承认只有一名被架扶者。' }],
     expected: ['boat-route:fact', 'boat-name:pending', 'boat-count:conflict'], successTitle: '陈老桨证言复述签押', successText: '陈老桨沿着水路重新说过一遍，在“未看清被带者面貌”后按下指印。', nextNode: 'chapter2.case1-inquiry.river-boat.signed', completionId: 'c2-01-river-boat-statement', materialId: 'chen-laojiang-signed-testimony',
   },
   'chapter2.case1-inquiry.river-tea.review': {
     title: '整理阿顺证言', instruction: '把门缝里的亲见、隔河辨认不清的部分和前后改口分开。',
     categories: [{ id: 'fact', label: '写入亲见亲听' }, { id: 'pending', label: '列入待核' }, { id: 'conflict', label: '标记冲突' }],
-    statements: [{ id: 'tea-sequence', text: '官车先到、篷车后到；车内有两下撞板声，有人被抬往河边。' }, { id: 'tea-name', text: '阿顺看清了被抬者就是马骁。' }, { id: 'tea-denial', text: '阿顺先说没有出去看，后来承认曾从门缝观察车外。' }],
+    statements: [{ id: 'tea-denial', text: '阿顺先说没有出去看，后来承认曾从门缝观察车外。' }, { id: 'tea-name', text: '阿顺看清了被抬者就是马骁。' }, { id: 'tea-sequence', text: '官车先到、篷车后到；车内有两下撞板声，有人被抬往河边。' }],
     expected: ['tea-sequence:fact', 'tea-name:pending', 'tea-denial:conflict'], successTitle: '阿顺证言复述签押', successText: '阿顺把官车到埠、渡船离岸和篷车南去的次序复述一遍，在末页按下指印。', nextNode: 'chapter2.case1-inquiry.river.compare', completionId: 'c2-01-river-tea-statement', materialId: 'ashun-signed-testimony',
   },
   'chapter2.case1-inquiry.river.compare': {
     title: '对照两份河埠证言', instruction: '两人只能共同固定路线，不能共同确认被带者身份。',
     categories: [{ id: 'confirmed', label: '相互印证' }, { id: 'conflict', label: '保留边界' }, { id: 'evidence', label: '物证衔接' }],
-    statements: [{ id: 'river-route', text: '三更后有人从茶棚附近被带往渡船，东岸有篷车接应并向南离开。' }, { id: 'river-identity', text: '两人都没有看清被带者面貌，不能据此写成已经认出马骁。' }, { id: 'river-trace', text: '桥坡拖痕和错开的轮辙把囚车与河埠方向接在一起。' }],
+    statements: [{ id: 'river-identity', text: '两人都没有看清被带者面貌，不能据此写成已经认出马骁。' }, { id: 'river-trace', text: '桥坡拖痕和错开的轮辙把囚车与河埠方向接在一起。' }, { id: 'river-route', text: '三更后有人从茶棚附近被带往渡船，东岸有篷车接应并向南离开。' }],
     expected: ['river-route:confirmed', 'river-identity:conflict', 'river-trace:evidence'], successTitle: '河埠证言对照入卷', successText: '水路、时辰和篷车去向由两份独立证言互相印证；身份仍列待查。', nextNode: 'chapter2.case1-inquiry-select', materialId: 'river-route-testimony',
   },
 }
