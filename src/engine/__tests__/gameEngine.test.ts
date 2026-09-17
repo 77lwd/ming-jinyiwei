@@ -250,6 +250,14 @@ describe('desktop-first game engine', () => {
     expect(second.state.currentNarrative.paragraphs[0].text).toContain('两名押役在看守与交接中均有失职')
     expect(second.state.pendingResult?.nextNode).toBe('chapter2.case1-authority-review')
 
+    const authorityReview = (confirmResult(second.state) as { ok: true; state: GameState }).state
+    const closure = chooseMainline(authorityReview, 'preserve-guard-responsibility')
+    expect(closure.ok).toBe(true)
+    if (!closure.ok) return
+    expect(closure.state.currentNarrative.paragraphs.map((paragraph) => paragraph.text).join(' ')).toContain('马骁并非自行脱逃')
+    expect(closure.state.currentNarrative.paragraphs.map((paragraph) => paragraph.text).join(' ')).toContain('周六与赵七的失职责任分别入卷')
+    expect(closure.state.currentNarrative.paragraphs.map((paragraph) => paragraph.text).join(' ')).toContain('马骁去向仍列待查')
+
     state = { ...state, chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds: [] } }
     const route = submitChapter2Case1Verification(state, 'illegal-transfer', [
       'wet-transfer-stub', 'cart-drag-trace', 'zhao-qi-signed-statement',

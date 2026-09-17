@@ -29,6 +29,22 @@ describe('ResultPanel', () => {
     expect(screen.getByRole('button', { name: /进入证物归档/ })).toBeInTheDocument()
   })
 
+  it('presents chapter two case one closure with an explicit finding and unresolved boundary', () => {
+    render(<ResultPanel
+      chapter="chapter2"
+      node="chapter2.case1-authority-review"
+      narrative={{ title: '覃保坤落签封卷', paragraphs: [{ kind: 'prose', text: '第一案正式封卷。' }] }}
+      event={{ id: 'chapter2-closure', chapter: 'chapter2', title: '覃保坤落签封卷', summary: '第一案正式封卷。', effects: [] }}
+      onConfirm={vi.fn()}
+    />)
+
+    expect(screen.getByText('案件封结回执')).toBeInTheDocument()
+    expect(screen.getByText('雨夜失押 · 已正式封结')).toBeInTheDocument()
+    expect(screen.getByText(/马骁并非自行脱逃/)).toBeInTheDocument()
+    expect(screen.getByText(/马骁去向仍列待查/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /进入案后交接/ })).toBeInTheDocument()
+  })
+
   it('uses a casework action for a verification result instead of a generic continue label', () => {
     render(<ResultPanel
       node="chapter1.day2-verify"

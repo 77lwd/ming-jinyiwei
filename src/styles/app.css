@@ -874,6 +874,12 @@
   .closure-seal::after { content: ''; position: absolute; inset: 5px; border: 1px solid rgba(133, 56, 47, .72); }
   .closure-stamp > strong { color: #79362d; }
   .closure-stamp p, .closure-stamp ul { color: #554a41; }
+  .chapter2-closure-stamp { min-height: 230px; }
+  .closure-findings { list-style: none; padding-left: 0; }
+  .closure-findings li { display: grid; grid-template-columns: 5.25rem minmax(0, 1fr); gap: .8rem; padding: .55rem 0; border-top: 1px solid rgba(121, 54, 45, .22); }
+  .closure-findings li:first-child { border-top: 0; }
+  .closure-findings b { color: #79362d; font-size: .78rem; }
+  .closure-findings span { line-height: 1.65; }
   .relationship-update { color: #433d34; background: rgba(154, 120, 55, .09); border-block-color: rgba(130, 91, 43, .56); }
   .relationship-update strong { color: #6f4b26; }
   .relationship-update span, .relationship-update small { color: #5b554b; }

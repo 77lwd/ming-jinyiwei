@@ -522,7 +522,23 @@ export function getMainlineChoices(state: GameState): MainlineChoice[] {
       label: guardDuty ? '呈请追究押役失职，另案追查马骁去向' : '呈请确认违规转移，沿河埠路线继续追查',
       nextNode: 'chapter2.case1-closed',
       effects: [],
-      outcomeNarrative: { title: '覃保坤落签封卷', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '覃保坤逐页看过现场记录、文书对照和四份口供，在处置页落下签押。已经查清的事实与仍待追查的人犯去向分栏记录，第一案正式封卷。' }] },
+      outcomeNarrative: guardDuty ? {
+        title: '覃保坤落签封卷',
+        tone: 'quiet',
+        paragraphs: [
+          { kind: 'prose', text: '覃保坤逐页看过锁扣、车辕和拖痕记录，又把赵七承认开锁交人的口供压在原差牌旁。马骁并非自行脱逃，桥头的翻车现场是事后摆出来的；这两句写进结案页，不再留作猜测。' },
+          { kind: 'prose', text: '周六与赵七的失职责任分别入卷：一个擅离看守位置并隐瞒所见，一个未经回署核验便开锁交人。湿存根随卷封存，凭照上的空白领取人与空白终点另抄一页。' },
+          { kind: 'dialogue', text: '覃保坤落下签押：“失押责任到这里结。马骁去向仍列待查，谁安排转移，也别替空栏填名字。”' },
+        ],
+      } : {
+        title: '覃保坤落签封卷',
+        tone: 'quiet',
+        paragraphs: [
+          { kind: 'prose', text: '覃保坤逐页看过锁扣、车辕和拖痕记录，又把赵七承认开锁交人的口供压在原差牌旁。马骁并非自行脱逃，桥头的翻车现场是事后摆出来的；这两句写进结案页，不再留作猜测。' },
+          { kind: 'prose', text: '未经批准的转移已经坐实。湿存根、河埠目击和城南篷车去向一并封存；两名押役尚未完全拆开的责任另列待核，不借路线材料替他们定罪。' },
+          { kind: 'dialogue', text: '覃保坤落下签押：“违规交接到这里结。马骁去向仍列待查，谁安排转移，也别替空栏填名字。”' },
+        ],
+      },
     }]
   }
   if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review') {
