@@ -73,6 +73,7 @@ const mainlineSteps: Record<string, MainlineStep> = {
 
 const chapter2Case1ChoiceImages: Record<string, { src: string; alt: string }> = {
   'c2-01-lock': { src: '/assets/chapter2/case1/cage-lock-detail.png', alt: '囚车锁扣近景' },
+  'c2-01-inspect-lock': { src: '/assets/chapter2/case1/cage-lock-detail.png', alt: '囚车锁扣近景' },
   'c2-01-stub': { src: '/assets/chapter2/case1/wet-transfer-stub.png', alt: '湿透的换押存根' },
   'c2-01-inspect-shaft': { src: '/assets/chapter2/case1/shaft-break.png', alt: '囚车车辕断口' },
   'c2-01-trace-drag-marks': { src: '/assets/chapter2/case1/cart-drag-trace.png', alt: '车底拖痕' },
