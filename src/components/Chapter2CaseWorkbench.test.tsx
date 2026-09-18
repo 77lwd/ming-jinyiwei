@@ -1,8 +1,17 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { Chapter2CaseRecord } from './Chapter2CaseWorkbench'
+import { Chapter2CaseContext, Chapter2CaseRecord } from './Chapter2CaseWorkbench'
 
 describe('Chapter2CaseRecord', () => {
+  it('changes the case context after the first case is sealed', () => {
+    render(<Chapter2CaseContext node="chapter2.case1-closed" />)
+
+    expect(screen.getByText('第一案已经封卷，带着封存凭照转入下一桩差事。')).toBeInTheDocument()
+    expect(screen.getByText('失押责任已经入卷。')).toBeInTheDocument()
+    expect(screen.getByText('马骁的去向另列续查。')).toBeInTheDocument()
+    expect(screen.queryByText(/先完成三条调查线/)).not.toBeInTheDocument()
+  })
+
   it('shows only the current first-case record without future-case or register spoilers', () => {
     render(<Chapter2CaseRecord node="chapter2.rain-night-transfer" investigation={{
       activeCaseId: 'rain-night-transfer',

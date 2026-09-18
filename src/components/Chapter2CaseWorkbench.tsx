@@ -28,8 +28,26 @@ export function Chapter2CaseProgress({ node, investigation }: { node: string; in
 export function Chapter2CaseContext({ node }: { node: string }) {
   const step = chapter2MainlineSteps[node]
   if (!step) return null
-  const task = node.includes('rain-night') || node.includes('case1-') ? '先完成三条调查线，再将四名相关人分开问完、各自签押。' : node.includes('empty-dowry') ? '把卢小绫的自愿躲藏、胁迫取契与凭照冒用分开核清。' : node.includes('watch-drum') ? '拆开殴打、致伤与改簿的先后，不用一个结果覆盖全部责任。' : node === 'chapter2.register-review' ? '只从三案材料中挑出能够证明凭照流转的原件。' : '把已结案件的材料留在可复核的次序里。'
-  return <section className="case-context" aria-label="当前办案信息"><div className="case-task"><span>当前差事</span><strong>{task}</strong></div><div className="case-facts"><span>已确认</span><ul><li><Check size={15} />三案均须区分事实、推断与待查去向。</li><li><Check size={15} />凭照编号、交接和核销记录是本章共同线索。</li></ul></div><div className="authority-note"><ShieldCheck size={18} /><div><span>校尉权限</span><p>你可查访、勘验、分开记录；封存总簿、调取原件与正式处置须凭覃保坤授权。</p></div></div></section>
+  const isCaseOneClosed = node === 'chapter2.case1-closed'
+  const isAuthorityReview = node === 'chapter2.case1-authority-review'
+  const task = isCaseOneClosed
+    ? '第一案已经封卷，带着封存凭照转入下一桩差事。'
+    : isAuthorityReview
+      ? '把已经核清的责任和处置建议呈到覃保坤案前。'
+      : node.includes('rain-night') || node.includes('case1-')
+        ? '先完成三条调查线，再将四名相关人分开问完、各自签押。'
+        : node.includes('empty-dowry') ? '把卢小绫的自愿躲藏、胁迫取契与凭照冒用分开核清。' : node.includes('watch-drum') ? '拆开殴打、致伤与改簿的先后，不用一个结果覆盖全部责任。' : node === 'chapter2.register-review' ? '只从三案材料中挑出能够证明凭照流转的原件。' : '把已结案件的材料留在可复核的次序里。'
+  const facts = isCaseOneClosed
+    ? ['失押责任已经入卷。', '马骁的去向另列续查。']
+    : isAuthorityReview
+      ? ['锁扣、车辕和拖痕已排除自行脱逃的说法。', '押送中的违规交接与押役责任已分别记下。']
+      : ['三案均须区分事实、推断与待查去向。', '凭照编号、交接和核销记录是本章共同线索。']
+  const authority = isCaseOneClosed
+    ? '本案批示已经落下；下一案的查访另起案卷。'
+    : isAuthorityReview
+      ? '你可以呈报事实和建议；封卷、追缉与后续处置须由覃保坤落签。'
+      : '你可查访、勘验、分开记录；封存总簿、调取原件与正式处置须凭覃保坤授权。'
+  return <section className="case-context" aria-label="当前办案信息"><div className="case-task"><span>当前差事</span><strong>{task}</strong></div><div className="case-facts"><span>{isCaseOneClosed ? '案卷落款' : '已确认'}</span><ul>{facts.map((fact) => <li key={fact}><Check size={15} aria-hidden="true" />{fact}</li>)}</ul></div><div className="authority-note"><ShieldCheck size={18} aria-hidden="true" /><div><span>{isCaseOneClosed ? '案后手续' : '校尉权限'}</span><p>{authority}</p></div></div></section>
 }
 
 export function Chapter2InvestigationChoices({ node, choices, onChoose }: { node: string; choices: Array<{ id: string; label: string }>; onChoose: (id: string) => void }) {

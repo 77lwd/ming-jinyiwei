@@ -385,7 +385,7 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
   'chapter2.case1-closed': {
     chapter: 'chapter2',
     nextNode: 'chapter2.empty-dowry-house',
-    narrative: { title: '第一案封卷 · 真凭照，假交接', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '马骁仍未找到，但违规换押已经坐实。湿存根编号、蜡记和纸种都真，领取人却只留模糊别号，最终地点空白，回收栏也没有剪角。' }, { kind: 'dialogue', text: '覃保坤将凭照套进证物袋：“查清的责任先落下。没找到的人和没查明的去向，另列待查。”' }] },
+    narrative: { title: '第一案封卷 · 交接无据', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '马骁还没有找到。湿存根的编号、蜡记和纸种都对得上，唯独领取人的名号模糊，交接地点空着，回收栏也没有剪角。押送途中有人开锁交人，这一笔先按失押责任记下。' }, { kind: 'dialogue', text: '覃保坤把凭照套进证物袋：“责任先落卷。人往哪里去了，另起一笔查。”' }] },
   },
   'chapter2.empty-dowry-house': {
     chapter: 'chapter2',
