@@ -64,4 +64,16 @@ describe('Chapter2InquiryDialogue', () => {
     expect(screen.getByText('周六问话已完')).toBeInTheDocument()
     expect(screen.getByText(/整理正确后才可复述签押/)).toBeInTheDocument()
   })
+
+  it('uses the current witness question after a handoff instead of the prior action label', () => {
+    render(<Chapter2InquiryDialogue
+      node="chapter2.case1-inquiry.river-tea.1"
+      question="封存船夫证言，单独询问阿顺"
+      narrative={{ title: '茶棚伙计进屋', paragraphs: [{ kind: 'dialogue', text: '我只听见车响，没出去看。' }] }}
+      onConfirm={() => undefined}
+    />)
+
+    expect(screen.getByText('你先说自己亲耳听见、亲眼看见的。官车到棚外以后，发生了什么？')).toBeInTheDocument()
+    expect(screen.queryByText('封存船夫证言，单独询问阿顺')).not.toBeInTheDocument()
+  })
 })
