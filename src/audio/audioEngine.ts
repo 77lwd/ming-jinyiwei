@@ -1,6 +1,7 @@
 export const AUDIO_SETTINGS_KEY = 'ming_jinyiwei.audio.v1'
 export const MUSIC_TRACK_URL = '/assets/audio/moonlit-night.mp3'
 export const INQUIRY_MUSIC_TRACK_URL = '/assets/audio/mystery-desert-night.mp3'
+export const CHAPTER2_INVESTIGATION_MUSIC_TRACK_URL = '/assets/audio/chapter2-investigation-dark-frame.mp3'
 
 export const DEFAULT_AUDIO_SETTINGS = {
   musicVolume: 0.35,
