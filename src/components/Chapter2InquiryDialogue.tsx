@@ -17,9 +17,7 @@ const portraitBySpeaker: Record<string, string> = {
 }
 
 const openingQuestionByNode: Record<string, string> = {
-  'chapter2.case1-inquiry.guard-a.1': '从出署到柳沟，先说你亲眼见到的。钥匙、停车和车辕断裂分别是什么时候发生的？',
   'chapter2.case1-inquiry.guard-b.1': '从出署到河桥，按先后说一遍。路上有没有停过，谁一直在看着囚车？',
-  'chapter2.case1-inquiry.river-boat.1': '那夜三更前后，你为什么重新撑船？上船的是什么人？',
   'chapter2.case1-inquiry.river-tea.1': '你先说自己亲耳听见、亲眼看见的。官车到棚外以后，发生了什么？',
 }
 
