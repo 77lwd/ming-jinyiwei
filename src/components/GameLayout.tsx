@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { audioEngine, INQUIRY_MUSIC_TRACK_URL, MUSIC_TRACK_URL } from '../audio/audioEngine'
 import { BookOpen, ChevronRight, FileText, HeartHandshake, RotateCcw, X } from 'lucide-react'
 import { getMainlineChoices } from '../engine/gameEngine'
 import { useGameStore } from '../store/gameStore'
@@ -22,6 +23,10 @@ import { StatusRail } from './StatusRail'
 
 export function GameLayout() {
   const state = useGameStore()
+  useEffect(() => {
+    const inquiryMusic = state.chapter === 'chapter2' && state.mainlineNode.includes('case1-inquiry') || state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review'
+    audioEngine.setMusicTrack(inquiryMusic ? INQUIRY_MUSIC_TRACK_URL : MUSIC_TRACK_URL)
+  }, [state.chapter, state.mainlineNode])
   const [drawer, setDrawer] = useState<'dossier' | 'record' | 'network' | null>(null)
   const [networkInitialSelection, setNetworkInitialSelection] = useState<NetworkId | undefined>()
   const closeDrawerRef = useRef<HTMLButtonElement>(null)

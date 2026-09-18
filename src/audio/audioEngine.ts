@@ -1,5 +1,6 @@
 export const AUDIO_SETTINGS_KEY = 'ming_jinyiwei.audio.v1'
 export const MUSIC_TRACK_URL = '/assets/audio/moonlit-night.mp3'
+export const INQUIRY_MUSIC_TRACK_URL = '/assets/audio/mystery-desert-night.mp3'
 
 export const DEFAULT_AUDIO_SETTINGS = {
   musicVolume: 0.35,
@@ -66,6 +67,7 @@ export class AudioEngine {
   private settings: AudioSettings = loadAudioSettings()
   private context: AudioContext | null = null
   private music: HTMLAudioElement | null = null
+  private musicTrackUrl = MUSIC_TRACK_URL
   private listeners = new Set<() => void>()
 
   getSettings(): AudioSettings {
@@ -95,6 +97,15 @@ export class AudioEngine {
     if (!this.settings.musicMuted && this.settings.musicVolume > 0) this.playMusic()
   }
 
+  setMusicTrack(url: string): void {
+    if (url === this.musicTrackUrl) return
+    const wasPlaying = Boolean(this.music && !this.music.paused)
+    this.music?.pause()
+    this.music = null
+    this.musicTrackUrl = url
+    if (wasPlaying && !this.settings.musicMuted && this.settings.musicVolume > 0) this.playMusic()
+  }
+
   playSfx(kind: SfxKind): void {
     if (this.settings.sfxMuted || this.settings.sfxVolume <= 0) return
     const context = this.ensureContext()
@@ -120,7 +131,7 @@ export class AudioEngine {
     if (this.music) return this.music
     if (typeof Audio === 'undefined') return null
     try {
-      this.music = new Audio(MUSIC_TRACK_URL)
+      this.music = new Audio(this.musicTrackUrl)
       this.music.loop = true
       this.music.preload = 'auto'
       this.music.volume = this.settings.musicVolume
@@ -168,6 +179,7 @@ export class AudioEngine {
   private stopMusic(): void {
     this.music?.pause()
     this.music = null
+    this.musicTrackUrl = MUSIC_TRACK_URL
   }
 
   private playTone(context: AudioContext, frequency: number, offset: number, duration: number): void {
