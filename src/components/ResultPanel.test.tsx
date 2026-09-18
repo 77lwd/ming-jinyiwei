@@ -56,6 +56,20 @@ describe('ResultPanel', () => {
     expect(screen.getByRole('button', { name: /将核验结果写入案卷/ })).toBeInTheDocument()
   })
 
+  it('renders chapter two verification findings in player-facing language', () => {
+    render(<ResultPanel
+      chapter="chapter2"
+      node="chapter2.case1-close-review"
+      narrative={{ title: '锁扣上的说法站不住', paragraphs: [{ kind: 'prose', text: '现场已经重新记档。' }] }}
+      event={{ id: 'chapter2-verify', chapter: 'chapter2', title: '锁扣上的说法站不住', summary: '现场已经重新记档。', effects: ['马骁并非自行脱逃', '翻车现场存在人为布置'] }}
+      onConfirm={vi.fn()}
+    />)
+
+    expect(screen.getByText('马骁并非自行脱逃')).toBeInTheDocument()
+    expect(screen.getByText('翻车现场存在人为布置')).toBeInTheDocument()
+    expect(screen.queryByText('self-escape')).not.toBeInTheDocument()
+  })
+
   it('gives the night-preservation result its own approval and receipt language', () => {
     render(<ResultPanel
       node="chapter1.night-preservation"

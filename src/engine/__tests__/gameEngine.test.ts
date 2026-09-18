@@ -241,6 +241,9 @@ describe('desktop-first game engine', () => {
     expect(first.state.chapter2Investigation.fixedFactIds).toContain('self-escape')
     expect(first.state.currentNarrative.paragraphs[0].text).toContain('赵七又承认亲手开锁交人')
     expect(first.state.currentNarrative.paragraphs[0].text).toContain('翻车现场经过人为布置')
+    expect(first.state.currentNarrative.title).toBe('锁扣上的说法站不住')
+    expect(first.state.recentEvents[0].effects).toEqual(['马骁并非自行脱逃', '翻车现场存在人为布置'])
+    expect(first.state.recentEvents[0].effects).not.toContain('self-escape')
     expect(first.state.pendingResult?.nextNode).toBe('chapter2.case1-close-review')
     state = (confirmResult(first.state) as { ok: true; state: GameState }).state
     const second = submitChapter2Case1Verification(state, 'guard-duty', ['original-escort-order', 'wet-transfer-stub', 'zhou-liu-signed-statement', 'zhao-qi-signed-statement'])
@@ -248,6 +251,9 @@ describe('desktop-first game engine', () => {
     if (!second.ok) return
     expect(second.state.chapter2Investigation.fixedFactIds).toEqual(expect.arrayContaining(['self-escape', 'guard-duty']))
     expect(second.state.currentNarrative.paragraphs[0].text).toContain('两名押役在看守与交接中均有失职')
+    expect(second.state.currentNarrative.title).toBe('两名押役各有一笔')
+    expect(second.state.recentEvents[0].effects).toEqual(['周六与赵七的失职责任分别入卷'])
+    expect(second.state.recentEvents[0].effects).not.toContain('guard-duty')
     expect(second.state.pendingResult?.nextNode).toBe('chapter2.case1-authority-review')
 
     const authorityReview = (confirmResult(second.state) as { ok: true; state: GameState }).state

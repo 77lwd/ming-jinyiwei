@@ -721,13 +721,31 @@ export function submitChapter2Case1Verification(state: GameState, questionId: st
   }
   const fixedFactIds = [...new Set([...state.chapter2Investigation.fixedFactIds, questionId])]
   const closed = fixedFactIds.includes('self-escape') && (fixedFactIds.includes('guard-duty') || fixedFactIds.includes('illegal-transfer'))
-  const findingText = questionId === 'self-escape'
-    ? '锁扣没有遭到破坏，赵七又承认亲手开锁交人；车辕是在停车后折断，囚车也曾被拖离原位再摆回官道。马骁并非自行破锁脱逃，翻车现场经过人为布置。'
+  const finding = questionId === 'self-escape'
+    ? {
+      title: '锁扣上的说法站不住',
+      text: '锁扣没有遭到破坏，赵七又承认亲手开锁交人；车辕是在停车后折断，囚车也曾被拖离原位再摆回官道。马骁并非自行破锁脱逃，翻车现场经过人为布置。你把“撞门逃走”从案卷里划掉，改记为“有人开锁，并动过车”。',
+      effects: ['马骁并非自行脱逃', '翻车现场存在人为布置'],
+      openEnding: '押送责任还要把两名押役的口供分开核。',
+    }
     : questionId === 'guard-duty'
-      ? '原差牌不准中途换押，湿存根的交接栏又不完整；周六承认离开看守位置，赵七承认未经回署核验便开锁交人。两名押役在看守与交接中均有失职。'
-      : '原差牌没有换押授权，湿存根也缺少完整交接；赵七承认开锁交人，囚车拖痕与阿顺所见又把人车动向接到河埠。押送途中确实发生了未经批准的转移。'
-  const narrative: NarrativeBlock = { title: closed ? '两条事实已经固定' : '一条事实先落下', tone: 'quiet', paragraphs: [{ kind: 'prose', text: closed ? `${findingText}这条结论与已经固定的基础事实并列入卷，哪一句出自谁、哪一处由物证补上，都能从卷中倒查。你把案卷呈到覃保坤案前，请他落签封卷。` : `${findingText}另一条命题仍须另行核验。` }] }
-  return { ok: true, state: { ...state, phase: 'result', chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds }, currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: closed ? 'chapter2.case1-authority-review' : 'chapter2.case1-close-review' }, recentEvents: [{ id: `chapter2-case1-verify-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: [questionId] }, ...state.recentEvents].slice(0, 20), lastCommandError: null } }
+      ? {
+        title: '两名押役各有一笔',
+        text: '原差牌不准中途换押，湿存根的交接栏又不完整；周六承认离开看守位置，赵七承认未经回署核验便开锁交人。两名押役在看守与交接中均有失职。你让书记官把两份口供分别夹回差牌后，不把两个人写成同一笔。',
+        effects: ['周六与赵七的失职责任分别入卷'],
+        openEnding: '河埠那边的交接是否另有安排，还要再看去向一线。',
+      }
+      : {
+        title: '河埠的交接不能算数',
+        text: '原差牌没有换押授权，湿存根也缺少完整交接；赵七承认开锁交人，囚车拖痕与阿顺所见又把人车动向接到河埠。押送途中确实发生了未经批准的转移。你把河埠留下的痕迹另纸封好，暂不替它补出一个尚未查明的幕后人。',
+        effects: ['押送途中发生未经批准的转移'],
+        openEnding: '押役责任仍按各自口供另列待核。',
+      }
+  const text = closed
+    ? `${finding.text}两份口供、差牌和现场记录已经能互相对上。你把它们按顺序夹进案卷，呈到覃保坤案前，请他落签封卷。`
+    : `${finding.text}${finding.openEnding}`
+  const narrative: NarrativeBlock = { title: finding.title, tone: 'quiet', paragraphs: [{ kind: 'prose', text }] }
+  return { ok: true, state: { ...state, phase: 'result', chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds }, currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: closed ? 'chapter2.case1-authority-review' : 'chapter2.case1-close-review' }, recentEvents: [{ id: `chapter2-case1-verify-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: finding.effects }, ...state.recentEvents].slice(0, 20), lastCommandError: null } }
 }
 
 function withFailure(state: GameState, reason: NonNullable<GameState['lastCommandError']>): CommandResult {
