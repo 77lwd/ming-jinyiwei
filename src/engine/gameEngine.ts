@@ -28,6 +28,7 @@ export type DeveloperCheckpointId =
   | 'chapter2-case1-investigation'
   | 'chapter2-case1-inquiry'
   | 'chapter2-case1-verification'
+  | 'chapter2-case1-end'
 
 interface MainlineStep {
   chapter: GameState['chapter']
@@ -393,6 +394,23 @@ export function createDeveloperCheckpointState(checkpoint: DeveloperCheckpointId
     'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements',
     'chen-laojiang-signed-testimony', 'ashun-signed-testimony', 'river-route-testimony',
   ]
+  if (checkpoint === 'chapter2-case1-end') {
+    return enterMainlineNode({
+      ...base,
+      chapter2Investigation: {
+        ...investigation,
+        completedActionIds: [...investigationActions, ...testimonyActions],
+        caseMaterialIds: allMaterials,
+        materialIds: allMaterials,
+        fixedFactIds: ['self-escape', 'guard-duty'],
+      },
+      recentEvents: [
+        { id: 'chapter2-case1-verify-guard-duty', chapter: 'chapter2', title: '两名押役各有一笔', summary: '周六与赵七的失职责任分别入卷。', effects: ['周六与赵七的失职责任分别入卷'] },
+        { id: 'chapter2-case1-verify-self-escape', chapter: 'chapter2', title: '锁扣上的说法站不住', summary: '马骁并非自行脱逃，翻车现场存在人为布置。', effects: ['马骁并非自行脱逃', '翻车现场存在人为布置'] },
+        ...base.recentEvents,
+      ],
+    }, 'chapter2.case1-authority-review')
+  }
   return enterMainlineNode({
     ...base,
     chapter2Investigation: {

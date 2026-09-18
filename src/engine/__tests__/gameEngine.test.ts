@@ -288,6 +288,15 @@ describe('desktop-first game engine', () => {
     if (advanced.ok) expect('freeActionWindowIndex' in advanced.state).toBe(false)
   })
 
+  it('creates a first-case-end checkpoint at the authority review', () => {
+    const state = createDeveloperCheckpointState('chapter2-case1-end')
+
+    expect(state.mainlineNode).toBe('chapter2.case1-authority-review')
+    expect(state.phase).toBe('mainline')
+    expect(state.chapter2Investigation.fixedFactIds).toEqual(expect.arrayContaining(['self-escape', 'guard-duty']))
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['preserve-guard-responsibility'])
+  })
+
   it('records exactly one evidence emphasis for each chapter-two case', () => {
     let state: GameState = {
       ...createInitialState(),
