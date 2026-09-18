@@ -71,6 +71,19 @@ const mainlineSteps: Record<string, MainlineStep> = {
   'chapter5.investigation': { chapter: 'chapter5', title: '第五章 · 最终核验', text: '第五章的固定终局将在完整主线数据接入后呈现。', completesGame: true },
 }
 
+const chapter2Case1ChoiceImages: Record<string, { src: string; alt: string }> = {
+  'c2-01-lock': { src: '/assets/chapter2/case1/cage-lock-detail.png', alt: '囚车锁扣近景' },
+  'c2-01-stub': { src: '/assets/chapter2/case1/wet-transfer-stub.png', alt: '湿透的换押存根' },
+  'c2-01-inspect-shaft': { src: '/assets/chapter2/case1/shaft-break.png', alt: '囚车车辕断口' },
+  'c2-01-trace-drag-marks': { src: '/assets/chapter2/case1/cart-drag-trace.png', alt: '车底拖痕' },
+  'c2-01-examine-rope-fibers': { src: '/assets/chapter2/case1/empty-hook-rope-fibers.png', alt: '空车钩与残留麻纤维' },
+  'c2-01-preserve-wet-stub': { src: '/assets/chapter2/case1/wet-transfer-stub.png', alt: '湿透的换押存根' },
+  'c2-01-compare-escort-order': { src: '/assets/chapter2/case1/original-escort-token.png', alt: '原押送差牌' },
+  'c2-01-open-verification': { src: '/assets/chapter2/case1/case1-evidence-table.png', alt: '第一案证物同桌摆放' },
+  'preserve-guard-responsibility': { src: '/assets/chapter2/case1/qian-sealing-receipt.png', alt: '覃保坤封存凭照' },
+  'follow-river-transfer': { src: '/assets/chapter2/case1/qian-sealing-receipt.png', alt: '覃保坤封存凭照' },
+}
+
 function enterMainlineNode(state: GameState, nodeId: string): GameState {
   const step = mainlineSteps[nodeId]
   if (!step) return state
@@ -658,7 +671,10 @@ export function chooseMainline(state: GameState, choiceId: string): CommandResul
     : null
   const supplementNext = supplementRouteId ? 'chapter1.route-investigation' : null
   next.pendingResult = { kind: 'mainline_choice', nextNode: firstDayRouteId ? 'chapter1.route-investigation' : routeActionNext ?? supplementNext ?? choice.nextNode }
-  if (!routeId) next.currentNarrative = choice.outcomeNarrative
+  if (!routeId) {
+    const image = state.chapter === 'chapter2' ? chapter2Case1ChoiceImages[choiceId] : undefined
+    next.currentNarrative = image ? { ...choice.outcomeNarrative, image } : choice.outcomeNarrative
+  }
   next.lastCommandError = null
   next.recentEvents = [
     { id: `${state.mainlineNode}-${choice.id}`, chapter: state.chapter, title: choice.label, summary: choice.outcomeNarrative.paragraphs.map((paragraph) => paragraph.text).join(' '), effects: [...(healthCost ? [`健康 ${healthCost}`] : []), ...(choice.effects ?? []).map(formatEffect)], acquiredMaterialIds: chapter2Outcome?.materialIds ?? (actionMaterials.length ? actionMaterials : routeActionId ? chapter1InvestigationBlueprint.routes.find((route) => route.actions.some((action) => action.id === routeActionId))?.actions.find((action) => action.id === routeActionId)?.materialIds : firstDayRouteId ? chapter1InvestigationBlueprint.routes.find((route) => route.id === firstDayRouteId)?.actions[0]?.materialIds : undefined) },

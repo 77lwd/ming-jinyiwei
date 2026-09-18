@@ -9,6 +9,13 @@ const speakerByNode: Array<[string, string]> = [
   ['river-tea', '茶棚伙计阿顺'],
 ]
 
+const portraitBySpeaker: Record<string, string> = {
+  '押役周六': '/assets/chapter2/case1/zhou-liu-portrait.png',
+  '押役赵七': '/assets/chapter2/case1/zhao-qi-portrait.png',
+  '船夫陈老桨': '/assets/chapter2/case1/chen-laojiang-portrait.png',
+  '茶棚伙计阿顺': '/assets/chapter2/case1/ashun-portrait.png',
+}
+
 const roundNotes: Record<string, { fixed: string; next: string }> = {
   '周六 · 钥匙': { fixed: '钥匙由赵七领出，周六称途中接手，但钥匙的交接没有旁证，他也不能确认出事时钥匙是否仍在身上。', next: '继续拿车辕断口与湿存根核对，查清所谓“翻车”发生在交接之前还是之后。' },
   '周六 · 停车': { fixed: '周六改口承认囚车曾在柳沟停留，赵七还以“有人递话”为由让车等了半盏茶。', next: '继续核对车辕断口与换押存根，确认停车时车边究竟发生了什么。' },
@@ -64,7 +71,7 @@ export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }
 
     <div className="inquiry-stage">
       <aside className="inquiry-portrait inquiry-portrait-witness" aria-label={`${speaker}肖像待补`}>
-        <span><UserRound size={36} aria-hidden="true" /></span>
+        {portraitBySpeaker[speaker] ? <img src={portraitBySpeaker[speaker]} alt={`${speaker}肖像`} /> : <span><UserRound size={36} aria-hidden="true" /></span>}
         <strong>{speaker}</strong>
       </aside>
 

@@ -234,6 +234,7 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     narrative: {
       title: '第一案 · 雨夜失押',
       tone: 'tense',
+      image: { src: '/assets/chapter2/case1/rain-night-overturned-cart.png', alt: '雨夜翻倒的押送车' },
       paragraphs: [
         { kind: 'prose', text: '河桥边的押送车歪在泥里。锁扣仍挂在门上，锁舌没有弯，车辕断口的木屑却朝外翻。两个押役对翻车方向各说一边。' },
         { kind: 'prose', text: '车厢内少了一条麻绳，泥痕从低处一直拖到门边。有人把马骁拖出车厢，又将锁扣重新挂了回去。' },
@@ -247,12 +248,12 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
   },
   'chapter2.case1-lock': {
     chapter: 'chapter2',
-    narrative: { title: '第一案 · 车辕断口', tone: 'tense', paragraphs: [{ kind: 'prose', text: '泥痕从车厢低处拖到门边，麻绳少了一条。你把锁扣、车辕和拖痕分别编号，先不替谁写结论。' }] },
+    narrative: { title: '第一案 · 车辕断口', tone: 'tense', image: { src: '/assets/chapter2/case1/cage-lock-detail.png', alt: '囚车锁扣近景' }, paragraphs: [{ kind: 'prose', text: '泥痕从车厢低处拖到门边，麻绳少了一条。你把锁扣、车辕和拖痕分别编号，先不替谁写结论。' }] },
     choices: [{ id: 'c2-01-stub', label: '查看换押文书和车内遗留物', nextNode: 'chapter2.case1-inquiry', effects: noEffects, outcomeNarrative: { title: '存根上的空白', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '湿透的换押存根编号和蜡记都真，领取人只剩模糊别号，最终地点空白。' }] } }],
   },
   'chapter2.case1-stub': {
     chapter: 'chapter2',
-    narrative: { title: '第一案 · 车里的遗留物', tone: 'tense', paragraphs: [{ kind: 'prose', text: '换押存根被夹在车厢底板和一块旧木片之间。麻绳纤维卡在缝里，断口上的泥和河桥边的泥色相近，却还不能单凭颜色下结论。' }] },
+    narrative: { title: '第一案 · 车里的遗留物', tone: 'tense', image: { src: '/assets/chapter2/case1/wet-transfer-stub.png', alt: '湿透的换押存根' }, paragraphs: [{ kind: 'prose', text: '换押存根被夹在车厢底板和一块旧木片之间。麻绳纤维卡在缝里，断口上的泥和河桥边的泥色相近，却还不能单凭颜色下结论。' }] },
     choices: [{ id: 'c2-01-lock', label: '回查锁扣、门闩与拖拽方向', nextNode: 'chapter2.case1-inquiry', effects: noEffects, outcomeNarrative: { title: '锁扣仍在原处', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你回到车门边，把锁扣、门闩和车辕断口连成一条线。锁没有被撞开，拖痕却从车厢低处斜向门外，少掉的麻绳不可能替人自己解开。' }] } }],
   },
   'chapter2.case1-inquiry': {
@@ -265,19 +266,19 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
   },
   'chapter2.case1-investigation': {
     chapter: 'chapter2',
-    narrative: { title: '雨夜失押 · 调查案桌', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '现场图、车上遗物和两张差牌分开放着。已经查过的地方用朱点压住，尚未动手的部分仍留着空栏。你可以换一条线继续，不必照固定次序把现场走完。' }] },
+    narrative: { title: '雨夜失押 · 调查案桌', tone: 'quiet', image: { src: '/assets/chapter2/case1/case1-evidence-table.png', alt: '雨夜失押第一案四件证物同桌摆放' }, paragraphs: [{ kind: 'prose', text: '现场图、车上遗物和两张差牌分开放着。已经查过的地方用朱点压住，尚未动手的部分仍留着空栏。你可以换一条线继续，不必照固定次序把现场走完。' }] },
   },
   'chapter2.case1-route-cart': {
     chapter: 'chapter2',
-    narrative: { title: '调查线 · 囚车与锁具', tone: 'tense', paragraphs: [{ kind: 'prose', text: '锁扣已经拆下入袋。车辕断口仍压在泥里，若不趁雨势加重前复看，断面很快会被泥水泡透。' }] },
+    narrative: { title: '调查线 · 囚车与锁具', tone: 'tense', image: { src: '/assets/chapter2/case1/shaft-break.png', alt: '囚车车辕断口' }, paragraphs: [{ kind: 'prose', text: '锁扣已经拆下入袋。车辕断口仍压在泥里，若不趁雨势加重前复看，断面很快会被泥水泡透。' }] },
   },
   'chapter2.case1-route-traces': {
     chapter: 'chapter2',
-    narrative: { title: '调查线 · 拖痕与麻绳', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '轮辙已经把囚车被移动过的方向留下。车尾空钩上的残纤维，是这条线剩下的查验。' }] },
+    narrative: { title: '调查线 · 拖痕与麻绳', tone: 'quiet', image: { src: '/assets/chapter2/case1/cart-drag-trace.png', alt: '车底拖痕' }, paragraphs: [{ kind: 'prose', text: '轮辙已经把囚车被移动过的方向留下。车尾空钩上的残纤维，是这条线剩下的查验。' }] },
   },
   'chapter2.case1-route-documents': {
     chapter: 'chapter2',
-    narrative: { title: '调查线 · 换押文书', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '湿存根已经保住，编号和蜡记也能辨认。下一步是调出原押送差牌，把路线、交接和授权逐栏对上。' }] },
+    narrative: { title: '调查线 · 换押文书', tone: 'quiet', image: { src: '/assets/chapter2/case1/original-escort-token.png', alt: '原押送差牌' }, paragraphs: [{ kind: 'prose', text: '湿存根已经保住，编号和蜡记也能辨认。下一步是调出原押送差牌，把路线、交接和授权逐栏对上。' }] },
   },
   'chapter2.case1-inquiry-select': {
     chapter: 'chapter2',
@@ -372,7 +373,7 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
   },
   'chapter2.case1-authority-review': {
     chapter: 'chapter2',
-    narrative: { title: '第一案 · 呈请处置', tone: 'tense', paragraphs: [{ kind: 'prose', text: '已经固定的事实抄成两页：马骁没有自行破锁；押送途中至少发生了一项未经批准的处置。廖威达只能把材料和责任建议呈上去，暂扣、追缉与封卷仍要覃保坤落签。' }] },
+    narrative: { title: '第一案 · 呈请处置', tone: 'tense', image: { src: '/assets/chapter2/case1/qian-sealing-receipt.png', alt: '覃保坤封存凭照' }, paragraphs: [{ kind: 'prose', text: '已经固定的事实抄成两页：马骁没有自行破锁；押送途中至少发生了一项未经批准的处置。廖威达只能把材料和责任建议呈上去，暂扣、追缉与封卷仍要覃保坤落签。' }] },
   },
   'chapter2.case1-close-review': {
     chapter: 'chapter2',
@@ -385,7 +386,7 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
   'chapter2.case1-closed': {
     chapter: 'chapter2',
     nextNode: 'chapter2.empty-dowry-house',
-    narrative: { title: '第一案封卷 · 交接无据', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '马骁还没有找到。湿存根的编号、蜡记和纸种都对得上，唯独领取人的名号模糊，交接地点空着，回收栏也没有剪角。押送途中有人开锁交人，这一笔先按失押责任记下。' }, { kind: 'dialogue', text: '覃保坤把凭照套进证物袋：“责任先落卷。人往哪里去了，另起一笔查。”' }] },
+    narrative: { title: '第一案封卷 · 交接无据', tone: 'quiet', image: { src: '/assets/chapter2/case1/case1-sealed-desk.png', alt: '第一案封卷案桌' }, paragraphs: [{ kind: 'prose', text: '马骁还没有找到。湿存根的编号、蜡记和纸种都对得上，唯独领取人的名号模糊，交接地点空着，回收栏也没有剪角。押送途中有人开锁交人，这一笔先按失押责任记下。' }, { kind: 'dialogue', text: '覃保坤把凭照套进证物袋：“责任先落卷。人往哪里去了，另起一笔查。”' }] },
   },
   'chapter2.empty-dowry-house': {
     chapter: 'chapter2',
