@@ -40,6 +40,8 @@ describe('ResultPanel', () => {
 
     expect(screen.getByText('案件封结回执')).toBeInTheDocument()
     expect(screen.getByText('雨夜失押 · 已正式封结')).toBeInTheDocument()
+    expect(screen.getByText('失押责任与违规交接已经结清，马骁去向另列续查。')).toBeInTheDocument()
+    expect(screen.queryByText(/不把尚未查明/)).not.toBeInTheDocument()
     expect(screen.getByText(/马骁并非自行脱逃/)).toBeInTheDocument()
     expect(screen.getByText(/马骁去向仍列待查/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /进入案后交接/ })).toBeInTheDocument()
