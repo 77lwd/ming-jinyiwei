@@ -1,5 +1,5 @@
 import type { GameState, NarrativeBlock, NarrativeEvent, PendingResult, Clue, NpcId } from '../types'
-import { chapter2InquiryReviews } from '../data/chapter2'
+import { chapter2ActionMaterials, chapter2Case1MaterialIds, chapter2InquiryReviews } from '../data/chapter2'
 
 export const SAVE_VERSION = 3
 export const SAVE_KEY = 'ming_jinyiwei.save.v3'
@@ -138,8 +138,21 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
   const signedOriginals = Object.values(chapter2InquiryReviews)
     .filter((review) => review.completionId && review.materialId && chapter2Investigation.completedActionIds.includes(review.completionId))
     .map((review) => review.materialId!)
-  chapter2Investigation.caseMaterialIds = [...new Set([...chapter2Investigation.caseMaterialIds, ...signedOriginals])]
-  chapter2Investigation.materialIds = [...new Set([...chapter2Investigation.materialIds, ...signedOriginals])]
+  const investigationMaterials = chapter2Investigation.completedActionIds.flatMap((id) => chapter2ActionMaterials[id] ?? [])
+  const comparisonPrerequisites = [
+    ...(chapter2Investigation.caseMaterialIds.includes('separate-guard-statements') ? ['zhou-liu-signed-statement', 'zhao-qi-signed-statement'] : []),
+    ...(chapter2Investigation.caseMaterialIds.includes('river-route-testimony') ? ['chen-laojiang-signed-testimony', 'ashun-signed-testimony'] : []),
+  ]
+  const reachedCaseOneVerification = state.chapter === 'chapter2' && [
+    'chapter2.case1-close-review',
+    'chapter2.case1-authority-review',
+    'chapter2.case1-closed',
+  ].includes(state.mainlineNode)
+  const restoredMaterials = reachedCaseOneVerification
+    ? chapter2Case1MaterialIds
+    : [...investigationMaterials, ...signedOriginals, ...comparisonPrerequisites]
+  chapter2Investigation.caseMaterialIds = [...new Set([...chapter2Investigation.caseMaterialIds, ...restoredMaterials])]
+  chapter2Investigation.materialIds = [...new Set([...chapter2Investigation.materialIds, ...restoredMaterials])]
   return { ...state, chapter1Investigation, chapter2Investigation }
 }
 

@@ -112,6 +112,12 @@ export const chapter2ActionMaterials: Record<string, string[]> = {
   'c2-01-compare-escort-order': ['original-escort-order'],
 }
 
+export const chapter2Case1MaterialIds = [
+  'unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order',
+  'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements',
+  'chen-laojiang-signed-testimony', 'ashun-signed-testimony', 'river-route-testimony',
+]
+
 export const chapter2MaterialProvenance: Record<string, { kind: string; source: string; formation: string }> = {
   'unforced-lock': { kind: '现场勘验', source: '囚车锁扣', formation: '按原位描图后拆检锁舌、扣环和穿销，包布编号入档。' },
   'shaft-break-record': { kind: '现场勘验', source: '囚车车辕', formation: '清开断口泥水，记录木色、木刺方向和断口内残留。' },

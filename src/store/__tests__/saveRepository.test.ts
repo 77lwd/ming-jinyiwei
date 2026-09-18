@@ -68,4 +68,38 @@ describe('versioned desktop save repository', () => {
     expect(loaded.state.chapter2Investigation.materialIds).toEqual(['zhou-liu-signed-statement'])
     expect(loaded.state.chapter2Investigation.caseMaterialIds).not.toContain('zhao-qi-signed-statement')
   })
+
+  it('restores every earned case-one material in an older verification save', () => {
+    const state = createInitialState()
+    state.chapter = 'chapter2'
+    state.mainlineNode = 'chapter2.case1-close-review'
+    state.chapter2Investigation.completedActionIds = [
+      'c2-01-inspect-lock',
+      'c2-01-inspect-shaft',
+      'c2-01-trace-drag-marks',
+      'c2-01-examine-rope-fibers',
+      'c2-01-preserve-wet-stub',
+      'c2-01-compare-escort-order',
+    ]
+    state.chapter2Investigation.caseMaterialIds = [
+      'wet-transfer-stub',
+      'zhao-qi-signed-statement',
+      'chen-laojiang-signed-testimony',
+      'ashun-signed-testimony',
+      'separate-guard-statements',
+      'river-route-testimony',
+    ]
+    state.chapter2Investigation.materialIds = [...state.chapter2Investigation.caseMaterialIds]
+    saveGame(state)
+
+    const loaded = loadSave()
+    expect(loaded.status).toBe('ok')
+    if (loaded.status !== 'ok') return
+    expect(loaded.state.chapter2Investigation.caseMaterialIds).toEqual(expect.arrayContaining([
+      'unforced-lock', 'shaft-break-record', 'cart-drag-trace', 'cut-rope-fibers', 'wet-transfer-stub', 'original-escort-order',
+      'zhou-liu-signed-statement', 'zhao-qi-signed-statement', 'separate-guard-statements',
+      'chen-laojiang-signed-testimony', 'ashun-signed-testimony', 'river-route-testimony',
+    ]))
+    expect(loaded.state.chapter2Investigation.caseMaterialIds).toHaveLength(12)
+  })
 })

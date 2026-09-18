@@ -47,6 +47,17 @@ describe('Chapter2Case1VerificationWorkbench', () => {
     expect(screen.getByLabelText('原押送差牌对照')).toBeChecked()
   })
 
+  it('returns the material list to the top when switching propositions', () => {
+    render(<Chapter2Case1VerificationWorkbench materialIds={materials} onVerify={vi.fn()} />)
+    const materialList = screen.getByRole('group', { name: '二、选取案卷材料' })
+    materialList.scrollTop = 420
+
+    fireEvent.click(screen.getByRole('radio', { name: /押役是否存在失职/ }))
+
+    expect(materialList.scrollTop).toBe(0)
+    expect(screen.getByRole('heading', { name: /现场与物证\s*4项/ })).toBeInTheDocument()
+  })
+
   it('groups materials by how they entered the case file', () => {
     render(<Chapter2Case1VerificationWorkbench materialIds={materials} onVerify={vi.fn()} />)
     expect(screen.getByRole('heading', { name: /现场与物证\s*4项/ })).toBeInTheDocument()
