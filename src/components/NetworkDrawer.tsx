@@ -4,7 +4,7 @@ import { displayedRelationStage, knownNetworkIds, networkOpinion, networkPeople,
 import { useGameStore } from '../store/gameStore'
 
 export function NetworkDrawer({ onClose, initialSelectedId }: { onClose: () => void; initialSelectedId?: NetworkId }) {
-  const { npcRelations, flags } = useGameStore()
+  const { npcRelations, flags, freeAction } = useGameStore()
   const ids = knownNetworkIds(npcRelations, flags)
   const [selectedId, setSelectedId] = useState<NetworkId>(initialSelectedId ?? ids[0] ?? 'zhou_hanchuan')
   const selected = ids.includes(selectedId) ? selectedId : ids[0]
@@ -23,7 +23,7 @@ export function NetworkDrawer({ onClose, initialSelectedId }: { onClose: () => v
         <div className="network-detail-portrait">{person.image ? <img src={person.image} alt={person.imageAlt} /> : <span aria-label={person.imageAlt}>肖像暂缺</span>}</div>
         <h3>{person.name}</h3>
         <p className="network-stage">关系阶段：{displayedRelationStage(selected!, npcRelations[selected!], flags)}</p>
-        <p className="network-opinion"><strong>他对你的看法</strong>{networkOpinion(selected!)}</p>
+        <p className="network-opinion"><strong>他对你的看法</strong>{freeAction.lastOpinionUpdates[selected!] ?? networkOpinion(selected!)}</p>
       </article>}
     </div> : <p className="empty-copy">尚未建立可记录的人脉。</p>}
     <button type="button" className="button button-secondary network-close" onClick={onClose}><ArrowLeft size={17} />返回案件</button>

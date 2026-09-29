@@ -56,8 +56,10 @@ export function Chapter1VerificationWorkbench({ investigation, supplementalChoic
           return <label key={materialId} className={checked ? 'is-selected' : ''}>
             <input type="checkbox" checked={checked} onChange={() => toggleMaterial(materialId)} />
             <span aria-hidden="true">{checked ? <Check size={14} /> : null}</span>
-            <strong>{chapter1MaterialLabels[materialId] ?? materialId}</strong>
-            <small>{chapter1MaterialDescriptions[materialId] ?? '已经取得的案卷材料。'}</small>
+            <span className="material-file-details">
+              <strong>{chapter1MaterialLabels[materialId] ?? materialId}</strong>
+              <small>{chapter1MaterialDescriptions[materialId] ?? '已经取得的案卷材料。'}</small>
+            </span>
           </label>
         })}</div>
       </fieldset>

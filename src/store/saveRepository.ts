@@ -58,6 +58,7 @@ function isGameState(value: unknown): value is GameState {
     isNarrativeBlock(state.currentNarrative) && Array.isArray(state.recentEvents) && state.recentEvents.length <= 20 && state.recentEvents.every(isNarrativeEvent) &&
     (state.chapter1Investigation === undefined || isChapter1Investigation(state.chapter1Investigation)) &&
     (state.chapter2Investigation === undefined || isChapter2Investigation(state.chapter2Investigation)) &&
+    (state.freeAction === undefined || isFreeActionState(state.freeAction)) &&
     (state.lastCommandError === null || ['invalid_phase', 'not_found', 'invalid_choice'].includes(String(state.lastCommandError)))
 }
 
@@ -73,6 +74,14 @@ function isChapter2Investigation(value: unknown): boolean {
     Array.isArray(value.materialIds) && value.materialIds.every((id) => typeof id === 'string') &&
     Array.isArray(value.fixedFactIds) && value.fixedFactIds.every((id) => typeof id === 'string') &&
     typeof value.registerVerified === 'boolean'
+}
+
+function isFreeActionState(value: unknown): boolean {
+  if (!isRecord(value)) return false
+  return (value.activeWindowId === null || ['chapter2-after-case1', 'chapter2-after-case3'].includes(String(value.activeWindowId))) &&
+    Array.isArray(value.completedWindowIds) && value.completedWindowIds.every((id) => ['chapter2-after-case1', 'chapter2-after-case3'].includes(String(id))) &&
+    Array.isArray(value.completedActionIds) && value.completedActionIds.every((id) => typeof id === 'string') &&
+    isRecord(value.lastOpinionUpdates) && Object.values(value.lastOpinionUpdates).every((opinion) => typeof opinion === 'string')
 }
 
 function isChapter1Investigation(value: unknown): boolean {
@@ -135,6 +144,17 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
     fixedFactIds: [],
     registerVerified: false,
   }
+  const freeAction = state.freeAction ? {
+    activeWindowId: state.freeAction.activeWindowId ?? null,
+    completedWindowIds: state.freeAction.completedWindowIds ?? [],
+    completedActionIds: state.freeAction.completedActionIds ?? [],
+    lastOpinionUpdates: state.freeAction.lastOpinionUpdates ?? {},
+  } : {
+    activeWindowId: null,
+    completedWindowIds: [],
+    completedActionIds: [],
+    lastOpinionUpdates: {},
+  }
   const signedOriginals = Object.values(chapter2InquiryReviews)
     .filter((review) => review.completionId && review.materialId && chapter2Investigation.completedActionIds.includes(review.completionId))
     .map((review) => review.materialId!)
@@ -153,7 +173,7 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
     : [...investigationMaterials, ...signedOriginals, ...comparisonPrerequisites]
   chapter2Investigation.caseMaterialIds = [...new Set([...chapter2Investigation.caseMaterialIds, ...restoredMaterials])]
   chapter2Investigation.materialIds = [...new Set([...chapter2Investigation.materialIds, ...restoredMaterials])]
-  return { ...state, chapter1Investigation, chapter2Investigation }
+  return { ...state, chapter1Investigation, chapter2Investigation, freeAction }
 }
 
 function isAttributes(value: unknown): boolean {

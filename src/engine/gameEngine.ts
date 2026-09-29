@@ -1,7 +1,8 @@
 import { applyEffects } from './effects'
 import { chapter1InvestigationBlueprint, chapter1MainlineSteps, createChapter1InvestigationState } from '../data/chapter1'
 import { chapter2ActionMaterials, chapter2Case1InvestigationActions, chapter2Case1Questions, chapter2Case1VerificationSets, chapter2ChoiceOutcomes, chapter2InquiryReviews, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
-import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Chapter2BranchId, Chapter2CaseId, Effect, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
+import { chapter2FirstFreeActions, freeActionLocationsFor, freeActionsForLocation, isActionAvailable } from '../data/freeActionWindows'
+import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Chapter2BranchId, Chapter2CaseId, Effect, FreeActionId, FreeActionLocationId, FreeActionWindowId, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
 
 const initialNarrative: NarrativeBlock = {
   title: '北镇抚司',
@@ -29,6 +30,7 @@ export type DeveloperCheckpointId =
   | 'chapter2-case1-inquiry'
   | 'chapter2-case1-verification'
   | 'chapter2-case1-end'
+  | 'chapter2-free-action'
 
 interface MainlineStep {
   chapter: GameState['chapter']
@@ -60,6 +62,17 @@ const mainlineSteps: Record<string, MainlineStep> = {
     nextNode: 'chapter2.rain-night-transfer',
   },
   ...chapter2MainlineSteps,
+  'chapter2.case1-free-action': {
+    chapter: 'chapter2',
+    narrative: {
+      title: '第一案封卷 · 留出半日',
+      tone: 'quiet',
+      paragraphs: [
+        { kind: 'prose', text: '第一案已经封卷，第二张差牌还没有送到手里。覃保坤给你留出半日，去做一件自己的事，也可以按时回署。' },
+        { kind: 'system', text: '这是一次性案后空档：只能完成一项行动，也可以跳过。' },
+      ],
+    },
+  },
   'chapter3.entry': { chapter: 'chapter3', title: '第三章 · 调查前夕', text: '第三章主线即将展开。', nextNode: 'chapter3.investigation' },
   'chapter3.investigation': { chapter: 'chapter3', title: '第三章 · 调查推进', text: '已有材料正在按程序核验。', nextNode: 'chapter3.case-file-sealed' },
   'chapter3.case-file-sealed': { chapter: 'chapter3', title: '阶段转折 · 案包暂封', text: '案包先行暂封，等待后续程序接续。', nextNode: 'chapter4.entry', stageEvent: true },
@@ -91,6 +104,9 @@ function enterMainlineNode(state: GameState, nodeId: string): GameState {
   const next = step.effects ? applyEffects(state, step.effects) : state
   if (nodeId === 'chapter2.rain-night-transfer' && !next.chapter2Investigation.completedCaseIds.includes('rain-night-transfer')) {
     next.chapter2Investigation = createChapter2InvestigationState()
+  }
+  if (nodeId === 'chapter2.case1-free-action') {
+    next.freeAction = { ...next.freeAction, activeWindowId: 'chapter2-after-case1' }
   }
   return {
     ...next,
@@ -353,6 +369,7 @@ export function createInitialState(): GameState {
     recentEvents: [],
     chapter1Investigation: createChapter1InvestigationState(),
     chapter2Investigation: createChapter2InvestigationState(),
+    freeAction: { activeWindowId: null, completedWindowIds: [], completedActionIds: [], lastOpinionUpdates: {} },
     lastCommandError: null,
   }
 }
@@ -424,6 +441,20 @@ export function createDeveloperCheckpointState(checkpoint: DeveloperCheckpointId
         ...base.recentEvents,
       ],
     }, 'chapter2.case1-authority-review')
+  }
+  if (checkpoint === 'chapter2-free-action') {
+    return enterMainlineNode({
+      ...base,
+      chapter2Investigation: {
+        ...investigation,
+        completedActionIds: [...investigationActions, ...testimonyActions],
+        caseMaterialIds: allMaterials,
+        materialIds: allMaterials,
+        fixedFactIds: ['self-escape', 'guard-duty'],
+        completedCaseIds: ['rain-night-transfer'],
+      },
+      freeAction: { activeWindowId: 'chapter2-after-case1', completedWindowIds: [], completedActionIds: [], lastOpinionUpdates: {} },
+    }, 'chapter2.case1-free-action')
   }
   return enterMainlineNode({
     ...base,
@@ -577,6 +608,81 @@ export function getMainlineChoices(state: GameState): MainlineChoice[] {
     return chapter2Case1Questions.filter((q) => !state.chapter2Investigation.fixedFactIds.includes(q.id)).map((q) => ({ id: q.id, label: q.shortLabel, nextNode: 'chapter2.case1-close-review', effects: [], outcomeNarrative: { title: q.shortLabel, tone: 'quiet', paragraphs: [{ kind: 'prose', text: q.prompt }] } }))
   }
   return mainlineSteps[state.mainlineNode]?.choices ?? []
+}
+
+export function getFreeActionLocations(state: GameState) {
+  if (state.chapter !== 'chapter2' || state.mainlineNode !== 'chapter2.case1-free-action' || state.freeAction.activeWindowId !== 'chapter2-after-case1') return []
+  return freeActionLocationsFor(state)
+}
+
+export function getFreeActions(state: GameState, location: FreeActionLocationId) {
+  if (!getFreeActionLocations(state).some((item) => item.id === location)) return []
+  return freeActionsForLocation(location)
+}
+
+function freeActionResult(state: GameState, title: string, text: string, nextNode: string, effects: string[] = []): CommandResult {
+  return {
+    ok: true,
+    state: {
+      ...state,
+      phase: 'result',
+      currentNarrative: { title, tone: 'quiet', paragraphs: [{ kind: 'prose', text }] },
+      pendingResult: { kind: 'mainline_choice', nextNode },
+      recentEvents: [{
+        id: `free-action-${state.freeAction.completedActionIds.length}-${Date.now()}`,
+        chapter: 'chapter2' as const,
+        title,
+        summary: text,
+        effects,
+      }, ...state.recentEvents].slice(0, 20),
+      lastCommandError: null,
+    },
+  }
+}
+
+export function chooseFreeAction(state: GameState, actionId: FreeActionId): CommandResult {
+  if (state.screen !== 'game' || state.phase !== 'mainline' || state.mainlineNode !== 'chapter2.case1-free-action' || state.freeAction.activeWindowId !== 'chapter2-after-case1') return withFailure(state, 'invalid_phase')
+  const action = chapter2FirstFreeActions.find((item) => item.id === actionId)
+  if (!action || !isActionAvailable(state, action)) return withFailure(state, 'invalid_choice')
+
+  const effects = state.health <= (action.lowHealthThreshold ?? -1) && action.lowHealthEffects ? action.lowHealthEffects : action.effects
+  const actualEffects = effects.map((effect) => effect.type === 'health_change' && effect.delta > 0
+    ? { ...effect, delta: Math.min(effect.delta, 100 - state.health) }
+    : effect)
+  const next = applyEffects(state, actualEffects)
+  const opinionUpdates = action.npcId && action.opinion ? { ...state.freeAction.lastOpinionUpdates, [action.npcId]: action.opinion } : state.freeAction.lastOpinionUpdates
+  const effectLabels = actualEffects.map((effect) => {
+    if (effect.type === 'health_change') return `健康 ${effect.delta >= 0 ? '+' : ''}${effect.delta}`
+    if (effect.type === 'wealth_change') return `银两 ${effect.delta >= 0 ? '+' : ''}${effect.delta}`
+    if (effect.type === 'attribute_change') return `${({ strength: '武力', insight: '智谋', eloquence: '口才', reputation: '声望' } as Record<string, string>)[effect.attribute]} ${effect.delta >= 0 ? '+' : ''}${effect.delta}`
+    return ''
+  }).filter(Boolean)
+  const updated = {
+    ...next,
+    freeAction: {
+      ...state.freeAction,
+      activeWindowId: null,
+      completedWindowIds: ['chapter2-after-case1' as FreeActionWindowId],
+      completedActionIds: [...state.freeAction.completedActionIds, action.id],
+      lastOpinionUpdates: opinionUpdates,
+    },
+  }
+  const resultText = effects === action.lowHealthEffects && action.lowHealthResult ? action.lowHealthResult : action.result ?? action.description
+  const result = freeActionResult(updated, action.label, resultText, 'chapter2.empty-dowry-house', effectLabels)
+  return result
+}
+
+export function skipFreeAction(state: GameState): CommandResult {
+  if (state.screen !== 'game' || state.phase !== 'mainline' || state.mainlineNode !== 'chapter2.case1-free-action' || state.freeAction.activeWindowId !== 'chapter2-after-case1') return withFailure(state, 'invalid_phase')
+  const updated = {
+    ...state,
+    freeAction: {
+      ...state.freeAction,
+      activeWindowId: null,
+      completedWindowIds: ['chapter2-after-case1' as FreeActionWindowId],
+    },
+  }
+  return freeActionResult(updated, '按时回署', '你没有再往外走。半日过后，第二张差牌准时送到案桌上。', 'chapter2.empty-dowry-house')
 }
 
 export function chooseMainline(state: GameState, choiceId: string): CommandResult {

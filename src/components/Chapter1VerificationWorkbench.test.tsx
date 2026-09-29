@@ -37,6 +37,12 @@ describe('Chapter1VerificationWorkbench', () => {
     expect(onVerify).toHaveBeenCalledWith('fire-target', ['fire-origin', 'dragged-pages'])
   })
 
+  it('keeps material descriptions in the content column', () => {
+    render(<Chapter1VerificationWorkbench investigation={investigation} supplementalChoices={[]} onSupplement={vi.fn()} onVerify={vi.fn()} />)
+
+    expect(screen.getByText('最先起火处位于登记架和印纸包附近。').parentElement).toHaveClass('material-file-details')
+  })
+
   it('keeps the missing investigation route available beside the evidence desk', () => {
     const onSupplement = vi.fn()
     render(<Chapter1VerificationWorkbench investigation={investigation} supplementalChoices={[{ id: 'supplement-client-counterfoil', label: '补查：核对客户副联与数量' }]} onSupplement={onSupplement} onVerify={vi.fn()} />)

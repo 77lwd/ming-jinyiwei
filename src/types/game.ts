@@ -40,6 +40,23 @@ export interface Chapter1InvestigationState {
 }
 
 export type Chapter2CaseId = 'rain-night-transfer' | 'empty-dowry-house' | 'before-the-watch-drum'
+export type FreeActionWindowId = 'chapter2-after-case1' | 'chapter2-after-case3'
+export type FreeActionLocationId = 'home' | 'clinic' | 'training-ground' | 'office' | 'city' | 'network'
+export type FreeActionId =
+  | 'home-rest'
+  | 'home-cook'
+  | 'clinic-basic'
+  | 'clinic-thorough'
+  | 'training-solo'
+  | 'training-colleague'
+  | 'office-precedents'
+  | 'office-watch'
+  | 'office-clerk'
+  | 'city-meal'
+  | 'city-escort'
+  | 'network-tan-baokun'
+  | 'network-feng-walk'
+  | 'network-feng-meal'
 export type Chapter2BranchId =
   | 'c2_01_responsibility_chain'
   | 'c2_01_route_chain'
@@ -58,6 +75,13 @@ export interface Chapter2InvestigationState {
   fixedFactIds: string[]
   registerVerified: boolean
   inquiryReviewAttempts?: Record<string, number>
+}
+
+export interface FreeActionState {
+  activeWindowId: FreeActionWindowId | null
+  completedWindowIds: FreeActionWindowId[]
+  completedActionIds: FreeActionId[]
+  lastOpinionUpdates: Partial<Record<NpcId, string>>
 }
 
 export type NarrativeParagraphKind = 'prose' | 'dialogue' | 'monologue' | 'system'
@@ -130,6 +154,7 @@ export interface GameState {
   recentEvents: NarrativeEvent[]
   chapter1Investigation: Chapter1InvestigationState
   chapter2Investigation: Chapter2InvestigationState
+  freeAction: FreeActionState
   lastCommandError: CommandError | null
 }
 

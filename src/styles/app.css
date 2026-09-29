@@ -884,6 +884,32 @@
   .relationship-update strong { color: #6f4b26; }
   .relationship-update span, .relationship-update small { color: #5b554b; }
 
+  .free-action-workbench { margin: 0; padding: 1.5rem 1.75rem; color: var(--dossier-ink); background: var(--dossier-paper); }
+  .free-action-heading { display: flex; justify-content: space-between; gap: 1.2rem; align-items: end; padding-bottom: .85rem; border-bottom: 1px solid var(--dossier-line); }
+  .free-action-heading h2 { margin: .25rem 0 0; color: #332f28; font-family: "Noto Serif SC", "Source Han Serif SC", serif; font-size: 1.4rem; line-height: 1.4; }
+  .free-action-heading p { max-width: 23rem; margin: 0; color: #514b42; font-size: .9rem; line-height: 1.65; text-align: right; }
+  .free-action-layout { display: grid; grid-template-columns: minmax(180px, .72fr) minmax(0, 1.28fr); gap: 1.1rem; padding: 1rem 0; }
+  .free-action-locations { display: grid; align-content: start; gap: .45rem; }
+  .free-action-location { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: .65rem; align-items: start; min-height: 66px; padding: .78rem .8rem; color: #39342d; background: #f5f1e8; border: 1px solid #a39a89; border-radius: 1px; text-align: left; }
+  .free-action-location:hover, .free-action-location.is-selected { color: #332d26; background: #eee2d9; border-color: #8b4a3d; }
+  .free-action-location svg { margin-top: .1rem; color: #7b4338; }
+  .free-action-location span, .free-action-option-copy { display: grid; gap: .18rem; }
+  .free-action-location strong, .free-action-option strong { font-size: .95rem; line-height: 1.45; }
+  .free-action-location small, .free-action-option small { color: #514b42; font-size: .84rem; line-height: 1.55; }
+  .free-action-options { min-height: 230px; padding-left: 1rem; border-left: 1px solid var(--dossier-line); }
+  .free-action-options-heading { display: flex; gap: .4rem; align-items: center; margin-bottom: .55rem; color: #7b4338; font-size: .78rem; font-weight: 750; }
+  .free-action-location-scene { margin: 0 0 .9rem; max-width: 54ch; color: #39342d; font-family: "Noto Serif SC", "Source Han Serif SC", serif; font-size: .94rem; line-height: 1.8; }
+  .free-action-option { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .7rem; width: 100%; margin-bottom: .5rem; padding: .85rem .9rem; color: #39342d; background: #f5f1e8; border: 1px solid #a39a89; border-radius: 1px; text-align: left; }
+  .free-action-option:hover:not(:disabled) { background: #f2ebdd; border-color: #7b4338; }
+  .free-action-option:disabled { color: #514b42; background: #e6e0d4; border-color: #9e9584; cursor: not-allowed; }
+  .free-action-option:focus-visible, .free-action-location:focus-visible { outline: 3px solid #84362e; outline-offset: 2px; }
+  .free-action-option > svg { align-self: center; color: #7b4338; }
+  .free-action-option:disabled > svg { color: #625b50; }
+  .free-action-option em { display: flex; gap: .3rem; align-items: center; color: #71382f; font-size: .78rem; font-style: normal; }
+  .free-action-empty { display: grid; place-items: center; min-height: 210px; color: #514b42; }
+  .free-action-footer { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding-top: .8rem; border-top: 1px solid var(--dossier-line); color: #514b42; font-size: .84rem; }
+  .free-action-footer > span { display: inline-flex; gap: .25rem; align-items: center; }
+
   .material-result .result-pause, .preservation-result .result-pause, .closure-result .result-pause { position: relative; }
   .material-result .result-pause::after, .preservation-result .result-pause::after, .closure-result .result-pause::after { content: ''; position: absolute; inset: -.45rem -.65rem; z-index: -1; border: 1px solid rgba(112, 92, 66, .22); transform: rotate(.18deg); pointer-events: none; }
   .preservation-result .result-authority em { color: #4d6158; border-color: rgba(77, 97, 88, .72); }
@@ -935,5 +961,11 @@
     .verification-materials { padding-left: 0; overflow: visible; scrollbar-gutter: auto; }
     .verification-submit { padding-left: 0; }
     .petition-portrait { display: none; }
+    .free-action-workbench { padding: 1.1rem; }
+    .free-action-heading { display: block; }
+    .free-action-heading p { margin-top: .45rem; text-align: left; }
+    .free-action-layout { grid-template-columns: 1fr; }
+    .free-action-options { padding-left: 0; border-left: 0; border-top: 1px solid var(--dossier-line); padding-top: 1rem; }
+    .free-action-footer { align-items: flex-start; flex-direction: column; }
   }
 }
