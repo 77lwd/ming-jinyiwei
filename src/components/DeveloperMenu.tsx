@@ -8,7 +8,6 @@ const checkpoints: Array<{ id: DeveloperCheckpointId; label: string; note: strin
   { id: 'chapter2-case1-inquiry', label: '第一案 · 开始闻讯', note: '六项调查材料已入卷，四人均未问讯。' },
   { id: 'chapter2-case1-verification', label: '第一案 · 提交核验', note: '十二件材料已取得，核验命题尚未固定。' },
   { id: 'chapter2-case1-end', label: '第一案 · 结案处置', note: '两条核验命题已固定，直接测试覃保坤封结。' },
-  { id: 'chapter2-free-action', label: '第一案后 · 自由行动', note: '直接进入第一案封卷后的新版地点→行动窗口。' },
   { id: 'chapter2-case2-investigation', label: '第二案 · 开始调查', note: '从三条调查线的起点开始。' },
   { id: 'chapter2-case2-inquiry', label: '第二案 · 开始闻讯', note: '六项调查材料已入卷，四人均未问讯。' },
   { id: 'chapter2-case2-verification', label: '第二案 · 开始核验', note: '四份签押证言与两份对照记录已入卷。' },

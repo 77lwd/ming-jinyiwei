@@ -398,7 +398,7 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
   },
   'chapter2.case1-closed': {
     chapter: 'chapter2',
-    nextNode: 'chapter2.case1-free-action',
+    nextNode: 'chapter2.empty-dowry-house',
     narrative: { title: '第一案封卷 · 交接无据', tone: 'quiet', image: { src: '/assets/chapter2/case1/case1-sealed-desk.png', alt: '第一案封卷案桌' }, paragraphs: [{ kind: 'prose', text: '马骁还没有找到。湿存根的编号、蜡记和纸种都对得上，唯独领取人的名号模糊，交接地点空着，回收栏也没有剪角。押送途中有人开锁交人，这一笔先按失押责任记下。' }, { kind: 'dialogue', text: '覃保坤把凭照套进证物袋：“责任先落卷。人往哪里去了，另起一笔查。”' }] },
   },
   'chapter2.empty-dowry-house': {

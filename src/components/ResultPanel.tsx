@@ -18,18 +18,17 @@ export function ResultPanel({ chapter = 'chapter1', node, narrative, event, onCo
   const isChapterOneClosure = node === 'chapter1.case-closed'
   const isChapterTwoCaseOneClosure = chapter === 'chapter2' && node === 'chapter2.case1-authority-review'
   const isChapterTwoCaseTwoClosure = chapter === 'chapter2' && node === 'chapter2.case2-authority-review'
-  const isFreeActionResult = chapter === 'chapter2' && node === 'chapter2.case1-free-action' && Boolean(event?.id.startsWith('free-action'))
   const isClosure = isChapterOneClosure || isChapterTwoCaseOneClosure || isChapterTwoCaseTwoClosure
   const isNightPreservation = node === 'chapter1.night-preservation'
   const hasFiledMaterials = Boolean(event?.acquiredMaterialIds?.length)
-  const receiptLabel = isClosure ? '案件封结回执' : isFreeActionResult ? '案后行动记录' : isNightPreservation ? '夜间保全回执' : '核验回执'
-  const authorityLabel = isClosure ? '封结批示' : isFreeActionResult ? '案后记录' : isNightPreservation ? '保全批示' : '核验批示'
+  const receiptLabel = isClosure ? '案件封结回执' : isNightPreservation ? '夜间保全回执' : '核验回执'
+  const authorityLabel = isClosure ? '封结批示' : isNightPreservation ? '保全批示' : '核验批示'
   const materialLabels = chapter === 'chapter2' ? chapter2MaterialLabels : chapter1MaterialLabels
   const materialDescriptions = chapter === 'chapter2' ? chapter2MaterialDescriptions : chapter1MaterialDescriptions
   return (
     <section className={`result-view${isClosure ? ' closure-result' : ''}${hasFiledMaterials ? ' material-result' : ''}${isNightPreservation ? ' preservation-result' : ''}`} aria-label="选择结果">
       <NarrativePanel narrative={narrative}>
-        <section className="result-pause" aria-label={isFreeActionResult ? '案后行动记录' : '覃保坤核验回执'}>
+        <section className="result-pause" aria-label="覃保坤核验回执">
           <div className="result-document-meta" aria-hidden="true"><span>北镇抚司</span><span>{chapter === 'chapter2' ? '第二章案牍' : '第一章案牍'}</span></div>
           <div className="result-authority"><img src="/assets/chapter1/characters/qian-baokun-portrait-v1.png" alt="覃保坤" /><span><strong>覃保坤</strong><small>百户 · 本案承办</small></span><em>{authorityLabel}</em></div>
           {chapter === 'chapter1' ? <CaseContext node={node} /> : null}
@@ -40,7 +39,7 @@ export function ResultPanel({ chapter = 'chapter1', node, narrative, event, onCo
             </div>
             {isChapterOneClosure ? <div className="closure-stamp"><span className="closure-seal" aria-hidden="true">封</span><strong>纸铺失火案 · 已正式封结</strong><p>责任判断已通过复核，程序处置已由覃保坤主持完成。</p><ul><li>关键事实已固定</li><li>卷宗完成归档</li><li>后续进入证物保全与案后交接</li></ul></div> : isChapterTwoCaseOneClosure ? <div className="closure-stamp chapter2-closure-stamp"><span className="closure-seal" aria-hidden="true">封</span><strong>雨夜失押 · 已正式封结</strong><p>失押责任与违规交接已经结清，马骁去向另列续查。</p><ul className="closure-findings"><li><b>案件结论</b><span>马骁并非自行脱逃；锁扣、车辕与拖痕证明翻车现场经过人为布置，真实凭照被用于未经核验的交接。</span></li><li><b>程序处置</b><span>{event?.id.includes('preserve-guard-responsibility') ? '周六与赵七的失职责任分别入卷，凭照存根封存，责任材料完成移交。' : event?.id.includes('follow-river-transfer') ? '违规转移事实入卷，河埠与城南方向材料封存，押役责任另列待核。' : '已查清事实与责任建议分别入卷，由覃保坤落签封存。'}</span></li><li><b>仍待追查</b><span>马骁去向仍列待查；谁安排转移、凭照从何人手中流出，本案不作越证结论。</span></li></ul></div> : isChapterTwoCaseTwoClosure ? <div className="closure-stamp chapter2-closure-stamp"><span className="closure-seal" aria-hidden="true">封</span><strong>空屋里的嫁妆 · 已正式封结</strong><p>三条命题已经由精确材料组合核验通过，案件可以封结；凭照上游和房契后续权属另列续查。</p><ul className="closure-findings"><li><b>已确认事实</b><span>卢小绫主动藏身，不是被中间人直接绑走；她离开前确有拉扯和逼契压力。</span></li><li><b>责任结果</b><span>{event?.id.includes('trace-credential-handover') ? '卢盛以债务逼迫交出继承文书；真实凭照的权限滥用和中间人交接分别入卷，凭照交割链优先封存，副契原件受损后以抄件续存。' : '卢盛以债务逼迫交出继承文书；真实凭照的权限滥用和中间人交接分别入卷，卢小绫与副契原件先行保全，凭照交割记录另列续查。'}</span></li><li><b>仍待追查</b><span>凭照最初如何流出、中间人的上游和房契后续正式权属程序，当前材料都不能替它们下结论。</span></li></ul></div> : event?.acquiredMaterialIds?.length ? <div className="materials-filed" role="region" aria-label="材料入档"><strong>材料入档 · 新增 {event.acquiredMaterialIds.length} 项</strong><ul>{event.acquiredMaterialIds.map((id, index) => <li key={id}><span className="material-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span className="material-file-copy"><b>{materialLabels[id] ?? id}</b><span>{materialDescriptions[id] ?? '已记录入案卷。'}</span></span><em>已入档</em></li>)}</ul><p>已收入案情记录，可随时查看。</p>{onOpenCaseRecord && <button type="button" className="button button-secondary" onClick={onOpenCaseRecord}>查看案情记录</button>}</div> : event?.effects.length ? <ul>{event.effects.map((effect, index) => <li key={`${effect}-${index}`}>{effect}</li>)}</ul> : <p className="result-consequences-empty">{isNightPreservation ? '这一项保全已写入夜间笔录；其余现场条件将在第二日复核时显出后果。' : '这一步先固定调查方向；完整事实将在继续核验后写入案件工作板。'}</p>}
           </section>
-          <div className="dossier-continue"><button className="button button-primary" data-audio-sfx="confirm" onClick={onConfirm}>{isChapterOneClosure ? '进入证物归档' : isChapterTwoCaseOneClosure ? '进入案后交接' : isChapterTwoCaseTwoClosure ? '进入第三案' : isFreeActionResult ? '回到第二案' : '将核验结果写入案卷'} <ChevronRight size={18} /></button></div>
+          <div className="dossier-continue"><button className="button button-primary" data-audio-sfx="confirm" onClick={onConfirm}>{isChapterOneClosure ? '进入证物归档' : isChapterTwoCaseOneClosure ? '进入案后交接' : isChapterTwoCaseTwoClosure ? '进入第三案' : '将核验结果写入案卷'} <ChevronRight size={18} /></button></div>
         </section>
       </NarrativePanel>
     </section>

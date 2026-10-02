@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { advanceMainline, chooseFreeAction, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, getFreeActionLocations, getMainlineChoices, skipFreeAction, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2Case2Verification, submitChapter2InquiryReview, submitChapter2RegisterVerification } from '../gameEngine'
+import { advanceMainline, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, getMainlineChoices, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2Case2Verification, submitChapter2InquiryReview, submitChapter2RegisterVerification } from '../gameEngine'
 import type { GameState } from '../../types'
 
 function completeRoute(state: GameState, routeChoice: string, actionIds: string[]): GameState {
@@ -137,49 +137,24 @@ describe('desktop-first game engine', () => {
     expect(state.npcRelations.feng_tianshun).toBeGreaterThan(0)
   })
 
-  it('opens the first new free-action window after case one closes', () => {
-    const state = createDeveloperCheckpointState('chapter2-free-action')
-    expect(state.mainlineNode).toBe('chapter2.case1-free-action')
-    expect(state.freeAction.activeWindowId).toBe('chapter2-after-case1')
-    expect(getFreeActionLocations(state).map((location) => location.id)).toEqual(['home', 'clinic', 'training-ground', 'office', 'city', 'network'])
-  })
+  it('moves directly from case one closure into case two without the retired free-action menu', () => {
+    const state = createDeveloperCheckpointState('chapter2-case1-end')
+    const authority = chooseMainline(state, 'preserve-guard-responsibility')
+    expect(authority.ok).toBe(true)
+    if (!authority.ok) return
 
-  it('settles one free action once and then enters case two', () => {
-    const state = createDeveloperCheckpointState('chapter2-free-action')
-    const chosen = chooseFreeAction(state, 'clinic-basic')
-    expect(chosen.ok).toBe(true)
-    if (!chosen.ok) return
-    expect(chosen.state.phase).toBe('result')
-    expect(chosen.state.wealth).toBe(33)
-    expect(chosen.state.health).toBe(100)
-    expect(chosen.state.currentNarrative.paragraphs[0].text).toContain('重新缠好的布条不再松动')
-    expect(chosen.state.currentNarrative.paragraphs[0].text).not.toBe('请郎中处理影响行动的擦伤和扭伤。')
-    expect(chosen.state.freeAction.completedWindowIds).toContain('chapter2-after-case1')
-    expect(chooseFreeAction(chosen.state, 'home-rest')).toMatchObject({ ok: false, reason: 'invalid_phase' })
-    const continued = confirmResult(chosen.state)
-    expect(continued.ok).toBe(true)
-    if (continued.ok) expect(continued.state.mainlineNode).toBe('chapter2.empty-dowry-house')
-  })
+    expect(authority.state.mainlineNode).toBe('chapter2.case1-authority-review')
+    expect(authority.state.phase).toBe('result')
 
-  it('allows skipping the window without changing resources', () => {
-    const state = createDeveloperCheckpointState('chapter2-free-action')
-    const skipped = skipFreeAction(state)
-    expect(skipped.ok).toBe(true)
-    if (!skipped.ok) return
-    expect(skipped.state.wealth).toBe(state.wealth)
-    expect(skipped.state.health).toBe(state.health)
-    expect(confirmResult(skipped.state)).toMatchObject({ ok: true, state: { mainlineNode: 'chapter2.empty-dowry-house' } })
-  })
+    const closure = confirmResult(authority.state)
+    expect(closure).toMatchObject({ ok: true, state: { mainlineNode: 'chapter2.case1-closed', phase: 'mainline' } })
+    if (!closure.ok) return
 
-  it('uses a low-intensity substitute when health is low', () => {
-    const state = { ...createDeveloperCheckpointState('chapter2-free-action'), health: 20 }
-    const chosen = chooseFreeAction(state, 'training-colleague')
-    expect(chosen.ok).toBe(true)
-    if (chosen.ok) {
-      expect(chosen.state.health).toBe(18)
-      expect(chosen.state.attributes.strength).toBe(state.attributes.strength)
-      expect(chosen.state.attributes.reputation).toBe(state.attributes.reputation + 1)
-      expect(chosen.state.currentNarrative.paragraphs[0].text).toContain('脚下就先晃了一下')
+    const continued = advanceMainline(closure.state)
+    expect(continued).toMatchObject({ ok: true, state: { mainlineNode: 'chapter2.empty-dowry-house', phase: 'mainline' } })
+    if (continued.ok) {
+      expect(continued.state.freeAction.activeWindowId).toBeNull()
+      expect(continued.state.currentNarrative.title).toBe('第二案 · 空屋里的嫁妆')
     }
   })
 
@@ -524,10 +499,6 @@ describe('desktop-first game engine', () => {
     expect(state.chapter2Investigation.materialIds).toEqual(expect.arrayContaining(['unforced-lock', 'separate-guard-statements']))
 
     state = (advanceMainline(state) as { ok: true; state: GameState }).state
-    if (state.mainlineNode === 'chapter2.case1-free-action') {
-      state = (skipFreeAction(state) as { ok: true; state: GameState }).state
-      state = (confirmResult(state) as { ok: true; state: GameState }).state
-    }
     state = completeChapter2CaseTwo(state, 'protect-witness-and-deed')
     expect(state.flags).toMatchObject({ slip_chain_2: true, c2_02_witness_deed: true })
     expect(state.flags.c2_02_receipt_chain).not.toBe(true)
@@ -849,7 +820,6 @@ describe('desktop-first game engine', () => {
         observedStages.push(state.mainlineNode)
       }
       if (state.mainlineNode === 'chapter2.rain-night-transfer') { state = completeChapter2CaseOne(state); continue }
-      else if (state.mainlineNode === 'chapter2.case1-free-action') { state = (skipFreeAction(state) as { ok: true; state: GameState }).state; state = (confirmResult(state) as { ok: true; state: GameState }).state; continue }
       else if (state.mainlineNode === 'chapter2.empty-dowry-house') state = completeChapter2CaseTwo(state, 'protect-witness-and-deed')
       else if (state.mainlineNode === 'chapter2.before-the-watch-drum') state = confirmMainlineChoice(state, 'preserve-death-timeline')
       else if (state.mainlineNode === 'chapter2.register-review') {

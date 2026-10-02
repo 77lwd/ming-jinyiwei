@@ -15,7 +15,6 @@ import { Chapter2Case2VerificationWorkbench } from './Chapter2Case2VerificationW
 import { Chapter2CaseContext, Chapter2CaseProgress, Chapter2CaseRecord, Chapter2InvestigationChoices } from './Chapter2CaseWorkbench'
 import { Chapter2InquiryDialogue } from './Chapter2InquiryDialogue'
 import { Chapter2InquiryReviewWorkbench } from './Chapter2InquiryReviewWorkbench'
-import { FreeActionWindowView } from './FreeActionWindowView'
 import { NarrativePanel } from './NarrativePanel'
 import { NetworkDrawer } from './NetworkDrawer'
 import type { NetworkId } from '../data/network'
@@ -27,9 +26,8 @@ export function GameLayout() {
   const state = useGameStore()
   useEffect(() => {
     const isChapter2 = state.chapter === 'chapter2'
-    const freeActionMusic = isChapter2 && state.mainlineNode === 'chapter2.case1-free-action'
     const inquiryMusic = isChapter2 && (state.mainlineNode.includes('case1-inquiry') || state.mainlineNode.includes('case2-inquiry') || state.mainlineNode === 'chapter2.case1-close-review' || state.mainlineNode === 'chapter2.case2-close-review' || state.mainlineNode === 'chapter2.case2-authority-review')
-    const track = freeActionMusic ? MUSIC_TRACK_URL : inquiryMusic ? INQUIRY_MUSIC_TRACK_URL : isChapter2 ? CHAPTER2_INVESTIGATION_MUSIC_TRACK_URL : MUSIC_TRACK_URL
+    const track = inquiryMusic ? INQUIRY_MUSIC_TRACK_URL : isChapter2 ? CHAPTER2_INVESTIGATION_MUSIC_TRACK_URL : MUSIC_TRACK_URL
     audioEngine.setMusicTrack(track)
   }, [state.chapter, state.mainlineNode])
   const [drawer, setDrawer] = useState<'dossier' | 'record' | 'network' | null>(null)
@@ -82,7 +80,6 @@ export function GameLayout() {
         <section className="play-column">
           {state.phase === 'mainline' ? (
             <section className="case-desk">
-              {state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-free-action' ? <FreeActionWindowView state={state} onChoose={state.chooseFreeAction} onSkip={state.skipFreeAction} /> : <>
               {state.chapter === 'chapter1' && <CaseProgress node={state.mainlineNode} />}
               {state.chapter === 'chapter2' && <Chapter2CaseProgress node={state.mainlineNode} investigation={state.chapter2Investigation} />}
               <NarrativePanel narrative={state.currentNarrative}>
@@ -107,7 +104,6 @@ export function GameLayout() {
                   <div className="dossier-continue"><button className="button button-primary" data-audio-sfx="confirm" onClick={state.advanceMainline}>{continueLabels[state.mainlineNode] ?? '继续办差'} <ChevronRight size={18} /></button></div>
                 )}
               </NarrativePanel>
-              </>}
             </section>
           ) : state.phase === 'result' ? (
             state.chapter === 'chapter2' && (state.mainlineNode.startsWith('chapter2.case1-inquiry.') || state.mainlineNode.startsWith('chapter2.case2-inquiry.'))

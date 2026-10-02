@@ -31,7 +31,6 @@ export type DeveloperCheckpointId =
   | 'chapter2-case1-inquiry'
   | 'chapter2-case1-verification'
   | 'chapter2-case1-end'
-  | 'chapter2-free-action'
   | 'chapter2-case2-investigation'
   | 'chapter2-case2-inquiry'
   | 'chapter2-case2-verification'
@@ -67,17 +66,6 @@ const mainlineSteps: Record<string, MainlineStep> = {
     nextNode: 'chapter2.rain-night-transfer',
   },
   ...chapter2MainlineSteps,
-  'chapter2.case1-free-action': {
-    chapter: 'chapter2',
-    narrative: {
-      title: '第一案封卷 · 留出半日',
-      tone: 'quiet',
-      paragraphs: [
-        { kind: 'prose', text: '第一案已经封卷，第二张差牌还没有送到手里。覃保坤给你留出半日，去做一件自己的事，也可以按时回署。' },
-        { kind: 'system', text: '这是一次性案后空档：只能完成一项行动，也可以跳过。' },
-      ],
-    },
-  },
   'chapter3.entry': { chapter: 'chapter3', title: '第三章 · 调查前夕', text: '第三章主线即将展开。', nextNode: 'chapter3.investigation' },
   'chapter3.investigation': { chapter: 'chapter3', title: '第三章 · 调查推进', text: '已有材料正在按程序核验。', nextNode: 'chapter3.case-file-sealed' },
   'chapter3.case-file-sealed': { chapter: 'chapter3', title: '阶段转折 · 案包暂封', text: '案包先行暂封，等待后续程序接续。', nextNode: 'chapter4.entry', stageEvent: true },
@@ -117,9 +105,6 @@ function enterMainlineNode(state: GameState, nodeId: string): GameState {
       caseMaterialIds: [],
       fixedFactIds: [],
     }
-  }
-  if (nodeId === 'chapter2.case1-free-action') {
-    next.freeAction = { ...next.freeAction, activeWindowId: 'chapter2-after-case1' }
   }
   return {
     ...next,
@@ -454,20 +439,6 @@ export function createDeveloperCheckpointState(checkpoint: DeveloperCheckpointId
         ...base.recentEvents,
       ],
     }, 'chapter2.case1-authority-review')
-  }
-  if (checkpoint === 'chapter2-free-action') {
-    return enterMainlineNode({
-      ...base,
-      chapter2Investigation: {
-        ...investigation,
-        completedActionIds: [...investigationActions, ...testimonyActions],
-        caseMaterialIds: allMaterials,
-        materialIds: allMaterials,
-        fixedFactIds: ['self-escape', 'guard-duty'],
-        completedCaseIds: ['rain-night-transfer'],
-      },
-      freeAction: { activeWindowId: 'chapter2-after-case1', completedWindowIds: [], completedActionIds: [], lastOpinionUpdates: {} },
-    }, 'chapter2.case1-free-action')
   }
   const caseTwoInvestigationActions = chapter2Case2InvestigationActions.map((action) => action.id)
   const caseTwoInvestigationMaterials = [...new Set(caseTwoInvestigationActions.flatMap((id) => chapter2Case2ActionMaterials[id] ?? []))]

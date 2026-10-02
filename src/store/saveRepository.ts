@@ -1,5 +1,5 @@
 import type { GameState, NarrativeBlock, NarrativeEvent, PendingResult, Clue, NpcId } from '../types'
-import { chapter2ActionMaterials, chapter2Case1MaterialIds, chapter2InquiryReviews } from '../data/chapter2'
+import { chapter2ActionMaterials, chapter2Case1MaterialIds, chapter2InquiryReviews, chapter2MainlineSteps } from '../data/chapter2'
 import { chapter2Case2MaterialIds } from '../data/chapter2Case2'
 
 export const SAVE_VERSION = 3
@@ -185,7 +185,30 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
     : [...investigationMaterials, ...signedOriginals, ...comparisonPrerequisites]
   chapter2Investigation.caseMaterialIds = [...new Set([...chapter2Investigation.caseMaterialIds, ...restoredMaterials])]
   chapter2Investigation.materialIds = [...new Set([...chapter2Investigation.materialIds, ...restoredMaterials])]
-  return { ...state, chapter1Investigation, chapter2Investigation, freeAction }
+  const normalized = { ...state, chapter1Investigation, chapter2Investigation, freeAction }
+  if (normalized.chapter === 'chapter2' && normalized.mainlineNode === 'chapter2.case1-free-action') {
+    const caseTwoOpening = chapter2MainlineSteps['chapter2.empty-dowry-house']
+    return {
+      ...normalized,
+      mainlineNode: 'chapter2.empty-dowry-house',
+      phase: 'mainline',
+      screen: 'game',
+      pendingResult: null,
+      currentNarrative: caseTwoOpening.narrative ?? normalized.currentNarrative,
+      chapter2Investigation: {
+        ...normalized.chapter2Investigation,
+        activeCaseId: 'empty-dowry-house',
+        caseMaterialIds: [],
+        materialIds: [...new Set([
+          ...normalized.chapter2Investigation.materialIds,
+          ...(normalized.chapter2Investigation.caseMaterialIds ?? []),
+        ])],
+        fixedFactIds: [],
+      },
+      freeAction: { ...normalized.freeAction, activeWindowId: null },
+    }
+  }
+  return normalized
 }
 
 function isAttributes(value: unknown): boolean {

@@ -138,4 +138,27 @@ describe('versioned desktop save repository', () => {
       'family-pressure-comparison', 'credential-handover-comparison',
     ]))
   })
+
+  it('migrates a save stranded in the retired case-one free-action menu into case two', () => {
+    const state = createInitialState()
+    state.chapter = 'chapter2'
+    state.mainlineNode = 'chapter2.case1-free-action'
+    state.phase = 'mainline'
+    state.freeAction.activeWindowId = 'chapter2-after-case1'
+    state.chapter2Investigation.completedCaseIds = ['rain-night-transfer']
+    state.chapter2Investigation.activeCaseId = 'rain-night-transfer'
+    state.chapter2Investigation.caseMaterialIds = ['wet-transfer-stub']
+    saveGame(state)
+
+    const loaded = loadSave()
+    expect(loaded.status).toBe('ok')
+    if (loaded.status !== 'ok') return
+    expect(loaded.state.mainlineNode).toBe('chapter2.empty-dowry-house')
+    expect(loaded.state.phase).toBe('mainline')
+    expect(loaded.state.currentNarrative.title).toBe('第二案 · 空屋里的嫁妆')
+    expect(loaded.state.freeAction.activeWindowId).toBeNull()
+    expect(loaded.state.chapter2Investigation.activeCaseId).toBe('empty-dowry-house')
+    expect(loaded.state.chapter2Investigation.caseMaterialIds).toEqual([])
+    expect(loaded.state.chapter2Investigation.materialIds).toContain('wet-transfer-stub')
+  })
 })

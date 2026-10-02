@@ -2,7 +2,7 @@ import { act, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { GameLayout } from './GameLayout'
 import { useGameStore } from '../store/gameStore'
-import { audioEngine, CHAPTER2_INVESTIGATION_MUSIC_TRACK_URL, INQUIRY_MUSIC_TRACK_URL, MUSIC_TRACK_URL } from '../audio/audioEngine'
+import { audioEngine, CHAPTER2_INVESTIGATION_MUSIC_TRACK_URL, INQUIRY_MUSIC_TRACK_URL } from '../audio/audioEngine'
 
 describe('GameLayout', () => {
   it('keeps chapter-one casework on the primary desk', () => {
@@ -20,19 +20,19 @@ describe('GameLayout', () => {
     expect(screen.queryByText('安排这一段空档')).not.toBeInTheDocument()
   })
 
-  it('uses the regular background music during the chapter-two free-action window', () => {
+  it('uses the chapter-two investigation track after the first case closure', () => {
     useGameStore.setState({
       screen: 'game',
       chapter: 'chapter2',
       phase: 'mainline',
-      mainlineNode: 'chapter2.case1-free-action',
-      currentNarrative: { title: '案后空档', paragraphs: [{ kind: 'prose', text: '封卷之后，尚有半日。' }] },
+      mainlineNode: 'chapter2.empty-dowry-house',
+      currentNarrative: { title: '第二案 · 空屋里的嫁妆', paragraphs: [{ kind: 'prose', text: '第二案开始。' }] },
     })
     const setMusicTrack = vi.spyOn(audioEngine, 'setMusicTrack')
 
     render(<GameLayout />)
 
-    expect(setMusicTrack).toHaveBeenLastCalledWith(MUSIC_TRACK_URL)
+    expect(setMusicTrack).toHaveBeenLastCalledWith(CHAPTER2_INVESTIGATION_MUSIC_TRACK_URL)
     setMusicTrack.mockRestore()
   })
 
