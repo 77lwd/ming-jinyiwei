@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { advanceMainline, chooseFreeAction, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, getFreeActionLocations, getMainlineChoices, skipFreeAction, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2InquiryReview, submitChapter2RegisterVerification } from '../gameEngine'
+import { advanceMainline, chooseFreeAction, chooseMainline, confirmResult, createDeveloperCheckpointState, createInitialState, enterChapterTwo, getFreeActionLocations, getMainlineChoices, skipFreeAction, startMainline, submitChapter1Petition, submitChapter1Verification, submitChapter2Case1Verification, submitChapter2Case2Verification, submitChapter2InquiryReview, submitChapter2RegisterVerification } from '../gameEngine'
 import type { GameState } from '../../types'
 
 function completeRoute(state: GameState, routeChoice: string, actionIds: string[]): GameState {
@@ -83,6 +83,40 @@ function completeChapter2CaseOne(state: GameState): GameState {
   return confirmMainlineChoice(state, 'preserve-guard-responsibility')
 }
 
+function completeChapter2CaseTwo(state: GameState, branchId: 'protect-witness-and-deed' | 'trace-credential-handover'): GameState {
+  for (const choiceId of ['c2-02-inspect-backdoor', 'c2-02-inspect-dyehouse', 'c2-02-recover-deed', 'c2-02-check-debt-ledger', 'c2-02-verify-credential', 'c2-02-trace-credential-handover', 'c2-02-finish-investigation']) state = confirmMainlineChoice(state, choiceId)
+
+  const witnesses: Array<{ start: string; steps: string[]; review: string[] }> = [
+    { start: 'c2-02-begin-luxiaoling', steps: ['c2-02-luxiaoling-pressure', 'c2-02-luxiaoling-restatement', 'c2-02-luxiaoling-finish'], review: ['luxiaoling-hide:fact', 'luxiaoling-credential:pending', 'luxiaoling-pressure:fact'] },
+    { start: 'c2-02-begin-lusheng', steps: ['c2-02-lusheng-ledger', 'c2-02-lusheng-restatement', 'c2-02-lusheng-finish'], review: ['lusheng-debt:fact', 'lusheng-denial:conflict', 'lusheng-source:pending'] },
+    { start: 'c2-02-begin-spouse', steps: ['c2-02-spouse-sash', 'c2-02-spouse-restatement', 'c2-02-spouse-finish'], review: ['spouse-quarrel:fact', 'spouse-identity:pending', 'spouse-sash:fact'] },
+    { start: 'c2-02-begin-tea-clerk', steps: ['c2-02-tea-table', 'c2-02-tea-restatement', 'c2-02-tea-clerk-finish'], review: ['tea-handover:fact', 'tea-upstream:pending', 'tea-denial:conflict'] },
+  ]
+  for (const witness of witnesses) {
+    state = confirmMainlineChoice(state, witness.start)
+    for (const choiceId of witness.steps) state = confirmMainlineChoice(state, choiceId)
+    state = confirmInquiryReview(state, witness.review)
+    state = confirmMainlineChoice(state, 'c2-02-return-inquiry-select')
+  }
+
+  state = confirmMainlineChoice(state, 'c2-02-compare-family')
+  state = confirmInquiryReview(state, ['family-route:confirmed', 'family-pressure:evidence', 'family-identity:conflict'])
+  state = confirmMainlineChoice(state, 'c2-02-compare-credential')
+  state = confirmInquiryReview(state, ['credential-scope:evidence', 'credential-time:confirmed', 'credential-source:conflict'])
+  state = confirmMainlineChoice(state, 'c2-02-open-verification')
+
+  for (const [questionId, materials] of [
+    ['voluntary-hiding-pressure', ['indigo-footprints', 'torn-dowry-sash', 'luxiaoling-signed-statement', 'spouse-witness-signed-testimony']],
+    ['debt-coercion', ['inheritance-deed', 'debt-ledger', 'coercive-private-contract', 'lusheng-signed-statement']],
+    ['credential-abuse-handover', ['inspection-credential', 'credential-scope-record', 'credential-handover-record', 'tea-clerk-signed-testimony']],
+  ] as const) {
+    const result = submitChapter2Case2Verification(state, questionId, [...materials])
+    if (!result.ok) throw new Error(`case two verification failed: ${questionId}`)
+    state = (confirmResult(result.state) as { ok: true; state: GameState }).state
+  }
+  return confirmMainlineChoice(state, branchId)
+}
+
 describe('desktop-first game engine', () => {
   it('creates chapter two developer checkpoints with the first chapter carry-over intact', () => {
     const state = createDeveloperCheckpointState('chapter2-case1-investigation')
@@ -163,6 +197,32 @@ describe('desktop-first game engine', () => {
     expect(verification.chapter2Investigation.fixedFactIds).toEqual([])
   })
 
+  it('creates second-case developer checkpoints with stage-appropriate materials', () => {
+    const investigation = createDeveloperCheckpointState('chapter2-case2-investigation')
+    expect(investigation.mainlineNode).toBe('chapter2.empty-dowry-house')
+    expect(investigation.chapter2Investigation.completedCaseIds).toEqual(['rain-night-transfer'])
+    expect(investigation.chapter2Investigation.caseMaterialIds).toEqual([])
+    expect(investigation.chapter2Investigation.completedActionIds).toEqual([])
+
+    const inquiry = createDeveloperCheckpointState('chapter2-case2-inquiry')
+    expect(inquiry.mainlineNode).toBe('chapter2.case2-inquiry-select')
+    expect(inquiry.chapter2Investigation.caseMaterialIds).toHaveLength(8)
+    expect(inquiry.chapter2Investigation.caseMaterialIds).not.toContain('luxiaoling-signed-statement')
+
+    const verification = createDeveloperCheckpointState('chapter2-case2-verification')
+    expect(verification.mainlineNode).toBe('chapter2.case2-close-review')
+    expect(verification.chapter2Investigation.caseMaterialIds).toHaveLength(14)
+    expect(verification.chapter2Investigation.fixedFactIds).toEqual([])
+
+    const end = createDeveloperCheckpointState('chapter2-case2-end')
+    expect(end.mainlineNode).toBe('chapter2.case2-authority-review')
+    expect(end.chapter2Investigation.fixedFactIds).toEqual([
+      'voluntary-hiding-pressure',
+      'debt-coercion',
+      'credential-abuse-handover',
+    ])
+  })
+
   it('opens the selected case-one inquiry directly without a verification receipt', () => {
     const state = createDeveloperCheckpointState('chapter2-case1-inquiry')
 
@@ -176,6 +236,112 @@ describe('desktop-first game engine', () => {
         pendingResult: null,
       },
     })
+  })
+
+  it.each(['c2-02-luxiaoling-pressure', 'c2-02-luxiaoling-deed'])('continues Lu Xiaoling inquiry after %s', (choiceId) => {
+    let state = createDeveloperCheckpointState('chapter2-case2-inquiry')
+    state = confirmMainlineChoice(state, 'c2-02-begin-luxiaoling')
+    state = confirmMainlineChoice(state, choiceId)
+
+    expect(state.mainlineNode).toBe('chapter2.case2-inquiry.luxiaoling.2')
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toContain('c2-02-luxiaoling-restatement')
+  })
+
+  it('keeps case two inquiry locked until all three investigation lines finish', () => {
+    let state: GameState = { ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.empty-dowry-house' }
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual([
+      'c2-02-inspect-backdoor',
+      'c2-02-recover-deed',
+      'c2-02-verify-credential',
+    ])
+
+    state = confirmMainlineChoice(state, 'c2-02-inspect-backdoor')
+    state = confirmMainlineChoice(state, 'c2-02-inspect-dyehouse')
+    state = confirmMainlineChoice(state, 'c2-02-recover-deed')
+    state = confirmMainlineChoice(state, 'c2-02-check-debt-ledger')
+    state = confirmMainlineChoice(state, 'c2-02-verify-credential')
+    expect(getMainlineChoices(state).map((choice) => choice.id)).not.toContain('c2-02-finish-investigation')
+    state = confirmMainlineChoice(state, 'c2-02-trace-credential-handover')
+
+    expect(state.chapter2Investigation.caseMaterialIds).toEqual(expect.arrayContaining([
+      'indigo-footprints', 'torn-dowry-sash', 'inheritance-deed', 'debt-ledger', 'coercive-private-contract',
+      'inspection-credential', 'credential-scope-record', 'credential-handover-record',
+    ]))
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['c2-02-finish-investigation'])
+
+    state = confirmMainlineChoice(state, 'c2-02-finish-investigation')
+    expect(state.mainlineNode).toBe('chapter2.case2-inquiry-select')
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(expect.arrayContaining([
+      'c2-02-begin-luxiaoling',
+      'c2-02-begin-lusheng',
+      'c2-02-begin-spouse',
+      'c2-02-begin-tea-clerk',
+    ]))
+  })
+
+  it('rejects missing, extra, and unrelated materials for every case two proposition', () => {
+    const materials = [
+      'indigo-footprints', 'torn-dowry-sash', 'inheritance-deed', 'debt-ledger', 'coercive-private-contract',
+      'inspection-credential', 'credential-scope-record', 'credential-handover-record',
+      'luxiaoling-signed-statement', 'lusheng-signed-statement', 'spouse-witness-signed-testimony', 'tea-clerk-signed-testimony',
+      'family-pressure-comparison', 'credential-handover-comparison',
+    ]
+    const state: GameState = {
+      ...createInitialState(),
+      screen: 'game',
+      phase: 'mainline',
+      chapter: 'chapter2',
+      mainlineNode: 'chapter2.case2-close-review',
+      chapter2Investigation: { ...createInitialState().chapter2Investigation, activeCaseId: 'empty-dowry-house', caseMaterialIds: materials, materialIds: materials },
+    }
+
+    for (const selected of [
+      ['indigo-footprints', 'torn-dowry-sash', 'luxiaoling-signed-statement'],
+      ['indigo-footprints', 'torn-dowry-sash', 'luxiaoling-signed-statement', 'spouse-witness-signed-testimony', 'debt-ledger'],
+      materials,
+    ]) {
+      const rejected = submitChapter2Case2Verification(state, 'voluntary-hiding-pressure', selected)
+      expect(rejected.ok).toBe(true)
+      if (rejected.ok) expect(rejected.state.chapter2Investigation.fixedFactIds).toEqual([])
+    }
+  })
+
+  it('fixes all three case two propositions before authority review and preserves one branch', () => {
+    const materials = [
+      'indigo-footprints', 'torn-dowry-sash', 'inheritance-deed', 'debt-ledger', 'coercive-private-contract',
+      'inspection-credential', 'credential-scope-record', 'credential-handover-record',
+      'luxiaoling-signed-statement', 'lusheng-signed-statement', 'spouse-witness-signed-testimony', 'tea-clerk-signed-testimony',
+      'family-pressure-comparison', 'credential-handover-comparison',
+    ]
+    let state: GameState = {
+      ...createInitialState(),
+      screen: 'game',
+      phase: 'mainline',
+      chapter: 'chapter2',
+      mainlineNode: 'chapter2.case2-close-review',
+      chapter2Investigation: { ...createInitialState().chapter2Investigation, activeCaseId: 'empty-dowry-house', caseMaterialIds: materials, materialIds: materials },
+    }
+
+    state = (submitChapter2Case2Verification(state, 'voluntary-hiding-pressure', ['indigo-footprints', 'torn-dowry-sash', 'luxiaoling-signed-statement', 'spouse-witness-signed-testimony']) as { ok: true; state: GameState }).state
+    state = (confirmResult(state) as { ok: true; state: GameState }).state
+    state = (submitChapter2Case2Verification(state, 'debt-coercion', ['inheritance-deed', 'debt-ledger', 'coercive-private-contract', 'lusheng-signed-statement']) as { ok: true; state: GameState }).state
+    state = (confirmResult(state) as { ok: true; state: GameState }).state
+    state = (submitChapter2Case2Verification(state, 'credential-abuse-handover', ['inspection-credential', 'credential-scope-record', 'credential-handover-record', 'tea-clerk-signed-testimony']) as { ok: true; state: GameState }).state
+
+    expect(state.mainlineNode).toBe('chapter2.case2-close-review')
+    expect(state.chapter2Investigation.fixedFactIds).toEqual(expect.arrayContaining([
+      'voluntary-hiding-pressure', 'debt-coercion', 'credential-abuse-handover',
+    ]))
+    expect(state.pendingResult?.nextNode).toBe('chapter2.case2-authority-review')
+
+    state = (confirmResult(state) as { ok: true; state: GameState }).state
+    expect(getMainlineChoices(state).map((choice) => choice.id)).toEqual(['protect-witness-and-deed', 'trace-credential-handover'])
+    state = confirmMainlineChoice(state, 'protect-witness-and-deed')
+    expect(state.flags.slip_chain_2).toBe(true)
+    expect(state.flags.c2_02_witness_deed).toBe(true)
+    expect(state.flags.c2_02_receipt_chain).not.toBe(true)
+    expect(state.chapter2Investigation.completedCaseIds).toContain('empty-dowry-house')
+    expect(state.chapter2Investigation.branchIds).toContain('c2_02_witness_deed')
   })
   it('separates case-one investigation into routes and keeps inquiry locked until all routes finish', () => {
     let state: GameState = { ...createInitialState(), screen: 'game', phase: 'mainline', chapter: 'chapter2', mainlineNode: 'chapter2.rain-night-transfer' }
@@ -362,7 +528,7 @@ describe('desktop-first game engine', () => {
       state = (skipFreeAction(state) as { ok: true; state: GameState }).state
       state = (confirmResult(state) as { ok: true; state: GameState }).state
     }
-    state = confirmMainlineChoice(state, 'protect-witness-and-deed')
+    state = completeChapter2CaseTwo(state, 'protect-witness-and-deed')
     expect(state.flags).toMatchObject({ slip_chain_2: true, c2_02_witness_deed: true })
     expect(state.flags.c2_02_receipt_chain).not.toBe(true)
 
@@ -684,7 +850,7 @@ describe('desktop-first game engine', () => {
       }
       if (state.mainlineNode === 'chapter2.rain-night-transfer') { state = completeChapter2CaseOne(state); continue }
       else if (state.mainlineNode === 'chapter2.case1-free-action') { state = (skipFreeAction(state) as { ok: true; state: GameState }).state; state = (confirmResult(state) as { ok: true; state: GameState }).state; continue }
-      else if (state.mainlineNode === 'chapter2.empty-dowry-house') state = confirmMainlineChoice(state, 'protect-witness-and-deed')
+      else if (state.mainlineNode === 'chapter2.empty-dowry-house') state = completeChapter2CaseTwo(state, 'protect-witness-and-deed')
       else if (state.mainlineNode === 'chapter2.before-the-watch-drum') state = confirmMainlineChoice(state, 'preserve-death-timeline')
       else if (state.mainlineNode === 'chapter2.register-review') {
         const verified = submitChapter2RegisterVerification(state, ['wet-transfer-stub', 'inspection-credential', 'night-pass-counterfoil'])

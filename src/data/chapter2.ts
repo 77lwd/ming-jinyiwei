@@ -1,4 +1,12 @@
 import type { Chapter2BranchId, Chapter2CaseId, Chapter2InvestigationState, Effect, MainlineChoice, NarrativeBlock } from '../types'
+import {
+  chapter2Case2ActionMaterials,
+  chapter2Case2InquiryReviews,
+  chapter2Case2MainlineSteps,
+  chapter2Case2MaterialDescriptions,
+  chapter2Case2MaterialLabels,
+  chapter2Case2MaterialProvenance,
+} from './chapter2Case2'
 
 export interface Chapter2MainlineStep {
   chapter: 'chapter2'
@@ -35,6 +43,7 @@ export const chapter2MaterialLabels: Record<string, string> = {
   'death-timeline': '门闩血迹与更鼓时序',
   'altered-watch-register': '被改写的值夜簿',
   'cargo-seal-record': '当夜货封放行记录',
+  ...chapter2Case2MaterialLabels,
 }
 
 export const chapter2MaterialDescriptions: Record<string, string> = {
@@ -58,6 +67,7 @@ export const chapter2MaterialDescriptions: Record<string, string> = {
   'death-timeline': '门闩血迹、尸体位置与更鼓时刻共同固定程佑死亡前后的顺序。',
   'altered-watch-register': '值夜簿在事后改写了放车时刻和当值记录。',
   'cargo-seal-record': '货封编号与放行车辆相符，证明当夜确有篷车出城。',
+  ...chapter2Case2MaterialDescriptions,
 }
 
 export const chapter2ChoiceOutcomes: Record<string, Chapter2ChoiceOutcome> = {
@@ -110,6 +120,7 @@ export const chapter2ActionMaterials: Record<string, string[]> = {
   'c2-01-examine-rope-fibers': ['cut-rope-fibers'],
   'c2-01-preserve-wet-stub': ['wet-transfer-stub'],
   'c2-01-compare-escort-order': ['original-escort-order'],
+  ...chapter2Case2ActionMaterials,
 }
 
 export const chapter2Case1MaterialIds = [
@@ -131,6 +142,7 @@ export const chapter2MaterialProvenance: Record<string, { kind: string; source: 
   'chen-laojiang-signed-testimony': { kind: '签押证言', source: '船夫陈老桨', formation: '单独核清时辰、渡路和辨认边界，经复述并按指印形成。' },
   'ashun-signed-testimony': { kind: '签押证言', source: '茶棚伙计阿顺', formation: '单独核清所见位置与车船次序，经改正前说、复述并按指印形成。' },
   'river-route-testimony': { kind: '证言对照', source: '陈老桨与阿顺', formation: '两份原证言分别签押后，再把共同路线、身份边界和车辙衔接处并列成页。' },
+  ...chapter2Case2MaterialProvenance,
 }
 
 export const chapter2Case1VerificationSets: Record<string, readonly string[]> = {
@@ -207,6 +219,7 @@ export const chapter2InquiryReviews: Record<string, Chapter2InquiryReview> = {
     statements: [{ id: 'river-identity', text: '两人都没有看清被带者面貌，不能据此写成已经认出马骁。' }, { id: 'river-trace', text: '桥坡拖痕和错开的轮辙把囚车与河埠方向接在一起。' }, { id: 'river-route', text: '三更后有人从茶棚附近被带往渡船，东岸有篷车接应并向南离开。' }],
     expected: ['river-route:confirmed', 'river-identity:conflict', 'river-trace:evidence'], successTitle: '河埠证言对照入卷', successText: '水路、时辰和篷车去向由两份独立证言互相印证；身份仍列待查。', nextNode: 'chapter2.case1-inquiry-select', materialId: 'river-route-testimony',
   },
+  ...chapter2Case2InquiryReviews,
 }
 
 export const chapter2Case1InvestigationActions: MainlineChoice[] = [
@@ -423,4 +436,5 @@ export const chapter2MainlineSteps: Record<string, Chapter2MainlineStep> = {
     nextNode: 'chapter3.entry',
     narrative: { title: '总簿封存 · 同一间转收房', tone: 'tense', paragraphs: [{ kind: 'prose', text: '三种凭照都被写作“误印、待回收”，却没有剪角，最终都经过同一间内部转收房。收件簿缺了页，封蜡也有后来破开的痕迹。' }, { kind: 'prose', text: '覃保坤先让书记官抄下缺页前后的编号、页码和封蜡痕迹，盖印副本收入内匣，才重新封存原簿。' }, { kind: 'dialogue', text: '“现在只能写流程被人用过。”他压住案卷，“至于谁在用，下一份材料到了再说。”' }] },
   },
+  ...chapter2Case2MainlineSteps,
 }

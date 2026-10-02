@@ -6,24 +6,27 @@
 
 A desktop-first historical mystery interactive fiction game. You play Liao Weida, a junior Jinyiwei officer newly assigned to the Northern Garrison. Read people and places, inspect physical facts, verify materials, request authority when it is needed, and live with the consequences of every bounded decision.
 
-Current version: `v0.1.0`
+Current version: `v0.2.1`
+
+Version highlights and release history are maintained in Chinese: [中文更新说明](CHANGELOG.md).
 
 ## Project Status
 
 | Area | Current status |
 | --- | --- |
-| Playable content | Prologue and Chapter 1, *Silver in the Paper Ashes* |
+| Playable content | Prologue, Chapter 1, and the first two cases of Chapter 2 |
 | Narrative plan | A prologue and five chapters, with Chapter 5 as the fixed ending |
-| Current implementation focus | Chapter 1's complete investigation rhythm, state feedback, and case closure |
+| Current implementation focus | Chapter 2 case flows, evidence verification, artwork, and playtest fixes |
 | Target platform | Desktop browsers with keyboard and mouse input |
 | Not in scope | Mobile support, PWA work, store releases, and a standalone free-action loop |
 
-Later chapters are not yet fully implemented. This repository does not present planned material as finished gameplay; `v0.1.0` is the playable baseline for the prologue and Chapter 1.
+`v0.2.1` adds the second case of Chapter 2, *The Dowry in the Empty House*, including investigation, separate interviews, testimony review, evidence verification, and closure. The remaining Chapter 2 content and later chapters are still being developed.
 
 ## Playable Content
 
 - **Prologue:** Liao Weida's past and his entry into the Northern Garrison.
 - **Chapter 1, *Silver in the Paper Ashes*:** A complete investigation loop involving field visits, material verification, reporting to Qian Baokun, overnight preservation, the charred wooden token, Feng Tianshun's reunion, a responsibility judgment, and formal case closure.
+- **Chapter 2:** The first two cases, *Rain-Night Transfer* and *The Dowry in the Empty House*, with a limited interlude after the first case.
 - **Narrative state:** Evidence, silver, health, and connections change through explicit story outcomes. They serve the case rather than a separate progression grind.
 
 ## How a Case Moves
@@ -139,4 +142,4 @@ The project must always retain media fallbacks: missing, failed, or replaced ima
 
 ## Version
 
-`v0.1.0` establishes the playable baseline for the prologue and Chapter 1. Later chapters will continue from the investigation structure, feedback density, and visual direction already validated there.
+`v0.2.1` covers the prologue, Chapter 1, and the first two cases of Chapter 2. Each GitHub update increments the final version number; Chapter 3 starts at `v0.3.0`. See the [Chinese changelog](CHANGELOG.md) for version-by-version details.

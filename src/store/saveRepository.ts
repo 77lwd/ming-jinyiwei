@@ -1,5 +1,6 @@
 import type { GameState, NarrativeBlock, NarrativeEvent, PendingResult, Clue, NpcId } from '../types'
 import { chapter2ActionMaterials, chapter2Case1MaterialIds, chapter2InquiryReviews } from '../data/chapter2'
+import { chapter2Case2MaterialIds } from '../data/chapter2Case2'
 
 export const SAVE_VERSION = 3
 export const SAVE_KEY = 'ming_jinyiwei.save.v3'
@@ -73,7 +74,8 @@ function isChapter2Investigation(value: unknown): boolean {
     Array.isArray(value.branchIds) && value.branchIds.every((id) => branchIds.includes(String(id))) &&
     Array.isArray(value.materialIds) && value.materialIds.every((id) => typeof id === 'string') &&
     Array.isArray(value.fixedFactIds) && value.fixedFactIds.every((id) => typeof id === 'string') &&
-    typeof value.registerVerified === 'boolean'
+    typeof value.registerVerified === 'boolean' &&
+    (value.inquiryReviewAttempts === undefined || (isRecord(value.inquiryReviewAttempts) && Object.values(value.inquiryReviewAttempts).every((attempt) => Number.isInteger(attempt) && Number(attempt) >= 0)))
 }
 
 function isFreeActionState(value: unknown): boolean {
@@ -134,6 +136,7 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
     materialIds: state.chapter2Investigation.materialIds ?? [],
     fixedFactIds: state.chapter2Investigation.fixedFactIds ?? [],
     registerVerified: state.chapter2Investigation.registerVerified ?? false,
+    ...(state.chapter2Investigation.inquiryReviewAttempts ? { inquiryReviewAttempts: state.chapter2Investigation.inquiryReviewAttempts } : {}),
   } : {
     activeCaseId: null,
     completedActionIds: [],
@@ -162,14 +165,23 @@ function withChapter1InvestigationDefaults(state: GameState): GameState {
   const comparisonPrerequisites = [
     ...(chapter2Investigation.caseMaterialIds.includes('separate-guard-statements') ? ['zhou-liu-signed-statement', 'zhao-qi-signed-statement'] : []),
     ...(chapter2Investigation.caseMaterialIds.includes('river-route-testimony') ? ['chen-laojiang-signed-testimony', 'ashun-signed-testimony'] : []),
+    ...(chapter2Investigation.caseMaterialIds.includes('family-pressure-comparison') ? ['luxiaoling-signed-statement', 'lusheng-signed-statement', 'spouse-witness-signed-testimony'] : []),
+    ...(chapter2Investigation.caseMaterialIds.includes('credential-handover-comparison') ? ['tea-clerk-signed-testimony'] : []),
   ]
   const reachedCaseOneVerification = state.chapter === 'chapter2' && [
     'chapter2.case1-close-review',
     'chapter2.case1-authority-review',
     'chapter2.case1-closed',
   ].includes(state.mainlineNode)
+  const reachedCaseTwoVerification = state.chapter === 'chapter2' && [
+    'chapter2.case2-close-review',
+    'chapter2.case2-authority-review',
+    'chapter2.case2-closed',
+  ].includes(state.mainlineNode)
   const restoredMaterials = reachedCaseOneVerification
     ? chapter2Case1MaterialIds
+    : reachedCaseTwoVerification
+      ? chapter2Case2MaterialIds
     : [...investigationMaterials, ...signedOriginals, ...comparisonPrerequisites]
   chapter2Investigation.caseMaterialIds = [...new Set([...chapter2Investigation.caseMaterialIds, ...restoredMaterials])]
   chapter2Investigation.materialIds = [...new Set([...chapter2Investigation.materialIds, ...restoredMaterials])]

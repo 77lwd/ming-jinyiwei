@@ -11,6 +11,7 @@ import { Chapter1VerificationWorkbench } from './Chapter1VerificationWorkbench'
 import { Chapter1PetitionWorkbench } from './Chapter1PetitionWorkbench'
 import { Chapter2RegisterWorkbench } from './Chapter2RegisterWorkbench'
 import { Chapter2Case1VerificationWorkbench } from './Chapter2Case1VerificationWorkbench'
+import { Chapter2Case2VerificationWorkbench } from './Chapter2Case2VerificationWorkbench'
 import { Chapter2CaseContext, Chapter2CaseProgress, Chapter2CaseRecord, Chapter2InvestigationChoices } from './Chapter2CaseWorkbench'
 import { Chapter2InquiryDialogue } from './Chapter2InquiryDialogue'
 import { Chapter2InquiryReviewWorkbench } from './Chapter2InquiryReviewWorkbench'
@@ -27,7 +28,7 @@ export function GameLayout() {
   useEffect(() => {
     const isChapter2 = state.chapter === 'chapter2'
     const freeActionMusic = isChapter2 && state.mainlineNode === 'chapter2.case1-free-action'
-    const inquiryMusic = isChapter2 && (state.mainlineNode.includes('case1-inquiry') || state.mainlineNode === 'chapter2.case1-close-review')
+    const inquiryMusic = isChapter2 && (state.mainlineNode.includes('case1-inquiry') || state.mainlineNode.includes('case2-inquiry') || state.mainlineNode === 'chapter2.case1-close-review' || state.mainlineNode === 'chapter2.case2-close-review' || state.mainlineNode === 'chapter2.case2-authority-review')
     const track = freeActionMusic ? MUSIC_TRACK_URL : inquiryMusic ? INQUIRY_MUSIC_TRACK_URL : isChapter2 ? CHAPTER2_INVESTIGATION_MUSIC_TRACK_URL : MUSIC_TRACK_URL
     audioEngine.setMusicTrack(track)
   }, [state.chapter, state.mainlineNode])
@@ -88,10 +89,12 @@ export function GameLayout() {
                 {state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.feng-reunion' && state.flags.tianshun_reconnected && <section className="relationship-update" aria-label="人脉更新"><img src="/assets/chapter1/characters/feng-tianshun-portrait-v1.png" alt="冯天顺肖像" /><div><strong>人脉更新</strong><span>冯天顺已加入你的人脉</span><small>关系阶段：熟悉 · 他仍把你当作儿时兄弟，愿意与你恢复往来。</small></div><button type="button" className="button button-secondary" onClick={() => openNetwork('feng_tianshun')}>查看人脉</button></section>}
                 {state.chapter === 'chapter1' && <CaseContext node={state.mainlineNode} />}
                 {state.chapter === 'chapter2' && <Chapter2CaseContext node={state.mainlineNode} />}
-                {state.chapter === 'chapter2' && state.mainlineNode.includes('case1-inquiry.') && (state.mainlineNode.endsWith('.review') || state.mainlineNode.endsWith('.compare')) ? (
+                {state.chapter === 'chapter2' && (state.mainlineNode.includes('case1-inquiry.') || state.mainlineNode.includes('case2-inquiry.')) && (state.mainlineNode.endsWith('.review') || state.mainlineNode.endsWith('.compare')) ? (
                   <Chapter2InquiryReviewWorkbench node={state.mainlineNode} errorTitle={state.currentNarrative.title} onSubmit={state.submitChapter2InquiryReview} />
                 ) : state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case1-close-review' ? (
                   <Chapter2Case1VerificationWorkbench materialIds={state.chapter2Investigation.caseMaterialIds ?? []} fixedFactIds={state.chapter2Investigation.fixedFactIds} onVerify={state.submitChapter2Case1Verification} />
+                ) : state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case2-close-review' ? (
+                  <Chapter2Case2VerificationWorkbench materialIds={state.chapter2Investigation.caseMaterialIds ?? []} fixedFactIds={state.chapter2Investigation.fixedFactIds} onVerify={state.submitChapter2Case2Verification} />
                 ) : state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.register-review' ? (
                   <Chapter2RegisterWorkbench investigation={state.chapter2Investigation} onVerify={state.submitChapter2RegisterVerification} />
                 ) : state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify' ? (
@@ -107,7 +110,7 @@ export function GameLayout() {
               </>}
             </section>
           ) : state.phase === 'result' ? (
-            state.chapter === 'chapter2' && state.mainlineNode.startsWith('chapter2.case1-inquiry.')
+            state.chapter === 'chapter2' && (state.mainlineNode.startsWith('chapter2.case1-inquiry.') || state.mainlineNode.startsWith('chapter2.case2-inquiry.'))
               ? <Chapter2InquiryDialogue node={state.mainlineNode} question={state.recentEvents[0]?.title ?? '继续说明当时所见。'} narrative={state.currentNarrative} onConfirm={state.confirmResult} />
               : <ResultPanel chapter={state.chapter} node={state.mainlineNode} narrative={state.currentNarrative} event={state.recentEvents[0]} onConfirm={state.confirmResult} onOpenCaseRecord={() => setDrawer('record')} />
           ) : null}

@@ -102,4 +102,40 @@ describe('versioned desktop save repository', () => {
     ]))
     expect(loaded.state.chapter2Investigation.caseMaterialIds).toHaveLength(12)
   })
+
+  it('preserves case-two review attempts and reconstructs earned case-two materials', () => {
+    const state = createInitialState()
+    state.chapter = 'chapter2'
+    state.mainlineNode = 'chapter2.case2-close-review'
+    state.chapter2Investigation.activeCaseId = 'empty-dowry-house'
+    state.chapter2Investigation.completedActionIds = [
+      'c2-02-inspect-backdoor',
+      'c2-02-inspect-dyehouse',
+      'c2-02-recover-deed',
+      'c2-02-check-debt-ledger',
+      'c2-02-verify-credential',
+      'c2-02-trace-credential-handover',
+      'c2-02-luxiaoling-statement',
+      'c2-02-lusheng-statement',
+      'c2-02-spouse-statement',
+      'c2-02-tea-clerk-statement',
+      'c2-02-family-comparison',
+      'c2-02-credential-comparison',
+    ]
+    state.chapter2Investigation.caseMaterialIds = ['indigo-footprints']
+    state.chapter2Investigation.materialIds = ['indigo-footprints']
+    state.chapter2Investigation.inquiryReviewAttempts = { 'chapter2.case2-inquiry.lusheng.review': 2 }
+    saveGame(state)
+
+    const loaded = loadSave()
+    expect(loaded.status).toBe('ok')
+    if (loaded.status !== 'ok') return
+    expect(loaded.state.chapter2Investigation.inquiryReviewAttempts).toEqual({ 'chapter2.case2-inquiry.lusheng.review': 2 })
+    expect(loaded.state.chapter2Investigation.caseMaterialIds).toEqual(expect.arrayContaining([
+      'indigo-footprints', 'torn-dowry-sash', 'inheritance-deed', 'debt-ledger', 'coercive-private-contract',
+      'inspection-credential', 'credential-scope-record', 'credential-handover-record',
+      'luxiaoling-signed-statement', 'lusheng-signed-statement', 'spouse-witness-signed-testimony', 'tea-clerk-signed-testimony',
+      'family-pressure-comparison', 'credential-handover-comparison',
+    ]))
+  })
 })

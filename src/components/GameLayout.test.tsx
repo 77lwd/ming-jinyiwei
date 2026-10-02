@@ -78,4 +78,32 @@ describe('GameLayout', () => {
     expect(screen.getByText('未剪角的封验凭照')).toBeInTheDocument()
     expect(screen.getByText('夜放牌副券')).toBeInTheDocument()
   })
+
+  it('routes second-case inquiry and verification to their dedicated workbenches', () => {
+    useGameStore.setState({
+      screen: 'game',
+      chapter: 'chapter2',
+      phase: 'mainline',
+      mainlineNode: 'chapter2.case2-inquiry.lusheng.review',
+      currentNarrative: { title: '卢盛 · 口供整理', paragraphs: [{ kind: 'prose', text: '请分栏整理。' }] },
+    })
+
+    const { rerender } = render(<GameLayout />)
+    expect(screen.getByRole('heading', { name: '整理卢盛口供' })).toBeInTheDocument()
+
+    act(() => useGameStore.setState({
+      mainlineNode: 'chapter2.case2-close-review',
+      chapter2Investigation: {
+        completedCaseIds: [],
+        branchIds: [],
+        materialIds: [],
+        caseMaterialIds: [],
+        completedActionIds: [],
+        fixedFactIds: [],
+        registerVerified: false,
+      },
+    }))
+    rerender(<GameLayout />)
+    expect(screen.getByRole('heading', { name: '第二案材料核验' })).toBeInTheDocument()
+  })
 })

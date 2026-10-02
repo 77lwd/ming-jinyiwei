@@ -7,6 +7,10 @@ const speakerByNode: Array<[string, string]> = [
   ['guard-b', '押役赵七'],
   ['river-boat', '船夫陈老桨'],
   ['river-tea', '茶棚伙计阿顺'],
+  ['luxiaoling', '卢小绫'],
+  ['lusheng', '卢盛'],
+  ['spouse', '夫家妇人'],
+  ['tea-clerk', '茶摊伙计'],
 ]
 
 const portraitBySpeaker: Record<string, string> = {
@@ -14,11 +18,19 @@ const portraitBySpeaker: Record<string, string> = {
   '押役赵七': '/assets/chapter2/case1/zhao-qi-portrait.png',
   '船夫陈老桨': '/assets/chapter2/case1/chen-laojiang-portrait.png',
   '茶棚伙计阿顺': '/assets/chapter2/case1/ashun-portrait.png',
+  '卢小绫': '/assets/chapter2/case2/luxiaoling-portrait.png',
+  '卢盛': '/assets/chapter2/case2/lusheng-portrait.png',
+  '夫家妇人': '/assets/chapter2/case2/spouse-woman-portrait.png',
+  '茶摊伙计': '/assets/chapter2/case2/tea-clerk-portrait.png',
 }
 
 const openingQuestionByNode: Record<string, string> = {
   'chapter2.case1-inquiry.guard-b.1': '从出署到河桥，按先后说一遍。路上有没有停过，谁一直在看着囚车？',
   'chapter2.case1-inquiry.river-tea.1': '你先说自己亲耳听见、亲眼看见的。官车到棚外以后，发生了什么？',
+  'chapter2.case2-inquiry.luxiaoling.1': '你先说自己亲自走过的路，别替拿凭照的人补身份。',
+  'chapter2.case2-inquiry.lusheng.1': '从你欠债和签私约开始说。先说亲手做过的事。',
+  'chapter2.case2-inquiry.spouse.1': '你站在后门看见什么，就从后门开始说。门房传来的话另放一栏。',
+  'chapter2.case2-inquiry.tea-clerk.1': '你先说茶摊后桌亲眼看见的动作，不要替来客认来处。',
 }
 
 const roundNotes: Record<string, { fixed: string; next: string }> = {
@@ -34,6 +46,14 @@ const roundNotes: Record<string, { fixed: string; next: string }> = {
   '船夫 · 上船的人': { fixed: '船夫看见一人被两人架上船，同行者带着湿绳和牌子，但他没有看清被带者面貌。', next: '继续确认靠岸位置与篷车去向，并把“看见的”与“无法辨认的”分开落纸。' },
   '阿顺 · 棚外的车': { fixed: '阿顺承认官车在茶棚外停过，随后又来一辆篷车，雨中至少有一名押役在场。', next: '继续追问车厢声响、抬人经过和两辆车离开的先后。' },
   '阿顺 · 两下木板声': { fixed: '阿顺听见车内两下撞板声，又从门缝看见有人被抬往河边，押役仍站在车门旁。', next: '让他按时辰重排官车、渡船与篷车的先后，只保留能够亲见或亲听的部分。' },
+  '卢小绫 · 后门': { fixed: '卢小绫确认自己从后门走进废染坊，但离开前曾被卢盛追问副契。', next: '继续核清衣带撕裂和她没有亲见凭照交割的边界。' },
+  '卢小绫 · 那张副契': { fixed: '卢小绫承认副契由她藏在灶台下，卢盛曾以债务和代管私约逼她交出。', next: '让她按亲自走过的路重述，不把听见的凭照话写成亲见。' },
+  '卢盛 · 两次催契': { fixed: '卢盛承认债务催还和两次催交房契，却仍试图把逼迫说成替人挡债。', next: '继续核对代管私约和他对凭照来源的知情边界。' },
+  '卢盛 · 私约': { fixed: '卢盛承认私约由自己签下，卢小绫没有在场；逾期处分房契的条款不能写成普通代管。', next: '让他从欠债、签约和追问副契开始重新复述。' },
+  '夫家妇人 · 衣带': { fixed: '夫家妇人看见衣带在后门拉扯中断，却不能辨认伸手的人和后续凭照交割者。', next: '继续核清她亲见的离开方向，不把门房传闻当作身份确认。' },
+  '夫家妇人 · 方向': { fixed: '夫家妇人看见卢小绫朝废染坊走去，没有跟进屋内，也没有看见凭照交接。', next: '让她按后门争执、衣带和离开方向重说。' },
+  '茶摊伙计 · 后桌': { fixed: '茶摊伙计承认先来的人压下凭照，后来的人取走并说要送去卢宅。', next: '继续核清账纸时辰、别号和他未看见的凭照来源。' },
+  '茶摊伙计 · 记账纸': { fixed: '茶摊伙计承认自己在后桌附近记下时辰，看见凭照印色，却没有看清交纸人的来处。', next: '让他只按座次、递纸和带往卢宅的动作重述。' },
 }
 
 const finalStatements: Array<{ key: string; title: string; conclusion: string; material: string }> = [
@@ -41,6 +61,10 @@ const finalStatements: Array<{ key: string; title: string; conclusion: string; m
   { key: 'guard-b.3', title: '赵七问话已完', conclusion: '赵七已经交代看牌、开锁和未回署核验的经过；他先前所说的“撞门逃走”仍须作为冲突保留。', material: '下一步：整理赵七个人口供；签押后再与周六口供逐项对照。' },
   { key: 'river-boat.2', title: '陈老桨问话已完', conclusion: '船夫能够固定渡船时辰、被带者上船方式、东岸靠岸处和篷车去向，但不能辨认被带者身份。', material: '下一步：整理船夫证言；不能把路线判断写成身份确认。' },
   { key: 'river-tea.2', title: '阿顺问话已完', conclusion: '阿顺能够固定官车停留、车内声响、抬人往河边和篷车南去的先后，但他没有看清人脸。', material: '下一步：整理阿顺证言；签押后再与船夫证言对照。' },
+  { key: 'luxiaoling.3', title: '卢小绫问话已完', conclusion: '卢小绫确认自己主动从后门进入废染坊，也说清离开前的逼契压力；凭照持有人和交割者不是她亲眼所见。', material: '下一步：整理主动藏身、逼契压力和凭照待核边界。' },
+  { key: 'lusheng.3', title: '卢盛问话已完', conclusion: '卢盛承认债务、私约和逼问副契，却不能说明凭照从谁手里流出。', material: '下一步：整理承认、改口和凭照来源待核部分。' },
+  { key: 'spouse.3', title: '夫家妇人问话已完', conclusion: '夫家妇人能够固定后门争执、衣带撕裂和离开方向，但没有见到凭照交割。', material: '下一步：整理亲见事实和门房传闻的边界。' },
+  { key: 'tea-clerk.3', title: '茶摊伙计问话已完', conclusion: '茶摊伙计能够固定凭照交接的时辰、动作和别号，但不能证明中间人的上游。', material: '下一步：整理交接亲见、前后改口和身份待核部分。' },
 ]
 
 export function Chapter2InquiryDialogue({ node, question, narrative, onConfirm }: {

@@ -76,4 +76,29 @@ describe('Chapter2InquiryDialogue', () => {
     expect(screen.getByText('你先说自己亲耳听见、亲眼看见的。官车到棚外以后，发生了什么？')).toBeInTheDocument()
     expect(screen.queryByText('封存船夫证言，单独询问阿顺')).not.toBeInTheDocument()
   })
+
+  it('keeps the second-case witness dialogue line-by-line and routes to sorting', () => {
+    const onConfirm = vi.fn()
+    render(<Chapter2InquiryDialogue
+      node="chapter2.case2-inquiry.luxiaoling.1"
+      question="从后门离开前发生了什么？"
+      narrative={{ title: '卢小绫 · 后门', paragraphs: [
+        { kind: 'dialogue', text: '“我从后门走的。走之前，舅父把副契摊在桌上。”' },
+        { kind: 'prose', text: '她说到衣带时，手指压紧了袖口。' },
+      ] }}
+      onConfirm={onConfirm}
+    />)
+
+    expect(screen.getByText('你先说自己亲自走过的路，别替拿凭照的人补身份。')).toBeInTheDocument()
+    expect(screen.queryByText('“我从后门走的。走之前，舅父把副契摊在桌上。”')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '听他回答' }))
+    expect(screen.getByText('卢小绫：')).toBeInTheDocument()
+    expect(screen.getByText('“我从后门走的。走之前，舅父把副契摊在桌上。”')).toBeInTheDocument()
+    expect(screen.queryByText('她说到衣带时，手指压紧了袖口。')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '继续听' }))
+    expect(screen.getByText('她说到衣带时，手指压紧了袖口。')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '继续闻讯' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '继续闻讯' }))
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+  })
 })

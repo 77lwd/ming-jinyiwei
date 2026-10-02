@@ -1,6 +1,7 @@
 import { applyEffects } from './effects'
 import { chapter1InvestigationBlueprint, chapter1MainlineSteps, createChapter1InvestigationState } from '../data/chapter1'
 import { chapter2ActionMaterials, chapter2Case1InvestigationActions, chapter2Case1Questions, chapter2Case1VerificationSets, chapter2ChoiceOutcomes, chapter2InquiryReviews, chapter2MainlineSteps, chapter2RegisterMaterialIds, createChapter2InvestigationState } from '../data/chapter2'
+import { chapter2Case2ActionMaterials, chapter2Case2InvestigationActions, chapter2Case2VerificationSets } from '../data/chapter2Case2'
 import { chapter2FirstFreeActions, freeActionLocationsFor, freeActionsForLocation, isActionAvailable } from '../data/freeActionWindows'
 import type { Chapter1PetitionId, Chapter1QuestionId, Chapter1RouteId, Chapter2BranchId, Chapter2CaseId, Effect, FreeActionId, FreeActionLocationId, FreeActionWindowId, GameState, MainlineChoice, NarrativeBlock, CommandResult } from '../types'
 
@@ -31,6 +32,10 @@ export type DeveloperCheckpointId =
   | 'chapter2-case1-verification'
   | 'chapter2-case1-end'
   | 'chapter2-free-action'
+  | 'chapter2-case2-investigation'
+  | 'chapter2-case2-inquiry'
+  | 'chapter2-case2-verification'
+  | 'chapter2-case2-end'
 
 interface MainlineStep {
   chapter: GameState['chapter']
@@ -104,6 +109,14 @@ function enterMainlineNode(state: GameState, nodeId: string): GameState {
   const next = step.effects ? applyEffects(state, step.effects) : state
   if (nodeId === 'chapter2.rain-night-transfer' && !next.chapter2Investigation.completedCaseIds.includes('rain-night-transfer')) {
     next.chapter2Investigation = createChapter2InvestigationState()
+  }
+  if (nodeId === 'chapter2.empty-dowry-house' && !next.chapter2Investigation.completedCaseIds.includes('empty-dowry-house')) {
+    next.chapter2Investigation = {
+      ...next.chapter2Investigation,
+      activeCaseId: 'empty-dowry-house',
+      caseMaterialIds: [],
+      fixedFactIds: [],
+    }
   }
   if (nodeId === 'chapter2.case1-free-action') {
     next.freeAction = { ...next.freeAction, activeWindowId: 'chapter2-after-case1' }
@@ -456,6 +469,80 @@ export function createDeveloperCheckpointState(checkpoint: DeveloperCheckpointId
       freeAction: { activeWindowId: 'chapter2-after-case1', completedWindowIds: [], completedActionIds: [], lastOpinionUpdates: {} },
     }, 'chapter2.case1-free-action')
   }
+  const caseTwoInvestigationActions = chapter2Case2InvestigationActions.map((action) => action.id)
+  const caseTwoInvestigationMaterials = [...new Set(caseTwoInvestigationActions.flatMap((id) => chapter2Case2ActionMaterials[id] ?? []))]
+  const caseTwoTestimonyActions = [
+    'c2-02-luxiaoling-statement',
+    'c2-02-lusheng-statement',
+    'c2-02-spouse-statement',
+    'c2-02-tea-clerk-statement',
+  ]
+  const caseTwoComparisonActions = ['c2-02-family-comparison', 'c2-02-credential-comparison']
+  const caseTwoSignedMaterials = [
+    'luxiaoling-signed-statement',
+    'lusheng-signed-statement',
+    'spouse-witness-signed-testimony',
+    'tea-clerk-signed-testimony',
+    'family-pressure-comparison',
+    'credential-handover-comparison',
+  ]
+  const caseTwoMaterials = [...caseTwoInvestigationMaterials, ...caseTwoSignedMaterials]
+  const caseTwoBase = {
+    ...base,
+    flags: { ...base.flags, slip_chain_1: true, c2_01_responsibility_chain: true },
+    chapter2Investigation: {
+      ...investigation,
+      activeCaseId: 'empty-dowry-house' as const,
+      completedCaseIds: ['rain-night-transfer' as const],
+      branchIds: ['c2_01_responsibility_chain' as const],
+      materialIds: [...investigationMaterials],
+    },
+    freeAction: { activeWindowId: null, completedWindowIds: ['chapter2-after-case1'] as FreeActionWindowId[], completedActionIds: [], lastOpinionUpdates: {} },
+  }
+  if (checkpoint === 'chapter2-case2-investigation') {
+    return enterMainlineNode({
+      ...caseTwoBase,
+      chapter2Investigation: {
+        ...caseTwoBase.chapter2Investigation,
+        completedActionIds: [],
+        caseMaterialIds: [],
+      },
+    }, 'chapter2.empty-dowry-house')
+  }
+  if (checkpoint === 'chapter2-case2-inquiry') {
+    return enterMainlineNode({
+      ...caseTwoBase,
+      chapter2Investigation: {
+        ...caseTwoBase.chapter2Investigation,
+        completedActionIds: caseTwoInvestigationActions,
+        caseMaterialIds: caseTwoInvestigationMaterials,
+        materialIds: [...caseTwoBase.chapter2Investigation.materialIds, ...caseTwoInvestigationMaterials],
+      },
+    }, 'chapter2.case2-inquiry-select')
+  }
+  if (checkpoint === 'chapter2-case2-verification') {
+    return enterMainlineNode({
+      ...caseTwoBase,
+      chapter2Investigation: {
+        ...caseTwoBase.chapter2Investigation,
+        completedActionIds: [...caseTwoInvestigationActions, ...caseTwoTestimonyActions, ...caseTwoComparisonActions],
+        caseMaterialIds: caseTwoMaterials,
+        materialIds: [...caseTwoBase.chapter2Investigation.materialIds, ...caseTwoMaterials],
+      },
+    }, 'chapter2.case2-close-review')
+  }
+  if (checkpoint === 'chapter2-case2-end') {
+    return enterMainlineNode({
+      ...caseTwoBase,
+      chapter2Investigation: {
+        ...caseTwoBase.chapter2Investigation,
+        completedActionIds: [...caseTwoInvestigationActions, ...caseTwoTestimonyActions, ...caseTwoComparisonActions],
+        caseMaterialIds: caseTwoMaterials,
+        materialIds: [...caseTwoBase.chapter2Investigation.materialIds, ...caseTwoMaterials],
+        fixedFactIds: ['voluntary-hiding-pressure', 'debt-coercion', 'credential-abuse-handover'],
+      },
+    }, 'chapter2.case2-authority-review')
+  }
   return enterMainlineNode({
     ...base,
     chapter2Investigation: {
@@ -554,6 +641,50 @@ export function getMainlineChoices(state: GameState): MainlineChoice[] {
   }
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.route-investigation') return chapter1RouteActions(state)
   if (state.chapter === 'chapter1' && state.mainlineNode === 'chapter1.day2-verify') return chapter1VerificationChoices(state)
+  if (state.chapter === 'chapter2' && ['chapter2.empty-dowry-house', 'chapter2.case2-investigation'].includes(state.mainlineNode)) {
+    const completed = new Set(state.chapter2Investigation.completedActionIds ?? [])
+    const routeStarters = [
+      ['c2-02-inspect-backdoor', 'c2-02-inspect-dyehouse'],
+      ['c2-02-recover-deed', 'c2-02-check-debt-ledger'],
+      ['c2-02-verify-credential', 'c2-02-trace-credential-handover'],
+    ]
+    const choices = routeStarters
+      .filter((ids) => ids.some((id) => !completed.has(id)))
+      .map((ids) => chapter2Case2InvestigationActions.find((choice) => choice.id === ids.find((id) => !completed.has(id)))!)
+      .filter(Boolean)
+    if (choices.length) return choices.filter((choice) => ['c2-02-inspect-backdoor', 'c2-02-recover-deed', 'c2-02-verify-credential'].includes(choice.id))
+    return [{ id: 'c2-02-finish-investigation', label: '结束现场与文书调查，开始分开闻讯', nextNode: 'chapter2.case2-inquiry-select', effects: [], outcomeNarrative: { title: '第二案调查材料封入案夹', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '六项调查动作已经分别记录来源、取得方法和形成理由。现场与文书调查到此停止，四名相关人分别候问。' }] } }]
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case2-route-backdoor') {
+    return chapter2Case2InvestigationActions.filter((choice) => choice.id === 'c2-02-inspect-dyehouse' && !(state.chapter2Investigation.completedActionIds ?? []).includes(choice.id))
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case2-route-deed') {
+    return chapter2Case2InvestigationActions.filter((choice) => choice.id === 'c2-02-check-debt-ledger' && !(state.chapter2Investigation.completedActionIds ?? []).includes(choice.id))
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case2-route-credential') {
+    return chapter2Case2InvestigationActions.filter((choice) => choice.id === 'c2-02-trace-credential-handover' && !(state.chapter2Investigation.completedActionIds ?? []).includes(choice.id))
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case2-inquiry-select') {
+    const completed = new Set(state.chapter2Investigation.completedActionIds ?? [])
+    const choices: MainlineChoice[] = []
+    if (!completed.has('c2-02-luxiaoling-statement')) choices.push({ id: 'c2-02-begin-luxiaoling', label: '分开闻讯卢小绫', nextNode: 'chapter2.case2-inquiry.luxiaoling.1', effects: [], outcomeNarrative: { title: '卢小绫入室候问', tone: 'tense', paragraphs: [{ kind: 'prose', text: '卢小绫单独入室。桌上只留后门勘验记录，不把其他人的话先递给她。' }] } })
+    if (!completed.has('c2-02-lusheng-statement')) choices.push({ id: 'c2-02-begin-lusheng', label: '分开闻讯卢盛', nextNode: 'chapter2.case2-inquiry.lusheng.1', effects: [], outcomeNarrative: { title: '卢盛入室候问', tone: 'tense', paragraphs: [{ kind: 'prose', text: '卢盛单独入室。书记官将债册和私约分别编号，不先让他知道卢小绫说过什么。' }] } })
+    if (!completed.has('c2-02-spouse-statement')) choices.push({ id: 'c2-02-begin-spouse', label: '分开闻讯夫家妇人', nextNode: 'chapter2.case2-inquiry.spouse.1', effects: [], outcomeNarrative: { title: '夫家妇人入室候问', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '夫家妇人单独入室。她只能说自己站在后门看见的部分，门房传闻另列一栏。' }] } })
+    if (!completed.has('c2-02-tea-clerk-statement')) choices.push({ id: 'c2-02-begin-tea-clerk', label: '分开闻讯茶摊伙计', nextNode: 'chapter2.case2-inquiry.tea-clerk.1', effects: [], outcomeNarrative: { title: '茶摊伙计入室候问', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '茶摊伙计单独入室。桌位图和账纸留在案前，其他证人的记录暂不出示。' }] } })
+    if (completed.has('c2-02-luxiaoling-statement') && completed.has('c2-02-lusheng-statement') && completed.has('c2-02-spouse-statement') && completed.has('c2-02-family-comparison') === false) choices.push({ id: 'c2-02-compare-family', label: '对照卢小绫、卢盛与夫家妇人的口供', nextNode: 'chapter2.case2-inquiry.family.compare', effects: [], outcomeNarrative: { title: '三份家庭相关口供并列', tone: 'tense', paragraphs: [{ kind: 'prose', text: '三份口供已经分别签押。现在把主动离开、后门争执和逼契部分并列，不让其中一人的推测替另一人的亲见。' }] } })
+    if (completed.has('c2-02-credential-comparison') === false && completed.has('c2-02-tea-clerk-statement') && state.chapter2Investigation.caseMaterialIds?.includes('credential-scope-record') && state.chapter2Investigation.caseMaterialIds?.includes('credential-handover-record')) choices.push({ id: 'c2-02-compare-credential', label: '对照凭照权限与茶摊交接', nextNode: 'chapter2.case2-inquiry.credential.compare', effects: [], outcomeNarrative: { title: '凭照材料并列核对', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '权限记录、交割记录和茶摊证言已经具备，先把能互相接上的部分写清。' }] } })
+    if (completed.has('c2-02-luxiaoling-statement') && completed.has('c2-02-lusheng-statement') && completed.has('c2-02-spouse-statement') && completed.has('c2-02-tea-clerk-statement') && completed.has('c2-02-family-comparison') && completed.has('c2-02-credential-comparison')) choices.push({ id: 'c2-02-open-verification', label: '四份口供与两份对照均已入卷，进入材料核验', nextNode: 'chapter2.case2-close-review', effects: [], outcomeNarrative: { title: '第二案材料齐备', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '八项调查材料、四份签押证言与两份对照记录依形成次序封好。调查、闻讯、整理和对照至此分开完成。' }] } })
+    return choices
+  }
+  if (state.chapter === 'chapter2' && ['chapter2.case2-inquiry.luxiaoling.signed', 'chapter2.case2-inquiry.lusheng.signed', 'chapter2.case2-inquiry.spouse.signed', 'chapter2.case2-inquiry.tea-clerk.signed'].includes(state.mainlineNode)) {
+    return [{ id: 'c2-02-return-inquiry-select', label: '封存这份口供，回到闻讯对象选择', nextNode: 'chapter2.case2-inquiry-select', effects: [], outcomeNarrative: { title: '单份口供先行封存', tone: 'quiet', paragraphs: [{ kind: 'prose', text: '这份签押口供单独入夹，下一名证人不会看见前一份记录。' }] } }]
+  }
+  if (state.chapter === 'chapter2' && state.mainlineNode === 'chapter2.case2-authority-review') {
+    return [
+      { id: 'protect-witness-and-deed', label: '先保全卢小绫与副契原件', nextNode: 'chapter2.case2-closed', effects: [], outcomeNarrative: { title: '先让人能站着说完', tone: 'hopeful', paragraphs: [{ kind: 'prose', text: '你先请差役守住废染坊，把卢小绫和副契原件一并保全。她的主动藏身、离开前的逼契和副契原件完整入卷；凭照交割链保留现有记录，继续追查时辰和别号。' }, { kind: 'dialogue', text: '覃保坤道：“人和原件先稳住。凭照经过谁的手，案卷还追得上；但不能拿空白替上游定名。”' }] } },
+      { id: 'trace-credential-handover', label: '先保全凭照交割链', nextNode: 'chapter2.case2-closed', effects: [], outcomeNarrative: { title: '茶摊上的交割先封', tone: 'tense', paragraphs: [{ kind: 'prose', text: '你先封住茶摊交割记录、时辰和经手别号。凭照使用链更清楚；回到染坊时，副契原件受潮一角，只能把抄件随卷，卢小绫仍以更谨慎的方式作证。' }, { kind: 'dialogue', text: '覃保坤道：“链条先保住，缺的原件不能凭想象补回。上游是谁，仍只写到现在这一步。”' }] } },
+    ]
+  }
   if (state.chapter === 'chapter2' && ['chapter2.rain-night-transfer', 'chapter2.case1-investigation'].includes(state.mainlineNode)) {
     const completed = new Set(state.chapter2Investigation.completedActionIds ?? [])
     const routeStarters = [
@@ -887,6 +1018,56 @@ export function submitChapter2Case1Verification(state: GameState, questionId: st
     : `${finding.text}${finding.openEnding}`
   const narrative: NarrativeBlock = { title: finding.title, tone: 'quiet', paragraphs: [{ kind: 'prose', text }] }
   return { ok: true, state: { ...state, phase: 'result', chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds }, currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: closed ? 'chapter2.case1-authority-review' : 'chapter2.case1-close-review' }, recentEvents: [{ id: `chapter2-case1-verify-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: finding.effects }, ...state.recentEvents].slice(0, 20), lastCommandError: null } }
+}
+
+export function submitChapter2Case2Verification(state: GameState, questionId: string, selectedMaterialIds: string[]): CommandResult {
+  if (state.screen !== 'game' || state.phase !== 'mainline' || state.chapter !== 'chapter2' || state.mainlineNode !== 'chapter2.case2-close-review') return withFailure(state, 'invalid_phase')
+  const expected = [...(chapter2Case2VerificationSets[questionId] ?? [])]
+  const selected = [...new Set(selectedMaterialIds)]
+  const held = state.chapter2Investigation.caseMaterialIds ?? []
+  const valid = expected.length > 0 && selected.length === expected.length && selected.every((id) => held.includes(id)) && [...selected].sort().join('|') === [...expected].sort().join('|')
+  if (!valid) {
+    const narrative: NarrativeBlock = {
+      title: '材料还不能证明这条命题',
+      tone: 'tense',
+      paragraphs: [{ kind: 'prose', text: '这些材料各自都是真的，但放在一起仍有缺口，或者混入了与本题无关的材料。书记官把呈报退回待核栏，要求按命题重新挑选精确组合。' }],
+    }
+    return { ok: true, state: { ...state, phase: 'result', currentNarrative: narrative, pendingResult: { kind: 'mainline_choice', nextNode: 'chapter2.case2-close-review' }, lastCommandError: null } }
+  }
+
+  const fixedFactIds = [...new Set([...state.chapter2Investigation.fixedFactIds, questionId])]
+  const findings: Record<string, { title: string; text: string; effects: string[] }> = {
+    'voluntary-hiding-pressure': {
+      title: '主动藏身与离开前压力分开成立',
+      text: '靛色脚印把卢小绫从后门引向废染坊，夫家妇人也看见她朝同一方向离开；她的签押口供说明这是自己走的。撕裂衣带和逼契部分又证明她离开前受到拉扯与压力。案卷不能把主动藏身改写成中间人绑架。',
+      effects: ['卢小绫主动藏身得到确认', '离开前存在拉扯与逼契压力'],
+    },
+    'debt-coercion': {
+      title: '债务逼契单独成立',
+      text: '继承副契确认房屋承继范围，债册固定卢盛的欠款与催还，代管私约写出逾期处分房契的压力；卢盛的签押口供又承认自己追问并逼她交契。这些材料证明债务逼契，不证明他掌握或冒用了封验凭照。',
+      effects: ['卢盛以债务压力逼迫交出继承文书'],
+    },
+    'credential-abuse-handover': {
+      title: '凭照滥用与中间人交接成立',
+      text: '凭照原件确为真，但权限核验记录证明它没有查封民宅或强取房契的权限；茶摊交割记录和伙计签押证言固定了凭照经中间人递交到卢盛一方的过程。材料证明滥用和交接，仍没有证明凭照最初从谁手中流出。',
+      effects: ['真实封验凭照被滥用并经中间人交接'],
+    },
+  }
+  const finding = findings[questionId]
+  const allFixed = ['voluntary-hiding-pressure', 'debt-coercion', 'credential-abuse-handover'].every((id) => fixedFactIds.includes(id))
+  const narrative: NarrativeBlock = { title: finding.title, tone: 'quiet', paragraphs: [{ kind: 'prose', text: finding.text }] }
+  return {
+    ok: true,
+    state: {
+      ...state,
+      phase: 'result',
+      chapter2Investigation: { ...state.chapter2Investigation, fixedFactIds },
+      currentNarrative: narrative,
+      pendingResult: { kind: 'mainline_choice', nextNode: allFixed ? 'chapter2.case2-authority-review' : 'chapter2.case2-close-review' },
+      recentEvents: [{ id: `chapter2-case2-verify-${state.recentEvents.length}`, chapter: 'chapter2' as const, title: narrative.title, summary: narrative.paragraphs[0].text, effects: finding.effects }, ...state.recentEvents].slice(0, 20),
+      lastCommandError: null,
+    },
+  }
 }
 
 function withFailure(state: GameState, reason: NonNullable<GameState['lastCommandError']>): CommandResult {

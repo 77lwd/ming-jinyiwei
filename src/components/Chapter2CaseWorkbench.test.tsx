@@ -50,4 +50,27 @@ describe('Chapter2CaseRecord', () => {
     expect(screen.getByText('赵七口供 · 闻讯未完')).toBeInTheDocument()
     expect(screen.queryByText('船夫陈老桨证言 · 已复述签押')).not.toBeInTheDocument()
   })
+
+  it('shows second-case investigation lines, witness status, and fixed propositions', () => {
+    render(<Chapter2CaseRecord node="chapter2.case2-close-review" investigation={{
+      activeCaseId: 'empty-dowry-house',
+      completedActionIds: [
+        'c2-02-inspect-backdoor', 'c2-02-inspect-dyehouse', 'c2-02-recover-deed', 'c2-02-check-debt-ledger',
+        'c2-02-verify-credential', 'c2-02-trace-credential-handover', 'c2-02-luxiaoling-statement',
+      ],
+      caseMaterialIds: ['indigo-footprints', 'torn-dowry-sash', 'inheritance-deed', 'debt-ledger', 'coercive-private-contract', 'inspection-credential', 'credential-scope-record', 'credential-handover-record', 'luxiaoling-signed-statement'],
+      completedCaseIds: [],
+      branchIds: [],
+      materialIds: ['indigo-footprints', 'torn-dowry-sash', 'inheritance-deed', 'debt-ledger', 'coercive-private-contract', 'inspection-credential', 'credential-scope-record', 'credential-handover-record', 'luxiaoling-signed-statement'],
+      fixedFactIds: ['voluntary-hiding-pressure'],
+      registerVerified: false,
+    }} />)
+
+    expect(screen.getByText('后门与废染坊 · 已完成')).toBeInTheDocument()
+    expect(screen.getByText('副契与债务压力 · 已完成')).toBeInTheDocument()
+    expect(screen.getByText('凭照与中间人交接 · 已完成')).toBeInTheDocument()
+    expect(screen.getByText('卢小绫口供 · 已复述签押')).toBeInTheDocument()
+    expect(screen.getByText(/主动藏身与离开前压力/)).toBeInTheDocument()
+    expect(screen.getByText('卢盛口供 · 闻讯未完')).toBeInTheDocument()
+  })
 })

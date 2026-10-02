@@ -22,4 +22,17 @@ describe('DeveloperMenu', () => {
 
     expect(onStart).toHaveBeenCalledWith('chapter2-case1-end')
   })
+
+  it('offers second-case checkpoints for investigation, inquiry, verification, and closure', () => {
+    const onStart = vi.fn()
+    render(<DeveloperMenu onStart={onStart} />)
+
+    fireEvent.click(screen.getByRole('button', { name: '开发者模式' }))
+    fireEvent.click(screen.getByRole('button', { name: '第二案 · 开始核验' }))
+
+    expect(onStart).toHaveBeenCalledWith('chapter2-case2-verification')
+    expect(screen.getByRole('button', { name: '第二案 · 开始调查' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '第二案 · 开始闻讯' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '第二案 · 结案结果' })).toBeInTheDocument()
+  })
 })

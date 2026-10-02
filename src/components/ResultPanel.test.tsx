@@ -47,6 +47,25 @@ describe('ResultPanel', () => {
     expect(screen.getByRole('button', { name: /进入案后交接/ })).toBeInTheDocument()
   })
 
+  it('separates confirmed facts, responsibility, and unresolved questions for case two closure', () => {
+    render(<ResultPanel
+      chapter="chapter2"
+      node="chapter2.case2-authority-review"
+      narrative={{ title: '先让人能站着说完', paragraphs: [{ kind: 'prose', text: '第二案正式封结。' }] }}
+      event={{ id: 'protect-witness-and-deed', chapter: 'chapter2', title: '先让人能站着说完', summary: '第二案正式封结。', effects: [] }}
+      onConfirm={vi.fn()}
+    />)
+
+    expect(screen.getByText('空屋里的嫁妆 · 已正式封结')).toBeInTheDocument()
+    expect(screen.getByText('已确认事实')).toBeInTheDocument()
+    expect(screen.getByText('责任结果')).toBeInTheDocument()
+    expect(screen.getByText('仍待追查')).toBeInTheDocument()
+    expect(screen.getByText(/主动藏身，不是被中间人直接绑走/)).toBeInTheDocument()
+    expect(screen.getByText(/卢盛以债务逼迫/)).toBeInTheDocument()
+    expect(screen.getByText(/凭照最初如何流出/)).toBeInTheDocument()
+    expect(screen.queryByText(/绑架已确认/)).not.toBeInTheDocument()
+  })
+
   it('uses a casework action for a verification result instead of a generic continue label', () => {
     render(<ResultPanel
       node="chapter1.day2-verify"
