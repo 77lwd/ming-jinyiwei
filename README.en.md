@@ -6,7 +6,7 @@
 
 A desktop-first historical mystery interactive fiction game. You play Liao Weida, a junior Jinyiwei officer newly assigned to the Northern Garrison. Read people and places, inspect physical facts, verify materials, request authority when it is needed, and live with the consequences of every bounded decision.
 
-Current version: `v0.2.1`
+Current version: `v0.2.2`
 
 Version highlights and release history are maintained in Chinese: [中文更新说明](CHANGELOG.md).
 
@@ -20,7 +20,7 @@ Version highlights and release history are maintained in Chinese: [中文更新�
 | Target platform | Desktop browsers with keyboard and mouse input |
 | Not in scope | Mobile support, PWA work, store releases, and a standalone free-action loop |
 
-`v0.2.1` adds the second case of Chapter 2, *The Dowry in the Empty House*, including investigation, separate interviews, testimony review, evidence verification, and closure. The remaining Chapter 2 content and later chapters are still being developed.
+`v0.2.2` keeps the playable content from the second case of Chapter 2, *The Dowry in the Empty House*, and adds a detailed Chinese installation and launch guide to the main README. The remaining Chapter 2 content and later chapters are still being developed.
 
 ## Playable Content
 
@@ -77,8 +77,8 @@ Established Chapter 1 rules include:
 Install Node.js and npm first. The repository is currently private, so clone it with a GitHub account that has access.
 
 ```powershell
-git clone https://github.com/77lwd/ming-jinyiwei-mvp.git
-cd ming-jinyiwei-mvp
+git clone https://github.com/77lwd/ming-jinyiwei.git
+cd ming-jinyiwei
 npm install
 npm run dev
 ```
@@ -142,4 +142,4 @@ The project must always retain media fallbacks: missing, failed, or replaced ima
 
 ## Version
 
-`v0.2.1` covers the prologue, Chapter 1, and the first two cases of Chapter 2. Each GitHub update increments the final version number; Chapter 3 starts at `v0.3.0`. See the [Chinese changelog](CHANGELOG.md) for version-by-version details.
+`v0.2.2` covers the prologue, Chapter 1, and the first two cases of Chapter 2. Each GitHub update increments the final version number; Chapter 3 starts at `v0.3.0`. See the [Chinese changelog](CHANGELOG.md) for version-by-version details.
